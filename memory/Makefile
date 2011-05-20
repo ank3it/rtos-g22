@@ -1,0 +1,28 @@
+# Makefile
+# S11-G22
+# 2011/05/18
+
+CC=m68k-elf-gcc
+CXX=m68k-elf-g++
+#CFLAGS= -Wall -m5307 -pipe -nostdlib
+#CFLAGS= -Wall -m5307 -pipe -nostdlib -D_DEBUG_
+CFLAGS= -Wall -m5307 -pipe -nostdlib -D_CFSERVER_ -D_DEBUG_
+LD=m68k-elf-gcc
+AS=m68k-elf-as
+AR=m68k-elf-ar
+ARFLAGS=
+OBJCPY=m68k-elf-objcopy
+ASM=../shared/start.s
+LDFLAGS=-T../shared/rtx.ld -Wl,-Map=main.map
+
+OBJS=../dbug/dbug.o memory.o
+
+memory.o: memory.c memory.h
+	$(CC) $(CFLAGS) -c memory.c
+
+../dbug/dbug.o: ../dbug/dbug.c ../dbug/dbug.h
+	make -C ../dbug CFLAGS='$(CFLAGS)'	
+
+.PHONY: clean
+clean:
+	rm -f *.s19 *.o *.bin *.map dbug/*.o
