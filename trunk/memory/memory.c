@@ -10,10 +10,6 @@
 
 #define NUM_MEM_BLKS 32
 
-/**
- * @brief memory management initialization routine
- */
-
 extern int __end;
 int* head;
 int* tail;
@@ -54,6 +50,9 @@ CHAR* itoa( int i ) {
 	return out_track2;
 }
 
+/**
+ * @brief: Memory initialization routine
+ */
 void init_memory()
 {
 	int i = 0 ;

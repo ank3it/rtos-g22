@@ -1,6 +1,6 @@
 # Makefile
 # S11-G22
-# 2011/05/18
+# 2011/05/22
 
 CC=m68k-elf-gcc
 CXX=m68k-elf-g++
@@ -13,21 +13,16 @@ AS=m68k-elf-as
 AR=m68k-elf-ar
 ARFLAGS=
 OBJCPY=m68k-elf-objcopy
-OBJDMP=m68k-elf-objdump
-ASM=../shared/start.s serial_entry.s
-LDFLAGS=-T../shared/rtx.ld -Wl,-Map=serial.map
+ASM=../shared/start.s
+LDFLAGS=-T../shared/rtx.ld -Wl
 
-SERIAL_OBJS=../dbug/dbug.o uart1.o serial.o
+OBJS=../dbug/dbug.o process.o
 
 # Note, GCC builds things in order, it's important to put yhe
 #  ASM first, so that it is located at the beginning of our program.
-serial.s19: serial_entry.s $(SERIAL_OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o serial.bin $(ASM) $(SERIAL_OBJS) 
-	$(OBJCPY) --output-format=srec serial.bin serial.s19
-	$(OBJDMP) -xdC serial.bin > serial.lst
-
-uart1.o: uart1.c uart1.h
-	$(CC) $(CFLAGS) -c uart1.c
+process.s19: $(OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o process.bin $(ASM) $(OBJS) 
+	$(OBJCPY) --output-format=srec process.bin process.s19
 
 dbug.o: ../dbug/dbug.c ../dbug/dbug.h
 	make -C ../dbug CFLAGS='$(CFLAGS)'
