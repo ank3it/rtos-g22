@@ -7,13 +7,13 @@
  */
 
 #include "../shared/rtx_inc.h"
-//#include "../dbug/dbug.h"
 #include "../uart1/uart1.h"
+
+#define MaxSec	86400
 
 /*
  * Global Variables
  */
-SINT32 MaxSec = 86400;
 SINT32 Counter = 86390;
 
 
@@ -25,53 +25,17 @@ int __main( void )
     return 0;
 }
 
-CHAR* itoa( int i ) {
-	int count = 0;
-	CHAR* out = "";
-	CHAR out_rev = "";
-	CHAR out_rev2 = "";
-	CHAR* out_track = out;
-	CHAR* out_track2 = out;
-	int val = 0;
-	
-	while( i != 0 ) {
-		val = i % 10;
-		val = val + 48;
-		*out = (CHAR*)val;
-		*out++;
-		i = i / 10;
-		count++;
-	}
-	
-	count = count / 2;
-	
-	*out = '\0';
-	*out--;
-	
-	while( count != 0 ) {
-		out_rev = *out;
-		out_rev2 = *out_track;
-		*out_track = out_rev;
-		*out = out_rev2;
-		*out--;
-		*out_track++;
-		count--;
-	}
-	
-	return out_track2;
-}
-
-
 /*
  * This function is called by the assembly STUB function
  */
 VOID c_timer_handler( VOID )
 {
+    TIMER0_TER = 2;								/* Acknowledge interrupt */ 
+
 	int hours = 0 ;
 	int mins = 0 ;
 	int secs  = 0;
-	int print_num = 0;
-	CHAR *out = "";
+	CHAR timeStr[] = "00:00:00\r";
 	
     Counter++;
 	if ( Counter == MaxSec ) {
@@ -83,43 +47,18 @@ VOID c_timer_handler( VOID )
 	hours = mins / 60;
 	mins = mins % 60;
 	
-	print_string((CHAR *)( "\r" ) );
+	timeStr[0] = ( hours / 10 ) % 10 + 48;
+	timeStr[1] = hours % 10 + 48;
 	
-	print_num = (hours / 10)%10;
-	out = (CHAR *)(print_num+48);
-	print_char(out );
-	print_num=0;
-	print_num = hours % 10;
-	out = (CHAR *)(print_num+48);
-	print_char(out);
+	timeStr[3] = ( mins / 10 ) % 10 + 48;
+	timeStr[4] = mins % 10 + 48;
 	
-	print_string((CHAR *)":");
+	timeStr[6] = ( secs / 10 ) % 10 + 48;
+	timeStr[7] = secs % 10 + 48;
 	
-	print_num=0;print_num = (mins / 10)%10;
-	out = (CHAR *)(print_num+48);print_char(out );
-	print_num=0;print_num = mins % 10;
-	out = (CHAR *)(print_num+48);print_char(out );
-	
-	print_string((CHAR *)":" );
-	
-	print_num=0;print_num = (secs / 10)%10;
-	out = (CHAR *)(print_num+48);print_char(out);
-	print_num=0;print_num = secs % 10;
-	out = (CHAR *)(print_num+48);print_char(out);
-	
-	
-	
-    //rtx_dbug_out_char('.');
-	
-	
-	    /*
-     * Ack the interupt
-     */
-    TIMER0_TER = 2;
+	asm( "move.w #0x2000,%sr" );				/* Re-Enable all interrupts */
+	print_string( timeStr );					/* Print to RTX console */
 }
-
-
-
 
 SINT32 coldfire_vbr_init( VOID )
 {
@@ -133,8 +72,6 @@ SINT32 coldfire_vbr_init( VOID )
     
     return RTX_SUCCESS;
 }
-
-
 
 /*
  * Entry point, check with m68k-coff-nm
@@ -155,8 +92,6 @@ int main( void )
     asm( "move.l #asm_timer_entry,%d0" );
     asm( "move.l %d0,0x10000078" );
 	
-	
-
     /*
      * Setup to use auto-vectored interupt level 6, priority 3
      */
@@ -182,14 +117,8 @@ int main( void )
     /* Let the timer interrupt fire, lower running priority */
     asm( "move.w #0x2000,%sr" );
 
-	print_string( ( CHAR * ) "This should print in the rtx console!" );
-	
     /* Wait for 5 seconds to pass */
 //    rtx_dbug_outs( (CHAR *) "Waiting approx. 5 seconds for Counter > 500\n\r" );
     for(;;){}
     return 0;
 }
-
-
-
-

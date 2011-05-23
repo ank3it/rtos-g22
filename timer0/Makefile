@@ -35,4 +35,5 @@ timer.o: timer.c
 
 .PHONY: clean
 clean:
-	rm -f *.s19 *.o *.bin *.lst *.map ../dbug/dbug.o ../uart1/uart1.o
+	rm -f *.s19 *.o *.bin *.lst *.map
+	make clean -C ../uart1/

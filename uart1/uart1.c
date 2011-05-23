@@ -1,4 +1,4 @@
-/*
+/**
  * @group: S11-G22
  * @file: uart1.c
  * @brief: UART1 I/O
@@ -8,7 +8,7 @@
 
 #include "uart1.h"
 
-/*
+/**
  * @brief: Initialize UART1 for I/O
  */
 VOID uart1_init()
@@ -97,7 +97,7 @@ VOID c_serial_handler( VOID )
 	return;
 }
 
-/*
+/**
  * @brief: Puts the given character in the UART1 transmitter buffer
  * @param: c Character to place into the buffer
  */
@@ -110,11 +110,11 @@ VOID print_char( CHAR c )
 	SERIAL1_IMR = 3;
 }
 
-/*
+/**
  * @brief: Iterates through a string, printing each character
  * @param: s String to be printed
  */
-VOID print_string( CHAR * s )
+VOID print_string( CHAR *s )
 {
 	if ( s == NULL )
 	{
