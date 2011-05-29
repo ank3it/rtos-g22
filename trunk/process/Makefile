@@ -16,7 +16,7 @@ OBJCPY=m68k-elf-objcopy
 ASM=../shared/start.s
 LDFLAGS=-T../shared/rtx.ld -Wl
 
-OBJS=../dbug/dbug.o process.o
+OBJS=../dbug/dbug.o ../util/util.o  process.o
 
 # Note, GCC builds things in order, it's important to put yhe
 #  ASM first, so that it is located at the beginning of our program.
@@ -27,6 +27,11 @@ process.s19: $(OBJS)
 dbug.o: ../dbug/dbug.c ../dbug/dbug.h
 	make -C ../dbug CFLAGS='$(CFLAGS)'
 
+util.o: ../util/util.c ../util/util.h
+	make -C ../util CFLAGS='$(CFLAGS)'
+
 .PHONY: clean
 clean:
-	rm -f *.s19 *.o *.bin *.lst *.map ../dbug/dbug.o
+	rm -f *.s19 *.o *.bin *.lst *.map
+	make clean -C ../dbug/
+	make clean -C ../util/
