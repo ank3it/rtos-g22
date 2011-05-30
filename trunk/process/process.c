@@ -16,6 +16,9 @@ typedef struct
 	int priority;
 	int state;
 	int block_type;
+	char* process_data;
+	int* process_code;
+	BOOLEAN context_switching;
 } process;
 
 typedef struct
@@ -28,6 +31,10 @@ typedef struct
 extern BYTE __end;
 queue_node *head;
 queue_node *tail;
+
+//process object
+process process_node;
+
 
 /* Testing functions (Move to external file) */
 int __main(void)
@@ -149,3 +156,67 @@ int get_process_priority(int process_ID)
 	/* Return the given process's id */
 	return RTX_ERROR;
 }
+
+
+
+
+/**
+ * @brief: Enque the process which is passed to this funtion
+ * @param: 
+ * @return:
+ */ 
+int deque_ready_queue(int process_ID)
+{
+	
+	return RTX_ERROR;
+}
+
+
+
+
+
+
+// check the state and put in ready or block queue
+
+int release_processor()
+{
+	
+	/*PUT A BREAK-POINT here and check what process we get after calling a TRAP*/
+	
+	int next_procID;
+	
+	//if new state
+	if(process_node.state == STATE_NEW){
+		load_context_swiching(process_node.ID);
+	}	
+	
+	//if blocked state
+	if(process_node.state == STATE_BLOCKED){
+		
+		
+		//switch between processes 
+		//in order to get the previous process
+		save_contextswitching();
+		
+		//add to blocked queue
+		add_to_blocked(process_node.ID);
+		
+	}
+	
+	if(process_node.state == STATE_READY){
+		add_to_ready(process_node.ID);
+	}
+	
+	
+	next_procID = deque_release_process();
+	// Check the next process in Ready Queue
+	
+	if( process_node.context_switching == TRUE){	
+		
+		// Context Switching True - If Context Switching True, restore context switch
+		// restore_cs
+		load_context_swiching(next_procID);
+	}
+	
+}
+		
