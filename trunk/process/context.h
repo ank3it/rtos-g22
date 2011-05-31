@@ -2,9 +2,9 @@
 #define _CONTEXT_H_
 
 #include "process.h"
-#include "dbug.h"
+#include "../dbug/dbug.h"
 
-void save_context(INT PID);
-void load_context(INT PID);
+void save_context(int PID);
+void load_context(int PID);
 
 #endif /* _CONTEXT_H_ */

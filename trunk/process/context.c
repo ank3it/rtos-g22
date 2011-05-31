@@ -4,7 +4,7 @@ process* curr_process;
 process* next_process;
 int* sp;
 
-void save_context( INT PID)
+void save_context( int PID)
 {
 	curr_process = get_proc(PID);
 
@@ -35,7 +35,7 @@ void save_context( INT PID)
 	
 }
 
-void load_context(INT PID) {
+void load_context(int PID) {
 	next_process = get_proc(PID);
 	sp = next_process->curr_SP;
 	
@@ -44,7 +44,7 @@ void load_context(INT PID) {
 	rtx_dbug_outs( itoa(next_process) );
 #endif
 
-	if(curr_SP != NULL)
+	if(sp != NULL)
 	{
 		asm("move.l sp, %a7");  /* load a7 with stack_ptr*/
 			

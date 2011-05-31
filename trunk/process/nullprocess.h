@@ -1,8 +1,8 @@
 #ifndef _NULLPROCESS_H_
 #define _NULLPROCESS_H_
 
-#include "rtx_inc.h"
-#include "dbug.h"
+//#include "rtx_inc.h"
+#include "../dbug/dbug.h"
 
 void null_process();
 
