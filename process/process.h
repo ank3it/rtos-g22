@@ -11,6 +11,7 @@
 #include "../shared/rtx_inc.h"
 #include "../dbug/dbug.h"
 #include "../util/util.h"
+#include "context.h"
 
 #define NULL_PROCESS_ID			0
 
@@ -24,12 +25,28 @@
 /* Process states */
 #define STATE_NEW				0
 #define STATE_READY				1
-#define STATE_BLOCKED			2
+#define STATE_RUNNING			3
+#define STATE_BLOCKED			4
 
 /* Blocked types */
 #define BLOCK_NONE				0
 #define BLOCK_MEMORY			1
 #define BLOCK_RECEIVE			2
+
+
+/*
+ * Global variables
+ */
+typedef struct
+{
+	int ID;
+	int priority;
+	int state;
+	int block_type;
+	char* process_data;
+	int* process_code;
+	int* curr_SP;
+} process;
 
 /* Create ready and blocked queues of given size */
 int create_queues(int size);

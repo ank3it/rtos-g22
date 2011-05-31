@@ -2,7 +2,7 @@
 
 void null_process()
 {
-	while(TRUE)
+	while(1)
 	{
 		rtx_dbug_out_char("------Null Process------\n\r");
 		release_processor();

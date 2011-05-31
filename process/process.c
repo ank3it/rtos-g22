@@ -7,20 +7,6 @@
 
 #include "process.h"
 
-/*
- * Global variables
- */
-typedef struct
-{
-	int ID;
-	int priority;
-	int state;
-	int block_type;
-	char* process_data;
-	int* process_code;
-	BOOLEAN context_switching;
-} process;
-
 typedef struct
 {
 	int val;
@@ -33,8 +19,7 @@ queue_node *head;
 queue_node *tail;
 
 //process object
-process process_node;
-
+process curr_process;
 
 /* Testing functions (Move to external file) */
 int __main(void)
@@ -186,37 +171,31 @@ int release_processor()
 	int next_procID;
 	
 	//if new state
-	if(process_node.state == STATE_NEW){
-		load_context_swiching(process_node.ID);
-	}	
+	/*if(curr_process.state == STATE_NEW){
+		load_context(curr_process.ID);
+	}*/	
+
+			
+	//switch between processes 
+	//in order to get the previous process
+	save_context(curr_process.ID);
 	
 	//if blocked state
-	if(process_node.state == STATE_BLOCKED){
-		
-		
-		//switch between processes 
-		//in order to get the previous process
-		save_contextswitching();
+	if(curr_process.state == STATE_BLOCKED){
 		
 		//add to blocked queue
-		add_to_blocked(process_node.ID);
+		add_to_blocked(curr_process.ID);
 		
 	}
 	
-	if(process_node.state == STATE_READY){
-		add_to_ready(process_node.ID);
+	if(curr_process.state == STATE_READY){
+		add_to_ready(curr_process.ID);
 	}
 	
 	
 	next_procID = deque_release_process();
 	// Check the next process in Ready Queue
-	
-	if( process_node.context_switching == TRUE){	
-		
-		// Context Switching True - If Context Switching True, restore context switch
-		// restore_cs
-		load_context_swiching(next_procID);
-	}
-	
+
+	load_context(next_procID);
 }
 		
