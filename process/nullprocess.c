@@ -1,6 +1,4 @@
-#include "rtx_inc.h"
-#include "dbug.h"
-
+#include "nullprocess.h"
 
 void null_process()
 {
