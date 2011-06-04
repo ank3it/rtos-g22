@@ -176,21 +176,17 @@ int release_processor()
 	save_context(curr_process->ID);
 	
 	//if blocked state
-	if(curr_process->state == STATE_BLOCKED){
+	/*if(curr_process->state == STATE_BLOCKED){
 		
 		//add to blocked queue
 		add_to_blocked(curr_process->ID);
 		
-	}
+	}*/
 	
 	if(curr_process->state == STATE_READY){
 		add_to_ready(curr_process->ID);
 	}
-	
-	
-	next_procID = deque_release_process();
-	// Check the next process in Ready Queue
 
-	load_context(next_procID);
+	scheduler_run();
 }
 		
