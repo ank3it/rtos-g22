@@ -142,9 +142,6 @@ int get_process_priority(int process_ID)
 	return RTX_ERROR;
 }
 
-
-
-
 /**
  * @brief: Enque the process which is passed to this funtion
  * @param: 
@@ -187,6 +184,6 @@ int release_processor()
 		add_to_ready(curr_process->ID);
 	}
 
-	scheduler_run();
+	//scheduler_run();
 }
 		
