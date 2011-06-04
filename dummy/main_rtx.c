@@ -30,6 +30,7 @@ int __main( void )
 int main() 
 {
 
+	int i;
     rtx_dbug_outs((CHAR *)"rtx: Entering main()\r\n");
 
     /* get the third party test proc initialization info */
@@ -41,7 +42,8 @@ int main()
      * Instead, the scheduler picks the test process to run
      * and the os context switches to the chosen test process
      */
-    g_test_proc[0].entry(); /* DO NOT invoke test proc this way !!*/ 
+	for (i =0; i< NUM_TEST_PROCS; i++ ) 
+    g_test_proc[i].entry(); /* DO NOT invoke test proc this way !!*/ 
 
     return 0;
 }

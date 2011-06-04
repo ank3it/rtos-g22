@@ -19,7 +19,7 @@ queue_node *head;
 queue_node *tail;
 
 //process object
-process curr_process;
+process* curr_process;
 
 /* Testing functions (Move to external file) */
 int __main(void)
@@ -156,11 +156,6 @@ int deque_ready_queue(int process_ID)
 	return RTX_ERROR;
 }
 
-
-
-
-
-
 // check the state and put in ready or block queue
 
 int release_processor()
@@ -178,18 +173,18 @@ int release_processor()
 			
 	//switch between processes 
 	//in order to get the previous process
-	save_context(curr_process.ID);
+	save_context(curr_process->ID);
 	
 	//if blocked state
-	if(curr_process.state == STATE_BLOCKED){
+	if(curr_process->state == STATE_BLOCKED){
 		
 		//add to blocked queue
-		add_to_blocked(curr_process.ID);
+		add_to_blocked(curr_process->ID);
 		
 	}
 	
-	if(curr_process.state == STATE_READY){
-		add_to_ready(curr_process.ID);
+	if(curr_process->state == STATE_READY){
+		add_to_ready(curr_process->ID);
 	}
 	
 	
