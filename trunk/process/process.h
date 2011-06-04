@@ -24,7 +24,7 @@ typedef struct
 	int state;
 	int block_type;
 	// char* process_data; // Removed as when we call memory_blocks, pointers to them will get stored in local variables which will automatically get pushed on top of the stack
-	int* entry;
+	VOID   (*entry)();
 	int* curr_SP;
 	int sz_stack;
 } process;

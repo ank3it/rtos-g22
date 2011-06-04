@@ -16,7 +16,7 @@ OBJCPY=m68k-elf-objcopy
 ASM=../shared/start.s
 LDFLAGS=-T../shared/rtx.ld -Wl
 
-OBJS=../dbug/dbug.o ../util/util.o  process.o context.o nullprocess.o
+OBJS=../dbug/dbug.o ../util/util.o  process.o context.o nullprocess.o init.o
 
 # Note, GCC builds things in order, it's important to put yhe
 #  ASM first, so that it is located at the beginning of our program.
