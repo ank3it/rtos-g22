@@ -12,27 +12,7 @@
 #include "../dbug/dbug.h"
 #include "../util/util.h"
 #include "context.h"
-
-#define NULL_PROCESS_ID			0
-
-/* Process Priorities */
-#define PRIORITY_0				0
-#define PRIORITY_1				1
-#define PRIORITY_2				2
-#define PRIORITY_3				3
-#define NULL_PROCESS_PRIORITY	4
-
-/* Process states */
-#define STATE_NEW				0
-#define STATE_READY				1
-#define STATE_RUNNING			3
-#define STATE_BLOCKED			4
-
-/* Blocked types */
-#define BLOCK_NONE				0
-#define BLOCK_MEMORY			1
-#define BLOCK_RECEIVE			2
-
+#include "defs.h"
 
 /*
  * Global variables
@@ -43,10 +23,13 @@ typedef struct
 	int priority;
 	int state;
 	int block_type;
-	char* process_data;
-	int* process_code;
+	// char* process_data; // Removed as when we call memory_blocks, pointers to them will get stored in local variables which will automatically get pushed on top of the stack
+	int* entry;
 	int* curr_SP;
+	int sz_stack;
 } process;
+
+process all_processes[NUM_PROCS];
 
 /* Create ready and blocked queues of given size */
 int create_queues(int size);

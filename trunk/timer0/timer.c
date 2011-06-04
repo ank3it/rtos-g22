@@ -8,6 +8,7 @@
 
 #include "../shared/rtx_inc.h"
 #include "../uart1/uart1.h"
+#include "timer.h"
 
 #define MaxSec	86400
 
@@ -76,7 +77,7 @@ SINT32 coldfire_vbr_init( VOID )
 /*
  * Entry point, check with m68k-coff-nm
  */
-int main( void )
+void timer_init( void )
 {
     UINT32 mask;
 
@@ -116,9 +117,4 @@ int main( void )
 
     /* Let the timer interrupt fire, lower running priority */
     asm( "move.w #0x2000,%sr" );
-
-    /* Wait for 5 seconds to pass */
-//    rtx_dbug_outs( (CHAR *) "Waiting approx. 5 seconds for Counter > 500\n\r" );
-    for(;;){}
-    return 0;
 }

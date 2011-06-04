@@ -17,64 +17,39 @@
 void test1()
 {
     rtx_dbug_outs((CHAR *)"rtx_test: test1\r\n");
-    
-    while (1) 
-    {
-        /* execute a rtx primitive to test */
-        g_test_fixture.release_processor();
-    }
+    g_test_fixture.release_processor();
 }
 
 /* third party dummy test process 2 */ 
 void test2()
 {
     rtx_dbug_outs((CHAR *)"rtx_test: test2\r\n");
-    while (1) 
-    {
-        /* execute a rtx primitive to test */
-        g_test_fixture.release_processor();
-    }
+    g_test_fixture.release_processor();
 }
 /* third party dummy test process 3 */ 
 void test3()
 {
     rtx_dbug_outs((CHAR *)"rtx_test: test3\r\n");
-    while (1) 
-    {
-        /* execute a rtx primitive to test */
-        g_test_fixture.release_processor();
-    }
+    g_test_fixture.release_processor();
 }
 
 /* third party dummy test process 4 */ 
 void test4()
 {
     rtx_dbug_outs((CHAR *)"rtx_test: test4\r\n");
-    while (1) 
-    {
-        /* execute a rtx primitive to test */
-        g_test_fixture.release_processor();
-    }
+    g_test_fixture.release_processor();
 }
 /* third party dummy test process 5 */ 
 void test5()
 {
     rtx_dbug_outs((CHAR *)"rtx_test: test5\r\n");
-    while (1) 
-    {
-        /* execute a rtx primitive to test */
-        g_test_fixture.release_processor();
-    }
+    g_test_fixture.release_processor();
 }
 /* third party dummy test process 6 */ 
 void test6()
 {
     rtx_dbug_outs((CHAR *)"rtx_test: test6\r\n");
-    while (1) 
-    {
-        /* execute a rtx primitive to test */
-        g_test_fixture.release_processor();
-    }
+    g_test_fixture.release_processor();
 }
 
 /* register the third party test processes with RTX */
