@@ -10,6 +10,7 @@
 
 #include "../shared/rtx_inc.h"
 
-CHAR* itoa( int i );					/* Convert int to ASCII */
+CHAR* itoa(int);				/* Convert int to ASCII */
+void reverse(CHAR *, int);		/* Reverse string */
 
 #endif /* _UTIL_H_ */

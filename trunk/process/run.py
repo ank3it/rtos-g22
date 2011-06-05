@@ -1,8 +1,8 @@
 #/usr/bin/env python
 import pexpect, sys, os, time, dircache
 
-TIMEOUT=10
-serverfilename = 'u3khan.s19'
+TIMEOUT=20
+serverfilename = 'u3khan12345.s19'
 
 # compile our code
 if os.system('make') != 0:

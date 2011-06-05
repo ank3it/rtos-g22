@@ -15,4 +15,4 @@ util.o: util.c util.h
 
 .PHONY: clean
 clean:
-	rm -f *.o
+	rm -f *.o *.s19 *.bin

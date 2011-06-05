@@ -1,3 +1,10 @@
+/**
+ * @group: S11-G22
+ * @file: defs.h
+ * @date: 2011/06/04
+ * @brief: Defines
+ */
+
 #ifndef _DEFS_H_
 #define _DEFS_H_
 
@@ -18,8 +25,8 @@
 /* Process states */
 #define STATE_NEW				0
 #define STATE_READY				1
-#define STATE_RUNNING			3
-#define STATE_BLOCKED			4
+#define STATE_RUNNING			2
+#define STATE_BLOCKED			3
 
 /* Blocked types */
 #define BLOCK_NONE				0

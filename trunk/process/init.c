@@ -66,8 +66,3 @@ void init_pcb()
 
 	load_test_processes();
 }
-
-struct process* get_proc(int ID)
-{
-	return &(all_processes[ID]);
-}
