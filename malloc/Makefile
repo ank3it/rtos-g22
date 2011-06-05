@@ -16,22 +16,16 @@ OBJCPY=m68k-elf-objcopy
 ASM=../shared/start.s
 LDFLAGS=-T../shared/rtx.ld -Wl
 
-OBJS=../dbug/dbug.o ../util/util.o ../malloc/malloc.o queue.o process.o
+OBJS=../dbug/dbug.o ../util/util.o  malloc.o
 
-# Note, GCC builds things in order, it's important to put yhe
-#  ASM first, so that it is located at the beginning of our program.
-process.s19: $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o process.bin $(ASM) $(OBJS) 
-	$(OBJCPY) --output-format=srec process.bin process.s19
+malloc.o: malloc.c malloc.h
+	$(CC) $(CFLAGS) -c malloc.c
 
 dbug.o: ../dbug/dbug.c ../dbug/dbug.h
 	make -C ../dbug CFLAGS='$(CFLAGS)'
 
 util.o: ../util/util.c ../util/util.h
 	make -C ../util CFLAGS='$(CFLAGS)'
-
-malloc.o: ../malloc/malloc.c ../malloc/malloc.h
-	make -C ../malloc CFLAGS='$(CFLAGS)'
 
 .PHONY: clean
 clean:

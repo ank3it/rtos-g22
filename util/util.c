@@ -7,11 +7,77 @@
 
 #include "util.h"
 
+/**
+ * @brief: Converts an integer to its ASCII representation
+ * @param: n The integer to convert
+ * @return: CHAR* Char pointer to the ASCII string
+ */
+CHAR* itoa(int n)
+{
+	int i, sign;
+	int num_digits = 1;
+
+	/* Get number of digits in n */
+	i = n;
+	do
+	{
+		i /= 10;
+		++num_digits;
+	} while (i != 0);
+
+	/* Record sign, make n positive, increase num_digits */
+	if ((sign = n) < 0)						
+	{		
+		n = -n;
+		++num_digits;
+	}
+
+	/* CHAR array to hold the result */
+	CHAR s[num_digits];
+
+	i = 0;
+	do {
+		s[i++] = n % 10 + '0';
+	} while ((n /= 10) > 0);
+
+	if (sign < 0)
+		s[i++] = '-';				/* Append negative sign */
+
+	s[i] = '\0';					/* Append terminating null char */
+
+	reverse(s, num_digits);
+	
+	return s;
+}
+
+/**
+ * @brief: Reverses the given string
+ * @param: s String to be reversed
+ * @param: length The length of the string
+ */
+VOID reverse(CHAR *s, int length)
+{
+	CHAR c;
+	int i = 0;
+	int j = length - 2;
+
+	while (i < j)	
+	{
+		c = s[i];
+		s[i] = s[j];
+		s[j] = c;
+
+		i++;
+		j--;
+	}
+}
+
+/*
 CHAR* itoa( int i ) {
     int count = 0;
     CHAR *out = "";
-    CHAR *out_rev = "";
-    CHAR *out_rev2 = "";
+    CHAR out_rev = "";
+    CHAR out_rev2 = "";
     CHAR *out_track = out;
     CHAR *out_track2 = out;
     int val = 0;
@@ -19,7 +85,7 @@ CHAR* itoa( int i ) {
     while( i != 0 ) {
         val = i % 10;
         val = val + 48;
-        *out = val;
+        *out = (CHAR *) val;
         *out++;
         i = i / 10;
         count++;
@@ -42,4 +108,4 @@ CHAR* itoa( int i ) {
 
     return out_track2;
 }
-
+*/

@@ -11,39 +11,51 @@
 #include "../shared/rtx_inc.h"
 #include "../dbug/dbug.h"
 #include "../util/util.h"
-#include "context.h"
+#include "../malloc/malloc.h"
 #include "defs.h"
+#include "queue.h"
 
 /*
  * Global variables
  */
-typedef struct
+struct process
 {
 	int ID;
 	int priority;
 	int state;
 	int block_type;
-	// char* process_data; // Removed as when we call memory_blocks, pointers to them will get stored in local variables which will automatically get pushed on top of the stack
-	VOID   (*entry)();
+	VOID (*entry)();
 	int* curr_SP;
 	int sz_stack;
-} process;
+};
 
-process all_processes[NUM_PROCS];
+struct process all_processes[NUM_PROCS];
+struct process *running_process;
+struct queue *ready_queue;
+struct queue *blocked_queue;
 
-/* Create ready and blocked queues of given size */
-int create_queues(int size);
+/* Initializae the scheduler */
+void scheduler_init();
 
-/* Add process to ready queue */
-int add_to_ready(int process_ID);
+/* Select a process to run based on priority */
+void scheduler_run();
 
-/* Add process to blocked queue */
-int add_to_blocked(int processs_ID);
+/* Yield the processor to another process */
+int k_release_processor();
+
+/* Save the current process's context */
+void save_context(int process_ID);
+
+/* Load the given process's context */
+void load_context(int process_ID);
+
+/* Retrieve the PCB of the given process */
+struct process * get_proc(int process_ID);
 
 /* Set process priority to given value */
-int set_process_priority(int process_ID, int priority); 
+int k_set_process_priority(int process_ID, int priority); 
 
 /* Return priority for given process */
-int get_process_priority(int process_ID);
+int k_get_process_priority(int process_ID);
 
 #endif /* _PROCESS_H_ */

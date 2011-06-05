@@ -10,6 +10,5 @@
 void load_null_process();
 void load_test_processes();
 void init_pcb();
-struct process* get_proc(int);
 
 #endif /* _INIT_H_ */
