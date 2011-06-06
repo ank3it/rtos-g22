@@ -70,7 +70,7 @@ void load_test_processes() {
 		// Save the Exceprtion Stack Frame
 		*all_processes[i].curr_SP = all_processes[i].entry;
 		all_processes[i].curr_SP--;
-		*all_processes[i].curr_SP = 0x4000 << 16 | 0x1234; // Value to be decided by sudhir for User Process
+		*all_processes[i].curr_SP = 0x4000 << 16 | U_SR; // Value to be decided by sudhir for User Process
 		//all_processes[i].curr_SP--;
 		enqueue(ready_queue , all_processes[i].ID , all_processes[i].priority );
     }

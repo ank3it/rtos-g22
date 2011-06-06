@@ -65,8 +65,8 @@ void scheduler_run()
 
 	/* Swap in new running process */
 	int new_running_process_ID = dequeue(ready_queue);
-
-	rtx_dbug_outs((CHAR *) "process5.c\r\n");
+	rtx_dbug_outs((CHAR *) itoa(new_running_process_ID));
+	rtx_dbug_outs((CHAR *) " process5.c\r\n");
 	running_process = get_proc(new_running_process_ID);
 	rtx_dbug_outs((CHAR *) "process6.c\r\n");
 	running_process->state = STATE_RUNNING;
