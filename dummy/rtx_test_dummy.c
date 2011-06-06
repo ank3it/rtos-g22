@@ -17,7 +17,7 @@
 void test1()
 {
     rtx_dbug_outs((CHAR *)"rtx_test: test1\r\n");
-    g_test_fixture.release_processor();
+    g_test_fixture.set_process_priority(5 ,2 );
 }
 
 /* third party dummy test process 2 */ 
