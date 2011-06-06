@@ -18,7 +18,7 @@ ASM=../shared/start.s trap_entry.s
 LDFLAGS=-T../shared/rtx.ld -Wl,-Map=trap.map
 #LDFLAGS=-T../shared/mcf5307.ld -Wl,-Map=trap.map
 
-TRAP_OBJS=../dbug/dbug.o trap.o
+TRAP_OBJS=../dbug/dbug.o  trap.o
 
 # Note, GCC builds things in order, it's important to put yhe
 #  ASM first, so that it is located at the beginning of our program.
