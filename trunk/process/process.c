@@ -10,6 +10,13 @@
 
 /* ----- Testing functions ----- */
 /* Reomve these later! */
+extern BYTE __end;
+
+void null_process(void)
+{
+	trace((CHAR *) "null_process");
+}
+
 int __main(void)
 {
 	return 0;
@@ -17,9 +24,38 @@ int __main(void)
 
 int main(void)
 {
-	rtx_dbug_outs((CHAR *) "process.c\r\n");
+	trace((CHAR *) "process.c");
+
+	malloc_init(&__end);
+	scheduler_init();
+
+	trace((CHAR *) "scheduler initialized");
+	
+	all_processes[0].ID = NULL_PROCESS_ID;
+	all_processes[0].priority = 4;
+	all_processes[0].sz_stack = 512;
+	all_processes[0].entry = null_process;
+	all_processes[0].state = STATE_NEW;
+	all_processes[0].block_type = BLOCK_NONE;
+	all_processes[0].curr_SP = 
+		malloc(all_processes[0].sz_stack) + all_processes[0].sz_stack;
+
+	*all_processes[0].curr_SP = all_processes[0].entry;
+	all_processes[0].curr_SP--;
+	*all_processes[0].curr_SP = 0x4000 << 16 | K_SR;
+	all_processes[0].curr_SP--;
+
+	trace((CHAR *) "process created");
+	enqueue(ready_queue, all_processes[0].ID, all_processes[0].priority);
+	trace((CHAR *) "process enqueued");
+
+	trace(itoa((int)ready_queue->head->priority));
+	scheduler_run();
+	trace((CHAR *) "scheduler ran");
+
 	return 0;
 }
+
 /* ----- End testing functions ----- */
 
 /**
@@ -42,22 +78,8 @@ void scheduler_init()
  */
 void scheduler_run()
 {
-	/* Scheduler:
-	 * - Check if running_process is NULL
-	 * - if true then dequeue ready queue, load process context
-	 *	and set as running process
-	 * - if false then compare running process priority with 
-	 *	ready head priority
-	 * - if running priority is less, then do nothing
-	 * - if running priority is greater, then: 
-	 *		- save running context
-	 *		- enqueue running process onto ready queue 
-	 *		- dequeue head of ready queue
-	 *		- set as runnning process
-	 *		- load context of new running process
-	 */
-
-	if (running_process->priority <= ready_queue->head->priority)
+	if (ready_queue->head == NULL
+		|| running_process->priority <= ready_queue->head->priority)
 		return;
 
 	if (running_process != NULL)
@@ -71,44 +93,31 @@ void scheduler_run()
 	}
 
 	/* Swap in new running process */
-	int new_running_process_ID = ready_queue->head->value;
-
-	/* Don't dequeue the null process from the ready queue */
-	if (new_running_process_ID != NULL_PROCESS_ID)
-		dequeue(ready_queue);
+	int new_running_process_ID = dequeue(ready_queue);
 
 	running_process = get_proc(new_running_process_ID);
 	load_context(new_running_process_ID);
 	running_process->state = STATE_RUNNING;
 }
 
+/**
+ * @brief: Swaps the currently running process with the next one in the
+ *	ready queue
+ */
 int k_release_process()
 {
-	/*PUT A BREAK-POINT here and check what process we get after calling a TRAP*/
-	
-	//if new state
-	/*if(curr_process.state == STATE_NEW){
-		load_context(curr_process.ID);
-	}*/	
-
-			
 	//switch between processes 
 	//in order to get the previous process
 	save_context(running_process->ID);
 	
-	//if blocked state
-	/*if(curr_process->state == STATE_BLOCKED){
-		
-		//add to blocked queue
-		add_to_blocked(curr_process->ID);
-		
-	}*/
-	
-	if(running_process->state == STATE_READY){
+	if(running_process->state == STATE_RUNNING){
+		running_process->state = STATE_READY;
 		enqueue(ready_queue, running_process->ID, running_process->priority);
+
+		running_process = NULL;
 	}
 
-	//scheduler_run();
+	scheduler_run();
 
 	return RTX_SUCCESS;
 }
@@ -140,8 +149,9 @@ void save_context(int process_ID)
 	asm("move.l %a4, -(%a7)");
 	asm("move.l %a5, -(%a7)");
 	asm("move.l %a6, -(%a7)");
-	
-	asm("move.l %%a7, %0" : "=m" (curr_process->curr_SP) ); // This is temp (Need to figure out the Variable or method to store this)
+
+	// This is temp ( Need to figure out the Variable or method to store this)
+	asm("move.l %%a7, %0" : "=m" (curr_process->curr_SP) ); 
 	
 }
 
@@ -158,26 +168,31 @@ void load_context(int process_ID)
 
 	if(sp != NULL)
 	{
-		//asm("move.l sp, %a7");  /* load a7 with stack_ptr*/
+		/* load a7 with stack_ptr*/
+		asm("move.l %0, %%a7" : : "m" (sp));  			
+
+		if (next_process->state == STATE_READY)
+		{
+			asm("move.l (%a7)+, %a6");
+			asm("move.l (%a7)+, %a5");
+			asm("move.l (%a7)+, %a4");
+			asm("move.l (%a7)+, %a3");
+			asm("move.l (%a7)+, %a2");
+			asm("move.l (%a7)+, %a1");
+			asm("move.l (%a7)+, %a0");
 			
-		asm("move.l (%a7)+, %a6");
-		asm("move.l (%a7)+, %a5");
-		asm("move.l (%a7)+, %a4");
-		asm("move.l (%a7)+, %a3");
-		asm("move.l (%a7)+, %a2");
-		asm("move.l (%a7)+, %a1");
-		asm("move.l (%a7)+, %a0");
-		
-		asm("move.l (%a7)+, %d7");
-		asm("move.l (%a7)+, %d6");
-		asm("move.l (%a7)+, %d5");
-		asm("move.l (%a7)+, %d4");
-		asm("move.l (%a7)+, %d3");
-		asm("move.l (%a7)+, %d2");
-		asm("move.l (%a7)+, %d1");
-		asm("move.l (%a7)+, %d0");
-		
-		asm("move.l %%a7, %0" : "=m" (next_process->curr_SP) ); // This is temp ( Need to figure out the Variable or method to store this)
+			asm("move.l (%a7)+, %d7");
+			asm("move.l (%a7)+, %d6");
+			asm("move.l (%a7)+, %d5");
+			asm("move.l (%a7)+, %d4");
+			asm("move.l (%a7)+, %d3");
+			asm("move.l (%a7)+, %d2");
+			asm("move.l (%a7)+, %d1");
+			asm("move.l (%a7)+, %d0");
+
+			// This is temp ( Need to figure out the Variable or method to store this)
+			asm("move.l %%a7, %0" : "=m" (next_process->curr_SP) ); 
+		}
 	}
 }
 

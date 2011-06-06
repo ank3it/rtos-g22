@@ -15,7 +15,7 @@
 struct memory_control_block
 {
 	int is_available;
-	UINT16 size;
+	int size;
 };
 
 /* Initialize malloc */

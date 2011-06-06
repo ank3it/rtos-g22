@@ -3,6 +3,7 @@
 
 //#include "rtx_inc.h"
 #include "../dbug/dbug.h"
+#include "process.h"
 
 void null_process();
 
