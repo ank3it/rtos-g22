@@ -1,6 +1,7 @@
 #include "init.h"
-#include "../dummy/rtx_test.h"
-#include "../malloc/malloc.h"
+#include "rtx_test.h"
+#include "malloc.h"
+#include "trap.h"
 
 char* current_sp;
 extern int __end;
@@ -80,7 +81,8 @@ void init_pcb()
 
 	malloc_init(&(__end));
 	scheduler_init();
-    rtx_dbug_outs((CHAR *)"In init_pcb() \r\n");
+    init_trap();
+	rtx_dbug_outs((CHAR *)"In init_pcb() \r\n");
 
 	//init_memory();
 	//timer_init();

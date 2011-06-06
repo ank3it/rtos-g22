@@ -8,7 +8,7 @@
 
 #include "../shared/rtx_inc.h"
 #include "../dbug/dbug.h"
-#include "../process/process.c"
+//#include "../process/process.c"
 
 int CURR_TRAP = 0;
 void setpr(int value) {
