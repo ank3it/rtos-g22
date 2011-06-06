@@ -60,3 +60,23 @@ SINT32 rtx_dbug_outs( CHAR* s )
     }
     return RTX_SUCCESS;
 }
+
+/**
+ * @breif: rtx_dbug_outs with a \r\n appended
+ * @param: s The string to output to janusRom terminal
+ */
+SINT32 trace(CHAR *s)
+{
+	if (s == NULL)
+		return RTX_ERROR;
+
+	while (*s != '\0')
+	{
+		rtx_dbug_out_char(*s++);
+	}
+	
+	rtx_dbug_out_char('\r');
+	rtx_dbug_out_char('\n');
+
+	return RTX_SUCCESS;
+}

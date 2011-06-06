@@ -12,5 +12,6 @@
 
 VOID rtx_dbug_out_char( CHAR c );   // output a char to janusROM terminal
 SINT32 rtx_dbug_outs( CHAR* s );    // output a string to janusROM terminal
+SINT32 trace(CHAR *);
 
 #endif /* _DBUG_H_ */

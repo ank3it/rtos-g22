@@ -81,8 +81,7 @@ void * malloc(int size)
 		mcb->size = size;
 
 		/* Move past MCB and point to actual free memory */
-		memory_location = 
-			current_location + sizeof(struct memory_control_block);
+		memory_location +=  sizeof(struct memory_control_block);
 	}
 
 	return memory_location;
