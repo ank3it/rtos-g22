@@ -33,7 +33,7 @@ VOID c_trap_handler( VOID )
 			asm("move.l %%d2 , %0" : "=m" (process_ID));
 			asm("move.l %%d3 , %0" : "=m" (MessageEnvelope));
 			
-			k_send_message(process_ID,MessageEnvelope);
+			//k_send_message(process_ID,MessageEnvelope);
 			
 			//changing the values of registers back to their orginal values
 			asm("move.l (%a7)+, %d3");
@@ -43,17 +43,17 @@ VOID c_trap_handler( VOID )
 		
 		case 1:
 			asm("move.l %%d2 , %0" : "=m" (sender_ID));
-			k_receive_message(sender_ID);
+			//k_receive_message(sender_ID);
 			asm("move.l (%a7)+, %d2");
 			break;
 		
 		case 2:
-			k_request_memory_block();
+			//k_request_memory_block();
 			break;
 		
 		case 3:
 			asm("move.l %%d2 , %0" : "=m" (MemoryBlock));
-			k_release_memory_block(MemoryBlock);
+			//k_release_memory_block(MemoryBlock);
 			asm("move.l (%a7)+ , %d2");
 			break;
 			
@@ -65,7 +65,7 @@ VOID c_trap_handler( VOID )
 			asm("move.l %%d2 , %0" : "=m" (process_ID));
 			asm("move.l %%d3 , %0" : "=m" (MessageEnvelope));
 			asm("move.l %%d4 , %0" : "=m" (delay));
-			k_delayed_send(process_ID, MessageEnvelope, delay);
+			//k_delayed_send(process_ID, MessageEnvelope, delay);
 			
 			asm("move.l (%a7)+, %d4");
 			asm("move.l (%a7)+, %d3");
@@ -104,5 +104,8 @@ int init_trap( void )
        address */
     asm( "move.l #c_trap_handler,%d0" );
     asm( "move.l %d0,0x100000A8" );
+
+	rtx_dbug_outs( (CHAR *) "in Trap Init!!\n\r" );
+
     return 0;
 }
