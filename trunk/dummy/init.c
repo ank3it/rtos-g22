@@ -1,5 +1,6 @@
 #include "init.h"
 #include "rtx_test.h"
+#include "rtx.h"
 #include "malloc.h"
 #include "trap.h"
 
@@ -69,10 +70,17 @@ void load_test_processes() {
 		// Save the Exceprtion Stack Frame
 		*all_processes[i].curr_SP = all_processes[i].entry;
 		all_processes[i].curr_SP--;
-		*all_processes[i].curr_SP = 0x4000 << 16 | U_SR; // Value to be decided by sudhir for User Process
+		*all_processes[i].curr_SP = 0x4000 << 16 | 0x1234; // Value to be decided by sudhir for User Process
 		//all_processes[i].curr_SP--;
 		enqueue(ready_queue , all_processes[i].ID , all_processes[i].priority );
     }
+
+	for (i =0; i< 10; i++ ) {
+		rtx_dbug_outs( (CHAR *) "\n\r Process= " );
+		struct process *next_process = &all_processes[i];
+		rtx_dbug_outs( itoa((next_process)) );
+	}
+	rtx_dbug_outs( (CHAR *) "\n\r" );
 }
 
 void init_pcb()
@@ -100,5 +108,5 @@ void init_pcb()
 }
 
 init_funcs() {
-	g_test_fixture.set_process_priority = k_set_process_priority;
+	g_test_fixture.set_process_priority = set_process_priority;
 }

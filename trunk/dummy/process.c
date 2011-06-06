@@ -79,7 +79,7 @@ void scheduler_run()
  * @brief: Swaps the currently running process with the next one in the
  *	ready queue
  */
-int k_release_process()
+int k_release_processor()
 {
 	//switch between processes 
 	//in order to get the previous process
@@ -139,6 +139,8 @@ void load_context(int process_ID)
 //#ifdef CONTEXT_DEBUG
 	rtx_dbug_outs( (CHAR *) "\n\r Next Process= " );
 	rtx_dbug_outs( itoa(next_process) );
+	rtx_dbug_outs( (CHAR *) "\n\r SP= " );
+	rtx_dbug_outs( itoa(sp) );
 //#endif
 
 	if(sp != NULL)
@@ -169,6 +171,7 @@ void load_context(int process_ID)
 			asm("move.l %%a7, %0" : "=m" (next_process->curr_SP) ); 
 		}
 
+		rtx_dbug_outs( (CHAR *) "Just Before ASm!!\n\r" );
 		asm("rte");
 	}
 }
