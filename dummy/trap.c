@@ -90,6 +90,8 @@ VOID c_trap_handler( VOID )
 		default:
 			break;
 	}
+
+	rtx_dbug_outs( (CHAR *) "Exit Trap Handler!!\n\r" );
 }
 
 /*

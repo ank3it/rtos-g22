@@ -59,7 +59,7 @@ void load_test_processes() {
         all_processes[i].ID = g_test_proc[i-1].pid;
         all_processes[i].priority = g_test_proc[i-1].priority;
         all_processes[i].sz_stack = g_test_proc[i-1].sz_stack;
-		all_processes[i].entry = g_test_proc[0].entry;
+		all_processes[i].entry = g_test_proc[i-1].entry;
 		all_processes[i].state = STATE_NEW;
 		all_processes[i].block_type = BLOCK_NONE;
 		// Increment the current_sp as this will the starting point of the stack
@@ -114,5 +114,13 @@ void init_pcb()
 }
 
 init_funcs() {
-	g_test_fixture.set_process_priority = set_process_priority;
+
+	g_test_fixture.send_message = send_message;
+    g_test_fixture.receive_message = receive_message;
+    g_test_fixture.request_memory_block = request_memory_block;
+    g_test_fixture.release_memory_block = release_memory_block;
+    g_test_fixture.release_processor = release_processor;
+    g_test_fixture.delayed_send = delayed_send;
+    g_test_fixture.set_process_priority = set_process_priority;
+    g_test_fixture.get_process_priority = get_process_priority;
 }
