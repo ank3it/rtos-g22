@@ -8,6 +8,16 @@ char* current_sp;
 extern int __end;
 int* blah;
 
+void null_process()
+{
+	//rtx_dbug_outs((CHAR *) "Null Process\n\r");
+	while(1)
+	{
+		rtx_dbug_outs((CHAR *) "Null Process\n\r");
+		//release_processor();
+	}
+}
+
 void load_null_process() {
 	
 	rtx_dbug_outs((CHAR *)"In Init Null Process() \r\n");
@@ -33,18 +43,7 @@ void load_null_process() {
 	 //blah = all_processes[0].curr_SP;
 	 //asm("move.l  blah , %a7" ); // This is temp ( Need to figure out the Variable or method to store this)
 	 //asm("rte");
-
 	 
-}
-
-void null_process()
-{
-	//rtx_dbug_outs((CHAR *) "Null Process\n\r");
-	while(1)
-	{
-		rtx_dbug_outs((CHAR *) "Null Process\n\r");
-		//release_processor();
-	}
 }
 
 void load_test_processes() {
@@ -57,17 +56,18 @@ void load_test_processes() {
 
 	// Save Test Processes
     for (i =1; i< NUM_TEST_PROCS+1; i++ ) {
-        all_processes[i].ID = g_test_proc[i].pid;
-        all_processes[i].priority = g_test_proc[i].priority;
-        all_processes[i].sz_stack = g_test_proc[i].sz_stack;
-		all_processes[i].entry = g_test_proc[0].entry;
+        all_processes[i].ID = g_test_proc[i-1].pid;
+        all_processes[i].priority = g_test_proc[i-1].priority;
+        all_processes[i].sz_stack = g_test_proc[i-1].sz_stack;
+		all_processes[i].entry = g_test_proc[i-1].entry;
 		all_processes[i].state = STATE_NEW;
 		all_processes[i].block_type = BLOCK_NONE;
 		// Increment the current_sp as this will the starting point of the stack
-		current_sp = current_sp+all_processes[i].sz_stack ; 
+		current_sp = malloc(all_processes[i].sz_stack) + all_processes[i].sz_stack; 
 		all_processes[i].curr_SP = current_sp;
 	 
 		// Save the Exceprtion Stack Frame
+		all_processes[i].curr_SP--;
 		*all_processes[i].curr_SP = all_processes[i].entry;
 		all_processes[i].curr_SP--;
 		*all_processes[i].curr_SP = 0x4000 << 16 | U_SR; // Value to be decided by sudhir for User Process
@@ -78,7 +78,13 @@ void load_test_processes() {
 	for (i =0; i< 10; i++ ) {
 		rtx_dbug_outs( (CHAR *) "\n\r Process= " );
 		struct process *next_process = &all_processes[i];
+		int *sp = all_processes[i].curr_SP;
+		int *ep = all_processes[i].entry;
 		rtx_dbug_outs( itoa((next_process)) );
+		rtx_dbug_outs( (CHAR *) "\n\r SP= " );
+		rtx_dbug_outs( itoa((sp)) );
+		rtx_dbug_outs( (CHAR *) "\n\r EP= " );
+		rtx_dbug_outs( itoa((ep)) );
 	}
 	rtx_dbug_outs( (CHAR *) "\n\r" );
 }

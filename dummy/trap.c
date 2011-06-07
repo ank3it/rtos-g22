@@ -93,6 +93,8 @@ VOID c_trap_handler( VOID )
 			break;
 	}
 
+	asm("rte");
+
 }
 
 /*

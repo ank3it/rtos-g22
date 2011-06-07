@@ -9,6 +9,8 @@
 #include "process.h"
 #include "init.h"
 
+
+int counter;
 /* ----- Testing functions ----- */
 /* Reomve these later! */
 int __main(void)
@@ -48,11 +50,8 @@ void scheduler_run()
 		|| running_process->priority <= ready_queue->head->priority)
 		return;
 
-	rtx_dbug_outs((CHAR *) "process2.c\r\n");
-
 	if (running_process != NULL)
 	{
-		rtx_dbug_outs((CHAR *) "process3.c\r\n");
 		/* Swap out runnning process */
 		save_context(running_process->ID);
 		enqueue(ready_queue, 
@@ -61,18 +60,15 @@ void scheduler_run()
 		running_process->state = STATE_READY;
 	}
 
-	rtx_dbug_outs((CHAR *) "process4.c\r\n");
-
 	/* Swap in new running process */
 	int new_running_process_ID = dequeue(ready_queue);
-	rtx_dbug_outs((CHAR *) itoa(new_running_process_ID));
-	rtx_dbug_outs((CHAR *) " process5.c\r\n");
+	
+	rtx_dbug_outs(itoa(new_running_process_ID));
+	rtx_dbug_outs((CHAR *) "\r\n");
+
 	running_process = get_proc(new_running_process_ID);
-	rtx_dbug_outs((CHAR *) "process6.c\r\n");
 	running_process->state = STATE_RUNNING;
-	rtx_dbug_outs((CHAR *) "process7.c\r\n");
 	load_context(new_running_process_ID);
-	rtx_dbug_outs((CHAR *) "process8.c\r\n");
 }
 
 /**
@@ -132,6 +128,7 @@ void save_context(int process_ID)
 
 void load_context(int process_ID)
 {
+	counter = 0;
 	struct process *next_process = 
 		next_process = get_proc(process_ID);
 	int *sp = next_process->curr_SP;
@@ -150,6 +147,7 @@ void load_context(int process_ID)
 
 		if (next_process->state == STATE_READY)
 		{
+			rtx_dbug_outs( (CHAR *) "in Ready State\n\r" );
 			asm("move.l (%a7)+, %a6");
 			asm("move.l (%a7)+, %a5");
 			asm("move.l (%a7)+, %a4");
@@ -171,8 +169,10 @@ void load_context(int process_ID)
 			asm("move.l %%a7, %0" : "=m" (next_process->curr_SP) ); 
 		}
 
-		rtx_dbug_outs( (CHAR *) "Just Before ASm!!\n\r" );
-		asm("rte");
+			rtx_dbug_outs( (CHAR *) "Just Before ASm1!!\n\r" );
+			rtx_dbug_outs( (CHAR *) "Just Before ASm!!\n\r" );
+			asm("rte");
+	
 	}
 }
 
