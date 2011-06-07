@@ -120,6 +120,7 @@ int set_process_priority (int process_ID, int priority)
 
 int get_process_priority (int process_ID)
 {
+	int result;
 	//push d2 on stack
 	asm("move.l %d2, -(%a7)");
 
@@ -127,6 +128,7 @@ int get_process_priority (int process_ID)
     asm("move.l %0, %%d2 " : : "m" (process_ID));
 	setpr(7);
 	asm( "TRAP #10" );
+	asm("move.l %%d2, %0" : "=m" (result));
 	asm("move.l (%a7)+, %d2");
-	return 0;
+	return result;
 }
