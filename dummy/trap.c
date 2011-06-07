@@ -77,8 +77,6 @@ VOID c_trap_handler( VOID )
 			asm("move.l %%d3 , %0" : "=m" (priority));
 			k_set_process_priority(process_ID,priority);
 			
-			asm("move.l (%a7)+, %d3");
-			asm("move.l (%a7)+, %d2");
 			break;
 		
 		case 7:
@@ -92,9 +90,6 @@ VOID c_trap_handler( VOID )
 		default:
 			break;
 	}
-
-	asm("rte");
-
 }
 
 /*
@@ -104,7 +99,7 @@ int init_trap( void )
 {
     /* Load the vector table for TRAP #10 with our assembly stub
        address */
-    asm( "move.l #c_trap_handler,%d0" );
+    asm( "move.l #asm_trap_entry,%d0" );
     asm( "move.l %d0,0x100000A8" );
 
 	rtx_dbug_outs( (CHAR *) "in Trap Init!!\n\r" );

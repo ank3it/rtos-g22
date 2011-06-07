@@ -102,6 +102,8 @@ int set_process_priority (int process_ID, int priority)
 	asm("move.l %0, %%d3 " : : "m" (priority));
 	setpr(6);
 	asm( "TRAP #10" );
+	asm("move.l (%a7)+, %d3");
+	asm("move.l (%a7)+, %d2");
 	return 0;
 }
 
