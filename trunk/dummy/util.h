@@ -8,7 +8,7 @@
 #ifndef _UTIL_H_
 #define _UTIL_H_
 
-#include "../shared/rtx_inc.h"
+#include "rtx_inc.h"
 
 CHAR* itoa(int);				/* Convert int to ASCII */
 void reverse(CHAR *, int);		/* Reverse string */

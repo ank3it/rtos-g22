@@ -27,6 +27,9 @@ int send_message (int process_ID, void * MessageEnvelope)
 	asm("move.l %0, %%d3 " : : "m" (MessageEnvelope));
 	setpr(0);
 	asm( "TRAP #10" );
+				//changing the values of registers back to their orginal values
+	asm("move.l (%a7)+, %d3");
+	asm("move.l (%a7)+, %d2");
 	return 0;
 }
 
@@ -39,6 +42,7 @@ void * receive_message(int * sender_ID)
 	asm("move.l %0, %%d2 " : : "m" (sender_ID));
 	setpr(1);
 	asm( "TRAP #10" );
+	asm("move.l (%a7)+, %d2");
 	
 }
 
@@ -60,12 +64,14 @@ int release_memory_block(void * MemoryBlock)
 	asm("move.l %0, %%d2 " : : "m" (MemoryBlock));
 	setpr(3);
 	asm( "TRAP #10" );
+	asm("move.l (%a7)+ , %d2");
     return 0;
 }
 
 /*Process Management*/
 int release_processor()
 {
+
     rtx_dbug_outs((CHAR *)"rtx: release_processor \r\n");
 	setpr(4);
 	asm( "TRAP #10" );
@@ -85,8 +91,13 @@ int delayed_send(int process_ID, void * MessageEnvelope, int delay)
     asm("move.l %0, %%d2 " : : "m" (process_ID));
 	asm("move.l %0, %%d3 " : : "m" (MessageEnvelope));
 	asm("move.l %0, %%d4 " : : "m" (delay));
+	
 	setpr(5);
 	asm( "TRAP #10" );
+	
+	asm("move.l (%a7)+, %d4");
+	asm("move.l (%a7)+, %d3");
+	asm("move.l (%a7)+, %d2");
 	return 0;
 }
 
@@ -116,5 +127,6 @@ int get_process_priority (int process_ID)
     asm("move.l %0, %%d2 " : : "m" (process_ID));
 	setpr(7);
 	asm( "TRAP #10" );
+	asm("move.l (%a7)+, %d2");
 	return 0;
 }

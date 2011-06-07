@@ -11,6 +11,7 @@
 
 
 int counter;
+
 /* ----- Testing functions ----- */
 /* Reomve these later! */
 int __main(void)
@@ -67,7 +68,7 @@ void scheduler_run()
 	rtx_dbug_outs((CHAR *) "\r\n");
 
 	running_process = get_proc(new_running_process_ID);
-	running_process->state = STATE_RUNNING;
+	//running_process->state = STATE_RUNNING;
 	load_context(new_running_process_ID);
 }
 
@@ -79,21 +80,15 @@ int k_release_processor()
 {
 	//switch between processes 
 	//in order to get the previous process
-	rtx_dbug_outs( (CHAR *) "\n\r Release Proc= " );
 	save_context(running_process->ID);
-
-	rtx_dbug_outs( (CHAR *) "\n\r Release Proc2= " );
 	
 	if(running_process->state == STATE_RUNNING){
-
-		rtx_dbug_outs( (CHAR *) "\n\r Release Proc3= " );
 		running_process->state = STATE_READY;
+		//save_context(running_process->ID);
 		enqueue(ready_queue, running_process->ID, running_process->priority);
 
 		running_process = NULL;
 	}
-
-	rtx_dbug_outs( (CHAR *) "\n\r Release Proc4= " );
 	scheduler_run();
 
 	return RTX_SUCCESS;
@@ -108,76 +103,29 @@ void save_context(int process_ID)
 	rtx_dbug_outs( (CHAR *) "\n\r Current Process= " );
 	rtx_dbug_outs( itoa(curr_process) );
 //#endif
-	
-	//Push Data and Address Registers into the stack
-	asm("move.l %d0, -(%a7)");
-	asm("move.l %d1, -(%a7)");
-	asm("move.l %d2, -(%a7)");
-	asm("move.l %d3, -(%a7)");
-	asm("move.l %d4, -(%a7)");
-	asm("move.l %d5, -(%a7)");
-	asm("move.l %d6, -(%a7)");
-	asm("move.l %d7, -(%a7)");
-	
-	asm("move.l %a0, -(%a7)");
-	asm("move.l %a1, -(%a7)");
-	asm("move.l %a2, -(%a7)");
-	asm("move.l %a3, -(%a7)");
-	asm("move.l %a4, -(%a7)");
-	asm("move.l %a5, -(%a7)");
-	asm("move.l %a6, -(%a7)");
 
-	// This is temp ( Need to figure out the Variable or method to store this)
-	asm("move.l %%a7, %0" : "=m" (curr_process->curr_SP) ); 
-	
+	asm("move.l %%d5, %0" : "=m" (curr_process->curr_SP));	
 }
 
 void load_context(int process_ID)
 {
-	counter = 0;
 	struct process *next_process = 
-		next_process = get_proc(process_ID);
+	next_process = get_proc(process_ID);
 	int *sp = next_process->curr_SP;
 	
-//#ifdef CONTEXT_DEBUG
-	rtx_dbug_outs( (CHAR *) "\n\r Next Process= " );
-	rtx_dbug_outs( itoa(next_process) );
-	rtx_dbug_outs( (CHAR *) "\n\r SP= " );
-	rtx_dbug_outs( itoa(sp) );
-//#endif
-
 	if(sp != NULL)
 	{
-		/* load a7 with stack_ptr*/
-		asm("move.l %0, %%a7" : : "m" (sp));  			
-
 		if (next_process->state == STATE_READY)
-		{
+		{	next_process->state = STATE_RUNNING;
 			rtx_dbug_outs( (CHAR *) "in Ready State\n\r" );
-			asm("move.l (%a7)+, %a6");
-			asm("move.l (%a7)+, %a5");
-			asm("move.l (%a7)+, %a4");
-			asm("move.l (%a7)+, %a3");
-			asm("move.l (%a7)+, %a2");
-			asm("move.l (%a7)+, %a1");
-			asm("move.l (%a7)+, %a0");
-			
-			asm("move.l (%a7)+, %d7");
-			asm("move.l (%a7)+, %d6");
-			asm("move.l (%a7)+, %d5");
-			asm("move.l (%a7)+, %d4");
-			asm("move.l (%a7)+, %d3");
-			asm("move.l (%a7)+, %d2");
-			asm("move.l (%a7)+, %d1");
-			asm("move.l (%a7)+, %d0");
-
-			// This is temp ( Need to figure out the Variable or method to store this)
-			asm("move.l %%a7, %0" : "=m" (next_process->curr_SP) ); 
+			asm("move.l %0, %%d5" : : "m" (sp));
+			rtx_dbug_outs((CHAR*)"yes\n\r");
 		}
-
-			rtx_dbug_outs( (CHAR *) "Just Before ASm1!!\n\r" );
-			rtx_dbug_outs( (CHAR *) "Just Before ASm!!\n\r" );
+		else {
+			next_process->state = STATE_RUNNING;
+			asm("move.l %0, %%a7" : : "m" (sp));
 			asm("rte");
+		}
 	
 	}
 }
@@ -228,6 +176,7 @@ int k_set_process_priority(int process_ID, int priority)
 
 	/* Run scheduler in case a process needs to be pre-empted */
 	scheduler_run();
+	rtx_dbug_outs( (CHAR *) "Scheduler Run!!\n\r" );
 
 	return RTX_SUCCESS;
 }
