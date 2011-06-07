@@ -59,7 +59,7 @@ void load_test_processes() {
         all_processes[i].ID = g_test_proc[i-1].pid;
         all_processes[i].priority = g_test_proc[i-1].priority;
         all_processes[i].sz_stack = g_test_proc[i-1].sz_stack;
-		all_processes[i].entry = g_test_proc[i-1].entry;
+		all_processes[i].entry = g_test_proc[0].entry;
 		all_processes[i].state = STATE_NEW;
 		all_processes[i].block_type = BLOCK_NONE;
 		// Increment the current_sp as this will the starting point of the stack

@@ -13,6 +13,7 @@ AR=m68k-elf-ar
 ARFLAGS=
 OBJCPY=m68k-elf-objcopy
 OBJDUMP=m68k-elf-objdump
+ASM_TRAP = trap_entry.s
 ASM=../shared/start.s 
 LDFLAGS_RTX = -Trtx.ld -Wl,-Map=rtx.map
 LDFLAGS_RTX_LOADER = -Trtx_loader.ld -Wl,-Map=rtx_loader.map
@@ -29,7 +30,7 @@ all: mdummy.s19
 #  ASM first, so that it is located at the beginning of our program.
 
 rtx.s19: $(RTX_OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS_RTX) -o rtx.bin $(ASM) $(RTX_OBJS) 
+	$(CC) $(CFLAGS) $(LDFLAGS_RTX) -o rtx.bin $(ASM) $(ASM_TRAP) $(RTX_OBJS) 
 	$(OBJCPY) --output-format=srec rtx.bin rtx.s19
 	$(OBJDUMP) -xdC rtx.bin > rtx.lst
 
