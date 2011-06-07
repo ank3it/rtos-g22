@@ -202,8 +202,10 @@ int k_set_process_priority(int process_ID, int priority)
 		return RTX_ERROR;
 
 	/* Don't need to change anything */
-	if (priority == k_get_process_priority(process_ID))
+	if (priority == k_get_process_priority(process_ID)) {
+		rtx_dbug_outs( (CHAR *) "Exiting!!\n\r" );
 		return RTX_SUCCESS;
+	}
 
 	int state = get_proc(process_ID)->state;
 
