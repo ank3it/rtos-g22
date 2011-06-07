@@ -35,16 +35,12 @@ VOID c_trap_handler( VOID )
 			
 			//k_send_message(process_ID,MessageEnvelope);
 			
-			//changing the values of registers back to their orginal values
-			asm("move.l (%a7)+, %d3");
-			asm("move.l (%a7)+, %d2");
-			
 			break;
 		
 		case 1:
 			asm("move.l %%d2 , %0" : "=m" (sender_ID));
 			//k_receive_message(sender_ID);
-			asm("move.l (%a7)+, %d2");
+			
 			break;
 		
 		case 2:
@@ -54,11 +50,12 @@ VOID c_trap_handler( VOID )
 		case 3:
 			asm("move.l %%d2 , %0" : "=m" (MemoryBlock));
 			//k_release_memory_block(MemoryBlock);
-			asm("move.l (%a7)+ , %d2");
+			
 			break;
 			
 		case 4:
 			k_release_processor();
+			
 			break;
 			
 		case 5:
@@ -67,9 +64,6 @@ VOID c_trap_handler( VOID )
 			asm("move.l %%d4 , %0" : "=m" (delay));
 			//k_delayed_send(process_ID, MessageEnvelope, delay);
 			
-			asm("move.l (%a7)+, %d4");
-			asm("move.l (%a7)+, %d3");
-			asm("move.l (%a7)+, %d2");
 			break;
 			
 		case 6:
@@ -84,14 +78,11 @@ VOID c_trap_handler( VOID )
 			
 			k_get_process_priority(process_ID);
 			
-			asm("move.l (%a7)+, %d2");
 			break;
 		
 		default:
 			break;
 	}
-
-	rtx_dbug_outs( (CHAR *) "Exit Trap Handler!!\n\r" );
 }
 
 /*

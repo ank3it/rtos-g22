@@ -8,10 +8,10 @@
 #ifndef _QUEUE_H_
 #define _QUEUE_H_
 
-#include "../shared/rtx_inc.h"
-#include "../dbug/dbug.h"
-#include "../util/util.h"
-#include "../malloc/malloc.h"
+#include "rtx_inc.h"
+#include "dbug.h"
+#include "util.h"
+#include "malloc.h"
 
 struct queue_node
 {

@@ -100,8 +100,6 @@ void init_pcb()
 
 	//init_memory();
 	//timer_init();
-
-	//set_current_sp();// This will be set in memory.c at the end of memory pool
 	
 	// Null Process
 	load_null_process();
