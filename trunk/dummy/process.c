@@ -79,15 +79,21 @@ int k_release_processor()
 {
 	//switch between processes 
 	//in order to get the previous process
+	rtx_dbug_outs( (CHAR *) "\n\r Release Proc= " );
 	save_context(running_process->ID);
+
+	rtx_dbug_outs( (CHAR *) "\n\r Release Proc2= " );
 	
 	if(running_process->state == STATE_RUNNING){
+
+		rtx_dbug_outs( (CHAR *) "\n\r Release Proc3= " );
 		running_process->state = STATE_READY;
 		enqueue(ready_queue, running_process->ID, running_process->priority);
 
 		running_process = NULL;
 	}
 
+	rtx_dbug_outs( (CHAR *) "\n\r Release Proc4= " );
 	scheduler_run();
 
 	return RTX_SUCCESS;
@@ -98,10 +104,10 @@ void save_context(int process_ID)
 	struct process * curr_process;
 	curr_process = get_proc(process_ID);
 
-#ifdef CONTEXT_DEBUG
+//#ifdef CONTEXT_DEBUG
 	rtx_dbug_outs( (CHAR *) "\n\r Current Process= " );
 	rtx_dbug_outs( itoa(curr_process) );
-#endif
+//#endif
 	
 	//Push Data and Address Registers into the stack
 	asm("move.l %d0, -(%a7)");
