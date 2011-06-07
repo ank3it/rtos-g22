@@ -13,13 +13,74 @@
 #include "rtx_test.h"
 #include "dbug.h"
 
+CHAR* itoa(int n)
+{
+	int i, sign;
+	int num_digits = 1;
+
+	/* Get number of digits in n */
+	i = n;
+	do
+	{
+		i /= 10;
+		++num_digits;
+	} while (i != 0);
+
+	/* Record sign, make n positive, increase num_digits */
+	if ((sign = n) < 0)						
+	{		
+		n = -n;
+		++num_digits;
+	}
+
+	/* CHAR array to hold the result */
+	CHAR s[num_digits];
+
+	i = 0;
+	do {
+		s[i++] = n % 10 + '0';
+	} while ((n /= 10) > 0);
+
+	if (sign < 0)
+		s[i++] = '-';				/* Append negative sign */
+
+	s[i] = '\0';					/* Append terminating null char */
+
+	reverse(s, num_digits);
+	
+	return s;
+}
+
+/**
+ * @brief: Reverses the given string
+ * @param: s String to be reversed
+ * @param: length The length of the string
+ */
+VOID reverse(CHAR *s, int length)
+{
+	CHAR c;
+	int i = 0;
+	int j = length - 2;
+
+	while (i < j)	
+	{
+		c = s[i];
+		s[i] = s[j];
+		s[j] = c;
+
+		i++;
+		j--;
+	}
+}
+
 /* third party dummy test process 1 */ 
 void test1()
 {
 	while(1) {
 		rtx_dbug_outs((CHAR *)"rtx_test: test1\r\n");
-		g_test_fixture.release_processor();
-		//g_test_fixture.set_process_priority(5 ,2 );
+		rtx_dbug_outs((CHAR *) "priority: ");
+		rtx_dbug_outs(itoa(g_test_fixture.get_process_priority(1)));
+		rtx_dbug_outs((CHAR *) "\r\n");
 		rtx_dbug_outs((CHAR *)"blah1\r\n");
 	}
 }

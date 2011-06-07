@@ -76,8 +76,11 @@ VOID c_trap_handler( VOID )
 		case 7:
 			asm("move.l %%d2 , %0" : "=m" (process_ID));
 			
-			k_get_process_priority(process_ID);
+			int result = k_get_process_priority(process_ID);
+			rtx_dbug_outs(itoa(result));
 			
+			asm("move.l %0, %%d2" : : "m" (result));
+
 			break;
 		
 		default:

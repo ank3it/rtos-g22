@@ -188,5 +188,6 @@ int k_set_process_priority(int process_ID, int priority)
  */ 
 int k_get_process_priority(int process_ID)
 {
+	rtx_dbug_outs(itoa(process_ID));
 	return get_proc(process_ID)->priority;
 }

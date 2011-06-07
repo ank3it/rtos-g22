@@ -3,7 +3,6 @@
 asm_trap_entry:
 	move.l %d0, -(%a7)
 	move.l %d1, -(%a7)
-	move.l %d2, -(%a7)
 	move.l %d3, -(%a7)
 	move.l %d4, -(%a7)
 	move.l %d6, -(%a7)
@@ -35,7 +34,6 @@ asm_trap_entry:
 	move.l (%a7)+, %d5
 	move.l (%a7)+, %d4
 	move.l (%a7)+, %d3
-	move.l (%a7)+, %d2
 	move.l (%a7)+, %d1
 	move.l (%a7)+, %d0
 
