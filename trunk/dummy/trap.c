@@ -8,9 +8,7 @@
 
 #include "rtx_inc.h"
 #include "dbug.h"
-//#include "process.h"
-
-extern void k_release_processor();
+#include "process.h"
 
 int CURR_TRAP = 0;
 void setpr(int value) {
@@ -26,7 +24,7 @@ VOID c_trap_handler( VOID )
 	void * MessageEnvelope, * MemoryBlock;
 	int * sender_ID;
 	
-	rtx_dbug_outs( (CHAR *) "Trap Handler!!\n\r" );
+	TRACE("Trap Handler!!\n\r" );
 	switch (CURR_TRAP) {
 		case 0:
 			//initializing the variables
@@ -77,7 +75,7 @@ VOID c_trap_handler( VOID )
 			asm("move.l %%d2 , %0" : "=m" (process_ID));
 			
 			int result = k_get_process_priority(process_ID);
-			rtx_dbug_outs(itoa(result));
+			TRACE(itoa(result));
 			
 			asm("move.l %0, %%d2" : : "m" (result));
 
@@ -98,7 +96,7 @@ int init_trap( void )
     asm( "move.l #asm_trap_entry,%d0" );
     asm( "move.l %d0,0x100000A8" );
 
-	rtx_dbug_outs( (CHAR *) "in Trap Init!!\n\r" );
+	TRACE("in Trap Init!!\n\r" );
 
     return 0;
 }

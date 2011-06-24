@@ -81,6 +81,7 @@ void test1()
 		rtx_dbug_outs((CHAR *) "priority: ");
 		rtx_dbug_outs(itoa(g_test_fixture.get_process_priority(1)));
 		rtx_dbug_outs((CHAR *) "\r\n");
+		g_test_fixture.release_processor();
 		rtx_dbug_outs((CHAR *)"blah1\r\n");
 	}
 }

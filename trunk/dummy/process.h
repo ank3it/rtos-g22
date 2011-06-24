@@ -14,6 +14,7 @@
 #include "malloc.h"
 #include "defs.h"
 #include "queue.h"
+#include "envelope.h"
 
 /*
  * Global variables
@@ -27,21 +28,8 @@ struct process
 	VOID (*entry)();
 	int* curr_SP;
 	int sz_stack;
-	int a0;
-	int a1;
-	int a2;
-	int a3;
-	int a4;
-	int a5;
-	int a6;
-	int d0;
-	int d1;
-	int d2;
-	int d3;
-	int d4;
-	int d5;
-	int d6;
-	int d7;
+	struct envelope *mailbox_head;
+	struct envelope *mailbox_tail;
 };
 
 struct process all_processes[NUM_PROCS];
@@ -59,18 +47,24 @@ void scheduler_run();
 int k_release_processor();
 
 /* Save the current process's context */
-void save_context(int process_ID);
+void save_context(int);
 
 /* Load the given process's context */
-void load_context(int process_ID);
+void load_context(int);
 
 /* Retrieve the PCB of the given process */
-struct process * get_proc(int process_ID);
+struct process * get_proc(int);
 
 /* Set process priority to given value */
-int k_set_process_priority(int process_ID, int priority); 
+int k_set_process_priority(int, int); 
 
 /* Return priority for given process */
-int k_get_process_priority(int process_ID);
+int k_get_process_priority(int);
+
+/* Send message in message envelope to another process */
+int k_send_message(int, void *);
+
+/* Receive message from process mailbox */
+void *k_receive_message(int *);
 
 #endif /* _PROCESS_H_ */

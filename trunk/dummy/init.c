@@ -10,17 +10,16 @@ int* blah;
 
 void null_process()
 {
-	//rtx_dbug_outs((CHAR *) "Null Process\n\r");
 	while(1)
 	{
-		rtx_dbug_outs((CHAR *) "Null Process\n\r");
+		TRACE("This is inside the Null Process\r\n");
 		//release_processor();
 	}
 }
 
 void load_null_process() {
 	
-	rtx_dbug_outs((CHAR *)"In Init Null Process() \r\n");
+	TRACE("In Init Null Process()\r\n");
 
 	 all_processes[0].ID = 0;
      all_processes[0].priority = 4;
@@ -36,23 +35,17 @@ void load_null_process() {
 	 *all_processes[0].curr_SP = all_processes[0].entry;
 	 all_processes[0].curr_SP--;
 	 *all_processes[0].curr_SP = 0x4000 << 16 | K_SR; // Value to be decided by sudhir for User Process
-	 //all_processes[0].curr_SP--; 
-	 //rtx_dbug_outs( itoa(all_processes[0].curr_SP) );
 
 	 enqueue(ready_queue , all_processes[0].ID , all_processes[0].priority );
-	 //blah = all_processes[0].curr_SP;
-	 //asm("move.l  blah , %a7" ); // This is temp ( Need to figure out the Variable or method to store this)
-	 //asm("rte");
-	 
 }
 
 void load_test_processes() {
 
 	int i;
-	rtx_dbug_outs((CHAR *)"In Init Null Process()8 \r\n");
+	TRACE("In Init Null Process()8\r\n");
 	 /* get the third party test proc initialization info */
     __REGISTER_TEST_PROCS_ENTRY__();
-	rtx_dbug_outs((CHAR *)"In Init Null Process()9 \r\n");
+	TRACE("In Init Null Process()9\r\n");
 
 	// Save Test Processes
     for (i =1; i< NUM_TEST_PROCS+1; i++ ) {
@@ -76,17 +69,16 @@ void load_test_processes() {
     }
 
 	for (i =0; i< 10; i++ ) {
-		rtx_dbug_outs( (CHAR *) "\n\r Process= " );
+		TRACE("\r\nProcess= " );
 		struct process *next_process = &all_processes[i];
 		int *sp = all_processes[i].curr_SP;
 		int *ep = all_processes[i].entry;
-		rtx_dbug_outs( itoa((next_process)) );
-		rtx_dbug_outs( (CHAR *) "\n\r SP= " );
-		rtx_dbug_outs( itoa((sp)) );
-		rtx_dbug_outs( (CHAR *) "\n\r EP= " );
-		rtx_dbug_outs( itoa((ep)) );
+		TRACE(itoa((next_process)));
+		TRACE("\r\nSP= " );
+		TRACE(itoa((sp)));
+		TRACE("\r\nEP= " );
+		TRACE(itoa((ep)));
 	}
-	rtx_dbug_outs( (CHAR *) "\n\r" );
 }
 
 void init_pcb()
@@ -96,7 +88,7 @@ void init_pcb()
 	malloc_init(&(__end));
 	scheduler_init();
     init_trap();
-	rtx_dbug_outs((CHAR *)"In init_pcb() \r\n");
+	TRACE("In init_pcb()\r\n");
 
 	//init_memory();
 	//timer_init();
