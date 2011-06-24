@@ -114,3 +114,15 @@ init_funcs() {
     g_test_fixture.set_process_priority = set_process_priority;
     g_test_fixture.get_process_priority = get_process_priority;
 }
+
+int __main(void)
+{
+	return 0;
+}
+
+int main(void)
+{
+	TRACE("init.c\r\n");
+	init_pcb();
+	return 0;
+}
