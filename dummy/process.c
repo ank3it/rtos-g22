@@ -21,7 +21,7 @@ int __main(void)
 
 int main(void)
 {
-	rtx_dbug_outs((CHAR *) "process.c\r\n");
+	TRACE("process.c\r\n");
 	init_pcb();
 	return 0;
 }
@@ -64,11 +64,10 @@ void scheduler_run()
 	/* Swap in new running process */
 	int new_running_process_ID = dequeue(ready_queue);
 	
-	rtx_dbug_outs(itoa(new_running_process_ID));
-	rtx_dbug_outs((CHAR *) "\r\n");
+	TRACE(itoa(new_running_process_ID));
+	TRACE("\r\n");
 
 	running_process = get_proc(new_running_process_ID);
-	//running_process->state = STATE_RUNNING;
 	load_context(new_running_process_ID);
 }
 
@@ -84,11 +83,14 @@ int k_release_processor()
 	
 	if(running_process->state == STATE_RUNNING){
 		running_process->state = STATE_READY;
-		//save_context(running_process->ID);
-		enqueue(ready_queue, running_process->ID, running_process->priority);
+
+		enqueue(ready_queue, 
+				running_process->ID, 
+				running_process->priority);
 
 		running_process = NULL;
 	}
+
 	scheduler_run();
 
 	return RTX_SUCCESS;
@@ -99,10 +101,8 @@ void save_context(int process_ID)
 	struct process * curr_process;
 	curr_process = get_proc(process_ID);
 
-//#ifdef CONTEXT_DEBUG
-	rtx_dbug_outs( (CHAR *) "\n\r Current Process= " );
-	rtx_dbug_outs( itoa(curr_process) );
-//#endif
+	TRACE("\n\r Current Process= " );
+	TRACE( itoa(curr_process) );
 
 	asm("move.l %%d5, %0" : "=m" (curr_process->curr_SP));	
 }
@@ -117,9 +117,9 @@ void load_context(int process_ID)
 	{
 		if (next_process->state == STATE_READY)
 		{	next_process->state = STATE_RUNNING;
-			rtx_dbug_outs( (CHAR *) "in Ready State\n\r" );
+			TRACE("in Ready State\n\r" );
 			asm("move.l %0, %%d5" : : "m" (sp));
-			rtx_dbug_outs((CHAR*)"yes\n\r");
+			TRACE("yes\n\r");
 		}
 		else {
 			next_process->state = STATE_RUNNING;
@@ -143,7 +143,7 @@ struct process * get_proc(int process_ID)
  */
 int k_set_process_priority(int process_ID, int priority)
 {
-	rtx_dbug_outs( (CHAR *) "\n\r In Set process Priority" );
+	TRACE("\n\r In Set process Priority" );
 
 	/* Check for invalid priorities */
 	if (priority > PRIORITY_3 || priority < PRIORITY_0)
@@ -151,7 +151,7 @@ int k_set_process_priority(int process_ID, int priority)
 
 	/* Don't need to change anything */
 	if (priority == k_get_process_priority(process_ID)) {
-		rtx_dbug_outs( (CHAR *) "Exiting!!\n\r" );
+		TRACE("Exiting!!\n\r" );
 		return RTX_SUCCESS;
 	}
 
@@ -176,7 +176,7 @@ int k_set_process_priority(int process_ID, int priority)
 
 	/* Run scheduler in case a process needs to be pre-empted */
 	scheduler_run();
-	rtx_dbug_outs( (CHAR *) "Scheduler Run!!\n\r" );
+	TRACE("Scheduler Run!!\n\r" );
 
 	return RTX_SUCCESS;
 }
@@ -188,6 +188,55 @@ int k_set_process_priority(int process_ID, int priority)
  */ 
 int k_get_process_priority(int process_ID)
 {
-	rtx_dbug_outs(itoa(process_ID));
+	TRACE(itoa(process_ID));
 	return get_proc(process_ID)->priority;
+}
+
+/**
+ * @brief: Send a message in a message envelope to another process
+ * @param: process_ID The ID of the process the message is being sent to
+ * @param: message_envelope Memory data block containing the message envelope
+ * @return: 0 on success, -1 otherwise
+ */
+int k_send_message(int process_ID, void *message_envelope)
+{
+	return RTX_ERROR;
+}
+
+/**
+ * @brief: Receive message from process mailbox. Blocks the calling process
+ * 	if the maailbox is empty
+ * @param: sender_ID Filled by the function with the message sender's ID
+ * @return: Pointer to a message envelope struct
+ */
+void *k_receive_message(int *sender_ID)
+{  
+        // check mailbox of current process... block it if
+        // it isn't currently blocked so that it's expecting a message
+        if(running_process->mailbox_head == NULL)
+        {
+			/* Mailbox is empty! Block the process */
+			save_context(running_process->ID);
+			running_process->state = STATE_BLOCKED;
+			running_process->block_type = BLOCK_RECEIVE;
+
+			enqueue(blocked_queue, 
+					running_process->ID, 
+					running_process->priority);
+
+			running_process = NULL;
+			scheduler_run();
+
+			return NULL;
+        }
+        else
+        {
+        	/* else grab the first message and remove it from the mailbox */
+			struct envelope *e = running_process->mailbox_head;
+			running_process->mailbox_head = e->next;
+
+			/* Set sender_ID return parameter and return pointer to envelope */
+			sender_ID = e->sender_process_ID;
+			return e;
+    	}
 }

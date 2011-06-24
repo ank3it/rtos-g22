@@ -6,7 +6,9 @@
 
 CC=m68k-elf-gcc
 CXX=m68k-elf-g++
-CFLAGS= -Wall -m5307 -pipe -nostdlib
+#CFLAGS= -Wall -m5307 -pipe -nostdlib
+#CFLAGS= -Wall -m5307 -pipe -nostdlib -D_CFSERVER_
+CFLAGS= -Wall -m5307 -pipe -nostdlib -D_CFSERVER_ -D_DEBUG_
 LD=m68k-elf-gcc
 AS=m68k-elf-as
 AR=m68k-elf-ar

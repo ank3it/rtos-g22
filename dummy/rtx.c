@@ -18,7 +18,7 @@
 /* Interprocess Communications*/
 int send_message (int process_ID, void * MessageEnvelope)
 {
-    rtx_dbug_outs((CHAR *)"rtx: send_message \r\n");
+    TRACE("rtx: send_message \r\n");
 	//push d2 & d3 on stack
 	asm("move.l %d2, -(%a7)");
 	asm("move.l %d3, -(%a7)");
@@ -38,7 +38,7 @@ void * receive_message(int * sender_ID)
 	//push d2 on stack
 	asm("move.l %d2, -(%a7)");
 	
-    rtx_dbug_outs((CHAR *)"rtx: receive_message \r\n");
+    TRACE("rtx: receive_message \r\n");
 	asm("move.l %0, %%d2 " : : "m" (sender_ID));
 	setpr(1);
 	asm( "TRAP #10" );
@@ -49,7 +49,7 @@ void * receive_message(int * sender_ID)
 /*Memory Management*/
 void * request_memory_block() 
 {
-    rtx_dbug_outs((CHAR *)"rtx: request_memory_block \r\n");
+    TRACE("rtx: request_memory_block \r\n");
 	setpr(2);
 	asm( "TRAP #10" );
     return NULL;
@@ -57,7 +57,7 @@ void * request_memory_block()
 
 int release_memory_block(void * MemoryBlock)
 {
-    rtx_dbug_outs((CHAR *)"rtx: release_memory_block \r\n");
+    TRACE("rtx: release_memory_block \r\n");
 	
 	//push d2 on stack
 	asm("move.l %d2, -(%a7)");
@@ -72,7 +72,7 @@ int release_memory_block(void * MemoryBlock)
 int release_processor()
 {
 
-    rtx_dbug_outs((CHAR *)"rtx: release_processor \r\n");
+    TRACE("rtx: release_processor \r\n");
 	setpr(4);
 	asm( "TRAP #10" );
     return 0;
@@ -87,7 +87,7 @@ int delayed_send(int process_ID, void * MessageEnvelope, int delay)
 	asm("move.l %d4, -(%a7)");
 	
 	
-    rtx_dbug_outs((CHAR *)"rtx: delayed_send \r\n");
+    TRACE("rtx: delayed_send \r\n");
     asm("move.l %0, %%d2 " : : "m" (process_ID));
 	asm("move.l %0, %%d3 " : : "m" (MessageEnvelope));
 	asm("move.l %0, %%d4 " : : "m" (delay));
@@ -108,7 +108,7 @@ int set_process_priority (int process_ID, int priority)
 	asm("move.l %d2, -(%a7)");
 	asm("move.l %d3, -(%a7)");
 	
-    rtx_dbug_outs((CHAR *)"rtx: set_process_priority \r\n");
+    TRACE("rtx: set_process_priority \r\n");
     asm("move.l %0, %%d2 " : : "m" (process_ID));
 	asm("move.l %0, %%d3 " : : "m" (priority));
 	setpr(6);
@@ -124,7 +124,7 @@ int get_process_priority (int process_ID)
 	//push d2 on stack
 	asm("move.l %d2, -(%a7)");
 
-    rtx_dbug_outs((CHAR *)"rtx: get_process_priority \r\n");
+    TRACE("rtx: get_process_priority \r\n");
     asm("move.l %0, %%d2 " : : "m" (process_ID));
 	setpr(7);
 	asm( "TRAP #10" );

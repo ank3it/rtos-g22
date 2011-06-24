@@ -33,5 +33,4 @@
 #define BLOCK_MEMORY			1
 #define BLOCK_RECEIVE			2
 
-
 #endif /* _DEFS_H_ */
