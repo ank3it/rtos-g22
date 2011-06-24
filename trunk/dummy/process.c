@@ -9,24 +9,6 @@
 #include "process.h"
 #include "init.h"
 
-
-int counter;
-
-/* ----- Testing functions ----- */
-/* Reomve these later! */
-int __main(void)
-{
-	return 0;
-}
-
-int main(void)
-{
-	TRACE("process.c\r\n");
-	init_pcb();
-	return 0;
-}
-/* ----- End testing functions ----- */
-
 /**
  * @brief: Initialize scheduler by creating ready and blocked 
  *	queues and setting the running process to NULL
@@ -233,6 +215,10 @@ void *k_receive_message(int *sender_ID)
         {
         	/* else grab the first message and remove it from the mailbox */
 			struct envelope *e = running_process->mailbox_head;
+			/* If popping mailbox with one element */
+			if (running_process->mailbox_head == running_process->mailbox_tail)
+				running_process->mailbox_tail = NULL;
+
 			running_process->mailbox_head = e->next;
 
 			/* Set sender_ID return parameter and return pointer to envelope */
