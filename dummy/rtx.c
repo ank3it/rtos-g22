@@ -18,6 +18,7 @@
 /* Interprocess Communications*/
 int send_message (int process_ID, void * MessageEnvelope)
 {
+	int result;
     TRACE("rtx: send_message \r\n");
 	//push d2 & d3 on stack
 	asm("move.l %d2, -(%a7)");
@@ -27,10 +28,12 @@ int send_message (int process_ID, void * MessageEnvelope)
 	asm("move.l %0, %%d3 " : : "m" (MessageEnvelope));
 	setpr(0);
 	asm( "TRAP #10" );
+	/* Get result out of d2 */
+	asm("move.l %%d2, %0" : "=m" (result));
 				//changing the values of registers back to their orginal values
 	asm("move.l (%a7)+, %d3");
 	asm("move.l (%a7)+, %d2");
-	return 0;
+	return result;
 }
 
 void * receive_message(int * sender_ID)

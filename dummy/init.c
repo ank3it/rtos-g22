@@ -58,6 +58,8 @@ void load_test_processes() {
 		// Increment the current_sp as this will the starting point of the stack
 		current_sp = malloc(all_processes[i].sz_stack) + all_processes[i].sz_stack; 
 		all_processes[i].curr_SP = current_sp;
+		all_processes[i].mailbox_head = NULL;
+		all_processes[i].mailbox_tail = NULL;
 	 
 		// Save the Exceprtion Stack Frame
 		all_processes[i].curr_SP--;

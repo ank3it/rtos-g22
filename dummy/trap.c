@@ -23,6 +23,7 @@ VOID c_trap_handler( VOID )
     int process_ID, delay, priority;
 	void * MessageEnvelope, * MemoryBlock;
 	int * sender_ID;
+	int result;
 	
 	TRACE("Trap Handler!!\n\r" );
 	switch (CURR_TRAP) {
@@ -31,13 +32,16 @@ VOID c_trap_handler( VOID )
 			asm("move.l %%d2 , %0" : "=m" (process_ID));
 			asm("move.l %%d3 , %0" : "=m" (MessageEnvelope));
 			
-			//k_send_message(process_ID,MessageEnvelope);
+			result = k_send_message(process_ID,MessageEnvelope);
+			TRACE(itoa(result));
+			
+			asm("move.l %0, %%d2" : : "m" (result));
 			
 			break;
 		
 		case 1:
 			asm("move.l %%d2 , %0" : "=m" (sender_ID));
-			//k_receive_message(sender_ID);
+			k_receive_message(sender_ID);
 			
 			break;
 		
@@ -84,6 +88,8 @@ VOID c_trap_handler( VOID )
 		default:
 			break;
 	}
+
+	scheduler_run();
 }
 
 /*
