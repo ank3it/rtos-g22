@@ -98,12 +98,12 @@ void init_pcb()
 
 	load_test_processes();
 
-	init_funcs();
+//	init_funcs();
 
 	scheduler_run();
 }
 
-init_funcs() {
+void  __attribute__ ((section ("__REGISTER_RTX__"))) init_funcs() {
 
 	g_test_fixture.send_message = send_message;
     g_test_fixture.receive_message = receive_message;
