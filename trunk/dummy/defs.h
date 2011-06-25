@@ -8,6 +8,9 @@
 #ifndef _DEFS_H_
 #define _DEFS_H_
 
+#define NUM_MEM_BLKS 32
+#define MAX_BLK_SIZE 128
+
 #define NUM_PROCS 10
 #define K_SR 0x2700
 #define U_SR 0x0

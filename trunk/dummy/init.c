@@ -92,7 +92,7 @@ void init_pcb()
     init_trap();
 	TRACE("In init_pcb()\r\n");
 
-	//init_memory();
+	init_memory();
 	//timer_init();
 	
 	// Null Process
