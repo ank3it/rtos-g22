@@ -40,7 +40,7 @@ void init_memory()
  *         and NULL on error 
  */
 
-void* s_request_memory_block()
+void* k_request_memory_block()
 {
 
 	void* returnVal = *tail;
@@ -60,7 +60,7 @@ void* s_request_memory_block()
  * @return: 0 on sucess, non-zero on error
  */
 
-int s_release_memory_block( void* memory_block )
+int k_release_memory_block( void* memory_block )
 {
 	int* temp_tail;
 	int traverse_mem;
