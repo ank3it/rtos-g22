@@ -181,8 +181,37 @@ int k_get_process_priority(int process_ID)
  * @return: 0 on success, -1 otherwise
  */
 int k_send_message(int process_ID, void *message_envelope)
-{
-	return RTX_ERROR;
+{	
+	struct envelope *e;
+	e->message = message_envelope;
+	
+	/*
+	e->sender_process_ID = message_envelope->sender_process_ID;
+	e->dest_process_ID = message_envelope->dest_process_ID;
+	*/
+	
+	struct process *send_process;
+	send_process = get_proc(process_ID);
+	
+	if(send_process->state == STATE_BLOCKED && send_process->block_type == BLOCK_RECEIVE)
+	{
+		send_process->mailbox_head = e;
+		
+		remove(blocked_queue, process_ID);		 //i'm not sure about this, should i be removing it from the blocked queue?
+		enqueue(ready_queue, 
+					send_process->ID, 
+					send_process->priority);
+		scheduler_run();
+	}else{
+		
+		if (send_process->mailbox_head == send_process->mailbox_tail){
+				send_process->mailbox_head = e;
+				send_process->mailbox_tail = NULL;
+		}
+
+		e->next = send_process->mailbox_head;
+		send_process->mailbox_head = e;
+	}
 }
 
 /**
