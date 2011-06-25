@@ -9,6 +9,8 @@
 #include "process.h"
 #include "init.h"
 
+#define MESSAGE_HEADER_OFFSET 64
+
 /**
  * @brief: Initialize scheduler by creating ready and blocked 
  *	queues and setting the running process to NULL
@@ -45,10 +47,6 @@ void scheduler_run()
 
 	/* Swap in new running process */
 	int new_running_process_ID = dequeue(ready_queue);
-	
-	TRACE(itoa(new_running_process_ID));
-	TRACE("\r\n");
-
 	running_process = get_proc(new_running_process_ID);
 	load_context(new_running_process_ID);
 }
@@ -73,24 +71,39 @@ int k_release_processor()
 		running_process = NULL;
 	}
 
-	scheduler_run();
-
 	return RTX_SUCCESS;
 }
 
 void save_context(int process_ID)
 {
+	TRACE("----- Saving context -----\r\n");
 	struct process * curr_process;
 	curr_process = get_proc(process_ID);
 
-	TRACE("\n\r Current Process= " );
+	TRACE("Current Process= " );
 	TRACE( itoa(curr_process) );
+	TRACE("\r\n");
 
-	asm("move.l %%d5, %0" : "=m" (curr_process->curr_SP));	
+	asm("move.l %%d5, %0" : "=m" (curr_process->curr_SP));
+
+	asm("move.l %%d0, %0" : "=m" (curr_process->d0));
+	asm("move.l %%d1, %0" : "=m" (curr_process->d1));
+	asm("move.l %%d2, %0" : "=m" (curr_process->d2));
+	asm("move.l %%d3, %0" : "=m" (curr_process->d3));
+	asm("move.l %%d4, %0" : "=m" (curr_process->d4));
+	asm("move.l %%d6, %0" : "=m" (curr_process->d6));
+	asm("move.l %%d7, %0" : "=m" (curr_process->d7));
+	asm("move.l %%a0, %0" : "=m" (curr_process->a0));
+	asm("move.l %%a1, %0" : "=m" (curr_process->a1));
+	asm("move.l %%a2, %0" : "=m" (curr_process->a2));
+	asm("move.l %%a3, %0" : "=m" (curr_process->a3));
+	asm("move.l %%a4, %0" : "=m" (curr_process->a4));
+	asm("move.l %%a5, %0" : "=m" (curr_process->a5));
 }
 
 void load_context(int process_ID)
 {
+	TRACE("----- Loading context -----\r\n");
 	struct process *next_process = 
 	next_process = get_proc(process_ID);
 	int *sp = next_process->curr_SP;
@@ -99,11 +112,25 @@ void load_context(int process_ID)
 	{
 		if (next_process->state == STATE_READY)
 		{	next_process->state = STATE_RUNNING;
-			TRACE("in Ready State\n\r" );
+			TRACE("Loading context of ready process\n\r" );
 			asm("move.l %0, %%d5" : : "m" (sp));
-			TRACE("yes\n\r");
+
+			asm("move.l %0, %%d0" : : "m" (next_process->d0));
+			asm("move.l %0, %%d1" : : "m" (next_process->d1));
+			asm("move.l %0, %%d2" : : "m" (next_process->d2));
+			asm("move.l %0, %%d3" : : "m" (next_process->d3));
+			asm("move.l %0, %%d4" : : "m" (next_process->d4));
+			asm("move.l %0, %%d6" : : "m" (next_process->d6));
+			asm("move.l %0, %%d7" : : "m" (next_process->d7));
+			asm("move.l %0, %%a0" : : "m" (next_process->a0));
+			asm("move.l %0, %%a1" : : "m" (next_process->a1));
+			asm("move.l %0, %%a2" : : "m" (next_process->a2));
+			asm("move.l %0, %%a3" : : "m" (next_process->a3));
+			asm("move.l %0, %%a4" : : "m" (next_process->a4));
+			asm("move.l %0, %%a5" : : "m" (next_process->a5));
 		}
 		else {
+			TRACE("Loading context of new process\r\n");
 			next_process->state = STATE_RUNNING;
 			asm("move.l %0, %%a7" : : "m" (sp));
 			asm("rte");
@@ -156,10 +183,6 @@ int k_set_process_priority(int process_ID, int priority)
 		enqueue(ready_queue, process_ID, priority);
 	}
 
-	/* Run scheduler in case a process needs to be pre-empted */
-	scheduler_run();
-	TRACE("Scheduler Run!!\n\r" );
-
 	return RTX_SUCCESS;
 }
 
@@ -181,36 +204,39 @@ int k_get_process_priority(int process_ID)
  * @return: 0 on success, -1 otherwise
  */
 int k_send_message(int process_ID, void *message_envelope)
-{	
-	struct envelope *e;
-	e->message = message_envelope;
-	
-	/*
-	e->sender_process_ID = message_envelope->sender_process_ID;
-	e->dest_process_ID = message_envelope->dest_process_ID;
-	*/
-	
-	struct process *send_process;
-	send_process = get_proc(process_ID);
-	
-	if(send_process->state == STATE_BLOCKED && send_process->block_type == BLOCK_RECEIVE)
-	{
-		send_process->mailbox_head = e;
-		
-		remove(blocked_queue, process_ID);		 //i'm not sure about this, should i be removing it from the blocked queue?
-		enqueue(ready_queue, 
-					send_process->ID, 
-					send_process->priority);
-		scheduler_run();
-	}else{
-		
-		if (send_process->mailbox_head == send_process->mailbox_tail){
-				send_process->mailbox_head = e;
-				send_process->mailbox_tail = NULL;
-		}
+{
+	/* Check if given parameters are invalid */
+	if (process_ID >= NUM_PROCS || process_ID < 0 || message_envelope == NULL)
+		return RTX_ERROR;
 
-		e->next = send_process->mailbox_head;
-		send_process->mailbox_head = e;
+	/* Populate header fields */
+	struct envelope *e = (struct envelope *)message_envelope;
+	e->sender_process_ID = running_process->ID;
+	e->dest_process_ID = process_ID;
+	e->next = NULL;
+	e->message = message_envelope + MESSAGE_HEADER_OFFSET;
+	
+	struct process *dest_process;
+	dest_process = get_proc(process_ID);
+	
+	/* Add message to process mailbox */
+	if (dest_process->mailbox_head == NULL)
+		dest_process->mailbox_head = e;
+	else
+		dest_process->mailbox_tail->next = e;
+
+	dest_process->mailbox_tail = e;
+
+	/* Unblock destination process if it is blocked on receive */
+	if(dest_process->state == STATE_BLOCKED 
+		&& dest_process->block_type == BLOCK_RECEIVE)
+	{
+		dest_process->state = STATE_READY;
+		dest_process->block_type = BLOCK_NONE;
+		remove(blocked_queue, process_ID);
+		enqueue(ready_queue, 
+				dest_process->ID, 
+				dest_process->priority);
 	}
 }
 
@@ -221,37 +247,41 @@ int k_send_message(int process_ID, void *message_envelope)
  * @return: Pointer to a message envelope struct
  */
 void *k_receive_message(int *sender_ID)
-{  
-        // check mailbox of current process... block it if
-        // it isn't currently blocked so that it's expecting a message
-        if(running_process->mailbox_head == NULL)
-        {
-			/* Mailbox is empty! Block the process */
-			save_context(running_process->ID);
-			running_process->state = STATE_BLOCKED;
-			running_process->block_type = BLOCK_RECEIVE;
+{
+	TRACE("k_receive_message()\r\n");
+	// check mailbox of current process... block it if
+	// it isn't currently blocked so that it's expecting a message
+	if(running_process->mailbox_head == NULL)
+	{
+		TRACE("Mailbox is empty!\r\n");
 
-			enqueue(blocked_queue, 
-					running_process->ID, 
-					running_process->priority);
+		/* Mailbox is empty! Block the process */
+		save_context(running_process->ID);
+		running_process->state = STATE_BLOCKED;
+		running_process->block_type = BLOCK_RECEIVE;
 
-			running_process = NULL;
-			scheduler_run();
+		enqueue(blocked_queue, 
+				running_process->ID, 
+				running_process->priority);
 
-			return NULL;
-        }
-        else
-        {
-        	/* else grab the first message and remove it from the mailbox */
-			struct envelope *e = running_process->mailbox_head;
-			/* If popping mailbox with one element */
-			if (running_process->mailbox_head == running_process->mailbox_tail)
-				running_process->mailbox_tail = NULL;
+		running_process = NULL;
 
-			running_process->mailbox_head = e->next;
+		return NULL;
+	}
+	else
+	{
+		/* else grab the first message and remove it from the mailbox */
+		struct envelope *e = running_process->mailbox_head;
 
-			/* Set sender_ID return parameter and return pointer to envelope */
-			sender_ID = e->sender_process_ID;
-			return e;
-    	}
+		/* If popping mailbox with one element */
+		if (running_process->mailbox_head == running_process->mailbox_tail)
+			running_process->mailbox_tail = NULL;
+
+		running_process->mailbox_head = e->next;
+
+		/* Set sender_ID return parameter and return pointer to envelope */
+		if (sender_ID != NULL)
+			*sender_ID = e->sender_process_ID;
+		return e;
+	}
 }

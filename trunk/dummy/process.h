@@ -30,6 +30,20 @@ struct process
 	int sz_stack;
 	struct envelope *mailbox_head;
 	struct envelope *mailbox_tail;
+	int d0;
+	int d1;
+	int d2;
+	int d3;
+	int d4;
+	int d5;
+	int d6;
+	int d7;
+	int a0;
+	int a1;
+	int a2;
+	int a3;
+	int a4;
+	int a5;
 };
 
 struct process all_processes[NUM_PROCS];
@@ -53,7 +67,7 @@ void save_context(int);
 void load_context(int);
 
 /* Retrieve the PCB of the given process */
-struct process * get_proc(int);
+struct process *get_proc(int);
 
 /* Set process priority to given value */
 int k_set_process_priority(int, int); 

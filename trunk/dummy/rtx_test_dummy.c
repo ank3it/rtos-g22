@@ -77,12 +77,24 @@ VOID reverse(CHAR *s, int length)
 void test1()
 {
 	while(1) {
+		/*
 		rtx_dbug_outs((CHAR *)"rtx_test: test1\r\n");
 		rtx_dbug_outs((CHAR *) "priority: ");
 		rtx_dbug_outs(itoa(g_test_fixture.get_process_priority(1)));
 		rtx_dbug_outs((CHAR *) "\r\n");
 		g_test_fixture.release_processor();
 		rtx_dbug_outs((CHAR *)"blah1\r\n");
+		*/
+
+		TRACE("\r\n--------------------\r\n");
+		TRACE("TEST 1\r\n");
+		TRACE("--------------------\r\n");
+
+		TRACE("Testing receive_message()'s blocking functionality\r\n");
+		int sender_ID = -1;
+		TRACE("Calling receive_message()\r\n");
+		g_test_fixture.receive_message(&sender_ID);
+		g_test_fixture.release_processor();
 	}
 }
 
@@ -90,16 +102,26 @@ void test1()
 void test2()
 {
 	while(1) {
+		/*
 		rtx_dbug_outs((CHAR *)"rtx_test: test2\r\n");
 		g_test_fixture.release_processor();
+		g_test_fixture.set_process_priority(4, 1);
 		rtx_dbug_outs((CHAR *)"blah2\r\n");
+		*/
+
+		TRACE("\r\n--------------------\r\n");
+		TRACE("TEST 2\r\n");
+		TRACE("--------------------\r\n");
+		g_test_fixture.release_processor();
 	}
 }
 /* third party dummy test process 3 */ 
 void test3()
 {
 	while(1) {
-		rtx_dbug_outs((CHAR *)"rtx_test: test3\r\n");
+		TRACE("\r\n--------------------\r\n");
+		TRACE("TEST 3\r\n");
+		TRACE("--------------------\r\n");
 		g_test_fixture.release_processor();
 		rtx_dbug_outs((CHAR *)"blah3\r\n");
 	}
@@ -109,7 +131,9 @@ void test3()
 void test4()
 {
 	while(1) {
-		rtx_dbug_outs((CHAR *)"rtx_test: test4\r\n");
+		TRACE("\r\n--------------------\r\n");
+		TRACE("TEST 4\r\n");
+		TRACE("--------------------\r\n");
 		g_test_fixture.release_processor();
 		rtx_dbug_outs((CHAR *)"blah4\r\n");
 	}
@@ -118,7 +142,9 @@ void test4()
 void test5()
 {
 	while(1) {
-		rtx_dbug_outs((CHAR *)"rtx_test: test5\r\n");
+		TRACE("\r\n--------------------\r\n");
+		TRACE("TEST 5\r\n");
+		TRACE("--------------------\r\n");
 		g_test_fixture.release_processor();
 		rtx_dbug_outs((CHAR *)"blah5\r\n");
 	}
@@ -127,7 +153,9 @@ void test5()
 void test6()
 {
 	while(1) {
-		rtx_dbug_outs((CHAR *)"rtx_test: test6\r\n");
+		TRACE("\r\n--------------------\r\n");
+		TRACE("TEST 6\r\n");
+		TRACE("--------------------\r\n");
 		g_test_fixture.release_processor();
 		rtx_dbug_outs((CHAR *)"blah6\r\n");
 	}
