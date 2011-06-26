@@ -285,11 +285,6 @@ int k_get_process_priority(int process_ID)
 int k_send_message(int process_ID, void *message_envelope)
 {
 	TRACE("k_send_message()\r\n");
-	TRACE("process_ID = ");
-	TRACE(itoa(process_ID));
-	TRACE("\r\nmessage_envelope = ");
-	TRACE(itoa(message_envelope));
-	TRACE("\r\n");
 	/* Check if given parameters are invalid */
 	if (process_ID < 0 || process_ID > NUM_PROCS ||  message_envelope == NULL)
 		return RTX_ERROR;
@@ -300,6 +295,20 @@ int k_send_message(int process_ID, void *message_envelope)
 	e->dest_process_ID = process_ID;
 	e->next = NULL;
 	e->message = message_envelope + MESSAGE_HEADER_OFFSET;
+
+	TRACE("message_envelope = ");
+	TRACE(itoa(message_envelope));
+	TRACE("\r\nsender_process_ID = ");
+	TRACE(itoa(e->sender_process_ID));
+	TRACE("\r\ndest_process_ID = ");
+	TRACE(itoa(e->dest_process_ID));
+	TRACE("\r\nnext = ");
+	TRACE(itoa(e->next));
+	TRACE("\r\nmessage = ");
+	TRACE(itoa(e->message));
+	TRACE("\r\nvalue at message = ");
+	TRACE(itoa(*(int *)(e->message)));
+	TRACE("\r\n");
 	
 	struct process *dest_process;
 	dest_process = get_proc(process_ID);
@@ -311,6 +320,16 @@ int k_send_message(int process_ID, void *message_envelope)
 		dest_process->mailbox_tail->next = e;
 
 	dest_process->mailbox_tail = e;
+
+	TRACE("dest_process->mailbox_head = ");
+	TRACE(itoa(dest_process->mailbox_head));
+	TRACE("\r\n");
+	TRACE("dest_process->mailbox_head->next = ");
+	TRACE(itoa(dest_process->mailbox_head->next));
+	TRACE("\r\n");
+	TRACE("dest_process->mailbox_tail = ");
+	TRACE(itoa(dest_process->mailbox_tail));
+	TRACE("\r\n");
 
 	/* Unblock destination process if it is blocked on receive */
 	if(dest_process->state == STATE_BLOCKED 
@@ -329,8 +348,8 @@ int k_send_message(int process_ID, void *message_envelope)
 void *k_receive_message(int *sender_ID)
 {
 	TRACE("k_receive_message()\r\n");
-	// check mailbox of current process... block it if
-	// it isn't currently blocked so that it's expecting a message
+	/* Check if there is a message waiting in mailbox; blocking the
+	 * process if there isn't */
 	if(running_process->mailbox_head == NULL)
 	{
 		TRACE("Mailbox is empty!\r\n");
@@ -342,14 +361,41 @@ void *k_receive_message(int *sender_ID)
 	}
 	else
 	{
+		TRACE("Mailbox is NOT empty\r\n");
 		/* else grab the first message and remove it from the mailbox */
 		struct envelope *e = running_process->mailbox_head;
+
+		TRACE("e = ");
+		TRACE(itoa(e));
+		TRACE("\r\n");
+
+		TRACE("sender_process_ID = ");
+		TRACE(itoa(e->sender_process_ID));
+		TRACE("\r\ndest_process_ID = ");
+		TRACE(itoa(e->dest_process_ID));
+		TRACE("\r\nnext = ");
+		TRACE(itoa(e->next));
+		TRACE("\r\nmessage = ");
+		TRACE(itoa(e->message));
+		TRACE("\r\nvalue at message = ");
+		TRACE(itoa(*(int *)(e->message)));
+		TRACE("\r\n");
 
 		/* If popping mailbox with one element */
 		if (running_process->mailbox_head == running_process->mailbox_tail)
 			running_process->mailbox_tail = NULL;
 
 		running_process->mailbox_head = e->next;
+
+		TRACE("running_process->mailbox_head = ");
+		TRACE(itoa(running_process->mailbox_head));
+		TRACE("\r\n");
+		TRACE("running_process->mailbox_head->next = ");
+		TRACE(itoa(running_process->mailbox_head->next));
+		TRACE("\r\n");
+		TRACE("running_process->mailbox_tail = ");
+		TRACE(itoa(running_process->mailbox_tail));
+		TRACE("\r\n");
 
 		/* Set sender_ID return parameter and return pointer to envelope */
 		if (sender_ID != NULL)
