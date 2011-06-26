@@ -36,4 +36,15 @@
 #define BLOCK_MEMORY			1
 #define BLOCK_RECEIVE			2
 
+/* Case values for function selection in trap handler */
+#define SYS_CALL_NONE					-1
+#define SYS_CALL_SEND_MESSAGE			0
+#define SYS_CALL_RECEIVE_MESSAGE		1
+#define SYS_CALL_REQUEST_MEMORY_BLOCK	2
+#define SYS_CALL_RELEASE_MEMORY_BLOCK	3
+#define	SYS_CALL_RELEASE_PROCESSOR		4
+#define SYS_CALL_DELAYED_SEND			5
+#define SYS_CALL_SET_PROCESS_PRIORITY	6
+#define SYS_CALL_GET_PROCESS_PRIORITY	7
+
 #endif /* _DEFS_H_ */

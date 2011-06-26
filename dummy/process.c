@@ -51,6 +51,11 @@ void scheduler_run()
 
 	/* Swap in new running process */
 	int new_running_process_ID = dequeue(ready_queue);
+
+	TRACE("new process_ID = ");
+	TRACE(itoa(new_running_process_ID));
+	TRACE("\r\n");
+
 	running_process = get_proc(new_running_process_ID);
 	load_context(new_running_process_ID);
 }
@@ -68,6 +73,13 @@ void block_running_process(int block_type)
 	save_context(running_process->ID);
 	running_process->state = STATE_BLOCKED;
 	running_process->block_type = block_type;
+
+	/* Store the system call that caused the block so that it can be 
+	 * run again once the process becomes unblocked */
+	if (block_type == BLOCK_RECEIVE)
+		running_process->pending_sys_call = SYS_CALL_RECEIVE_MESSAGE;
+	else if (block_type == BLOCK_MEMORY)
+		running_process->pending_sys_call = SYS_CALL_REQUEST_MEMORY_BLOCK;
 
 	enqueue(blocked_queue,
 			running_process->ID,
@@ -238,10 +250,8 @@ int k_set_process_priority(int process_ID, int priority)
 		return RTX_ERROR;
 
 	/* Don't need to change anything */
-	if (priority == k_get_process_priority(process_ID)) {
-		TRACE("Exiting k_set_process_priority()\n\r" );
+	if (priority == k_get_process_priority(process_ID))
 		return RTX_SUCCESS;
-	}
 
 	int state = get_proc(process_ID)->state;
 
@@ -296,20 +306,6 @@ int k_send_message(int process_ID, void *message_envelope)
 	e->next = NULL;
 	e->message = message_envelope + MESSAGE_HEADER_OFFSET;
 
-	TRACE("message_envelope = ");
-	TRACE(itoa(message_envelope));
-	TRACE("\r\nsender_process_ID = ");
-	TRACE(itoa(e->sender_process_ID));
-	TRACE("\r\ndest_process_ID = ");
-	TRACE(itoa(e->dest_process_ID));
-	TRACE("\r\nnext = ");
-	TRACE(itoa(e->next));
-	TRACE("\r\nmessage = ");
-	TRACE(itoa(e->message));
-	TRACE("\r\nvalue at message = ");
-	TRACE(itoa(*(int *)(e->message)));
-	TRACE("\r\n");
-	
 	struct process *dest_process;
 	dest_process = get_proc(process_ID);
 	
@@ -321,20 +317,12 @@ int k_send_message(int process_ID, void *message_envelope)
 
 	dest_process->mailbox_tail = e;
 
-	TRACE("dest_process->mailbox_head = ");
-	TRACE(itoa(dest_process->mailbox_head));
-	TRACE("\r\n");
-	TRACE("dest_process->mailbox_head->next = ");
-	TRACE(itoa(dest_process->mailbox_head->next));
-	TRACE("\r\n");
-	TRACE("dest_process->mailbox_tail = ");
-	TRACE(itoa(dest_process->mailbox_tail));
-	TRACE("\r\n");
-
 	/* Unblock destination process if it is blocked on receive */
 	if(dest_process->state == STATE_BLOCKED 
 		&& dest_process->block_type == BLOCK_RECEIVE)
+	{
 		unblock_process(process_ID, NULL);
+	}
 
 	return RTX_SUCCESS;
 }
@@ -352,7 +340,7 @@ void *k_receive_message(int *sender_ID)
 	 * process if there isn't */
 	if(running_process->mailbox_head == NULL)
 	{
-		TRACE("Mailbox is empty!\r\n");
+		TRACE("Mailbox is empty! Blocking process\r\n");
 
 		/* Mailbox is empty! Block the process */
 		block_running_process(BLOCK_RECEIVE);
@@ -365,37 +353,11 @@ void *k_receive_message(int *sender_ID)
 		/* else grab the first message and remove it from the mailbox */
 		struct envelope *e = running_process->mailbox_head;
 
-		TRACE("e = ");
-		TRACE(itoa(e));
-		TRACE("\r\n");
-
-		TRACE("sender_process_ID = ");
-		TRACE(itoa(e->sender_process_ID));
-		TRACE("\r\ndest_process_ID = ");
-		TRACE(itoa(e->dest_process_ID));
-		TRACE("\r\nnext = ");
-		TRACE(itoa(e->next));
-		TRACE("\r\nmessage = ");
-		TRACE(itoa(e->message));
-		TRACE("\r\nvalue at message = ");
-		TRACE(itoa(*(int *)(e->message)));
-		TRACE("\r\n");
-
 		/* If popping mailbox with one element */
 		if (running_process->mailbox_head == running_process->mailbox_tail)
 			running_process->mailbox_tail = NULL;
 
 		running_process->mailbox_head = e->next;
-
-		TRACE("running_process->mailbox_head = ");
-		TRACE(itoa(running_process->mailbox_head));
-		TRACE("\r\n");
-		TRACE("running_process->mailbox_head->next = ");
-		TRACE(itoa(running_process->mailbox_head->next));
-		TRACE("\r\n");
-		TRACE("running_process->mailbox_tail = ");
-		TRACE(itoa(running_process->mailbox_tail));
-		TRACE("\r\n");
 
 		/* Set sender_ID return parameter and return pointer to envelope */
 		if (sender_ID != NULL)

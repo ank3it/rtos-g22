@@ -50,6 +50,9 @@ void* k_request_memory_block()
 	}
 	
 	tail--;
+	TRACE("returnVal = ");
+	TRACE(itoa(returnVal));
+	TRACE("\r\n");
 	return returnVal;
 }
 	
@@ -62,6 +65,9 @@ void* k_request_memory_block()
 int k_release_memory_block( void* memory_block )
 {
 	TRACE("k_release_memory_block()\r\n");
+	TRACE("memory_block = ");
+	TRACE(itoa(memory_block));
+	TRACE("\r\n");
 	int* temp_tail;
 	int traverse_mem;
 	int chk_mem_blk = memory_block;
@@ -70,7 +76,7 @@ int k_release_memory_block( void* memory_block )
 	void* returnVal;
 	
 	// Check if we are freeing only the assigned blocks
-	rtx_dbug_outs( (CHAR *) "\n\r Check Assigned Blocks - Traverse Memory" );
+	TRACE("Check Assigned Blocks - Traverse Memory\r\n");
 	while ( i< NUM_MEM_BLKS ) {
 		traverse_mem = (int)head + ( NUM_MEM_BLKS + 1 )*4 + ( MAX_BLK_SIZE / 4 * i )*4; 
 		if ( chk_mem_blk == traverse_mem ) {
