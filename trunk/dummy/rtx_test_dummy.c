@@ -76,37 +76,10 @@ VOID reverse(CHAR *s, int length)
 /* third party dummy test process 1 */ 
 void test1()
 {
+	g_test_fixture.set_process_priority(1, 1);
 	while(1) {
 		TRACE("\r\n--------------------\r\n");
 		TRACE("TEST 1\r\n");
-		TRACE("--------------------\r\n");
-
-		TRACE("Calling request_memory_block()\r\n");
-		void *envelope = g_test_fixture.request_memory_block();
-		TRACE("evelope = ");
-		TRACE(itoa(envelope));
-		int *num = (int *)(envelope + 64);
-		*num = 555;
-		TRACE("\r\nnum = ");
-		TRACE(itoa(*num));
-		TRACE("\r\nCalling send_message()\r\n");
-		g_test_fixture.send_message(2, envelope);
-		
-		TRACE("\r\nCalling request_memory_block()\r\n");
-		void *envelope2 = g_test_fixture.request_memory_block();
-		*(int *)(envelope2 + 64) = 123;
-		TRACE("Calling send_message()\r\n");
-		g_test_fixture.send_message(2, envelope2);
-		g_test_fixture.release_processor();
-	}
-}
-
-/* third party dummy test process 2 */ 
-void test2()
-{
-	while(1) {
-		TRACE("\r\n--------------------\r\n");
-		TRACE("TEST 2\r\n");
 		TRACE("--------------------\r\n");
 
 		int sender_ID = -1;
@@ -126,6 +99,34 @@ void test2()
 		TRACE("sender_ID = ");
 		TRACE(itoa(sender_ID));
 		TRACE("\r\n");
+	}
+}
+
+/* third party dummy test process 2 */ 
+void test2()
+{
+	while(1) {
+		TRACE("\r\n--------------------\r\n");
+		TRACE("TEST 2\r\n");
+		TRACE("--------------------\r\n");
+
+		TRACE("Calling request_memory_block()\r\n");
+		void *envelope = g_test_fixture.request_memory_block();
+		TRACE("evelope = ");
+		TRACE(itoa(envelope));
+		int *num = (int *)(envelope + 64);
+		*num = 555;
+		TRACE("\r\nnum = ");
+		TRACE(itoa(*num));
+		TRACE("\r\nCalling send_message()\r\n");
+		g_test_fixture.send_message(1, envelope);
+		
+		TRACE("\r\nCalling request_memory_block()\r\n");
+		void *envelope2 = g_test_fixture.request_memory_block();
+		*(int *)(envelope2 + 64) = 123;
+		TRACE("Calling send_message()\r\n");
+		g_test_fixture.send_message(1, envelope2);
+		g_test_fixture.release_processor();
 		break;
 	}
 }

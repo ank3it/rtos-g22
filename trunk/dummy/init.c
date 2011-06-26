@@ -27,9 +27,12 @@ void load_null_process() {
 	all_processes[0].entry = null_process;
 	all_processes[0].state = STATE_NEW;
 	all_processes[0].block_type = BLOCK_NONE;
+	all_processes[0].pending_sys_call = SYS_CALL_NONE;
 	// Increment the current_sp as this will the starting point of the stack of the next process
 	current_sp = malloc(all_processes[0].sz_stack) + all_processes[0].sz_stack;//current_sp+all_processes[i].sz_stack ; 
 	all_processes[0].curr_SP = current_sp;
+	all_processes[0].mailbox_head = NULL;
+	all_processes[0].mailbox_tail = NULL;
 
 	// Save the Exceprtion Stack Frame
 	*all_processes[0].curr_SP = all_processes[0].entry;
@@ -56,6 +59,7 @@ void load_test_processes() {
 		all_processes[i].entry = g_test_proc[i-1].entry;
 		all_processes[i].state = STATE_NEW;
 		all_processes[i].block_type = BLOCK_NONE;
+		all_processes[i].pending_sys_call = SYS_CALL_NONE;
 		// Increment the current_sp as this will the starting point of the stack
 		current_sp = malloc(all_processes[i].sz_stack) + all_processes[i].sz_stack; 
 		all_processes[i].curr_SP = current_sp;

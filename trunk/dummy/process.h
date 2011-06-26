@@ -25,6 +25,7 @@ struct process
 	int priority;
 	int state;
 	int block_type;
+	int pending_sys_call;
 	VOID (*entry)();
 	int* curr_SP;
 	int sz_stack;
