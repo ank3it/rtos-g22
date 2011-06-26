@@ -19,33 +19,34 @@ void null_process()
 
 void load_null_process() {
 	
-	TRACE("In Init Null Process()\r\n");
+	TRACE("load_null_process()\r\n");
 
-	 all_processes[0].ID = 0;
-     all_processes[0].priority = 4;
-     all_processes[0].sz_stack = 512;
-	 all_processes[0].entry = null_process;
-	 all_processes[0].state = STATE_NEW;
-	 all_processes[0].block_type = BLOCK_NONE;
-	 // Increment the current_sp as this will the starting point of the stack of the next process
-	 current_sp = malloc(all_processes[0].sz_stack) + all_processes[0].sz_stack;//current_sp+all_processes[i].sz_stack ; 
-	 all_processes[0].curr_SP = current_sp;
+	all_processes[0].ID = 0;
+	all_processes[0].priority = 4;
+	all_processes[0].sz_stack = 512;
+	all_processes[0].entry = null_process;
+	all_processes[0].state = STATE_NEW;
+	all_processes[0].block_type = BLOCK_NONE;
+	// Increment the current_sp as this will the starting point of the stack of the next process
+	current_sp = malloc(all_processes[0].sz_stack) + all_processes[0].sz_stack;//current_sp+all_processes[i].sz_stack ; 
+	all_processes[0].curr_SP = current_sp;
 
-	 // Save the Exceprtion Stack Frame
-	 *all_processes[0].curr_SP = all_processes[0].entry;
-	 all_processes[0].curr_SP--;
-	 *all_processes[0].curr_SP = 0x4000 << 16 | K_SR; // Value to be decided by sudhir for User Process
+	// Save the Exceprtion Stack Frame
+	*all_processes[0].curr_SP = all_processes[0].entry;
+	all_processes[0].curr_SP--;
+	*all_processes[0].curr_SP = 0x4000 << 16 | K_SR; // Value to be decided by sudhir for User Process
 
-	 enqueue(ready_queue , all_processes[0].ID , all_processes[0].priority );
+	enqueue(ready_queue , all_processes[0].ID , all_processes[0].priority );
 }
 
 void load_test_processes() {
 
+	TRACE("load_test_processes()\r\n");	
+	
 	int i;
-	TRACE("In Init Null Process()8\r\n");
+
 	 /* get the third party test proc initialization info */
     __REGISTER_TEST_PROCS_ENTRY__();
-	TRACE("In Init Null Process()9\r\n");
 
 	// Save Test Processes
     for (i =1; i< NUM_TEST_PROCS+1; i++ ) {
@@ -70,6 +71,7 @@ void load_test_processes() {
 		enqueue(ready_queue , all_processes[i].ID , all_processes[i].priority );
     }
 
+	/*
 	for (i =0; i< 10; i++ ) {
 		TRACE("\r\nProcess= " );
 		struct process *next_process = &all_processes[i];
@@ -81,16 +83,18 @@ void load_test_processes() {
 		TRACE("\r\nEP= " );
 		TRACE(itoa((ep)));
 	}
+	*/
 }
 
 void init_pcb()
 {
+	TRACE("init_pcb()\r\n");
+
 	int i;
 
 	malloc_init(&(__end));
 	scheduler_init();
     init_trap();
-	TRACE("In init_pcb()\r\n");
 
 	init_memory();
 	//timer_init();
@@ -106,6 +110,7 @@ void init_pcb()
 }
 
 void  __attribute__ ((section ("__REGISTER_RTX__"))) init_funcs() {
+	TRACE("init_funcs()\r\n");
 
 	g_test_fixture.send_message = send_message;
     g_test_fixture.receive_message = receive_message;
@@ -124,7 +129,7 @@ int __main(void)
 
 int main(void)
 {
-	TRACE("init.c\r\n");
+	TRACE("main() of init.c\r\n");
 	init_pcb();
 	return 0;
 }
