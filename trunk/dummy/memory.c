@@ -42,16 +42,15 @@ void init_memory()
 
 void* k_request_memory_block()
 {
-
+	TRACE("k_request_memory_block()\r\n");
 	void* returnVal = *tail;
 	if ( tail == head ) {
-		//Block_Curr_Proc();
+		block_running_process(BLOCK_MEMORY);
 		return 0;
 	}
 	
 	tail--;
 	return returnVal;
-	
 }
 	
 
@@ -62,6 +61,7 @@ void* k_request_memory_block()
 
 int k_release_memory_block( void* memory_block )
 {
+	TRACE("k_release_memory_block()\r\n");
 	int* temp_tail;
 	int traverse_mem;
 	int chk_mem_blk = memory_block;
@@ -102,7 +102,7 @@ int k_release_memory_block( void* memory_block )
 	tail++;
 	*tail = memory_block;
 	
-	//Wake_Block_Proc(BLOCK_MEMORY);
+	unblock_process(NULL, BLOCK_MEMORY);
 	
 	return 0;
 

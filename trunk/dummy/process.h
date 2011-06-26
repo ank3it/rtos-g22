@@ -57,6 +57,12 @@ void scheduler_init();
 /* Select a process to run based on priority */
 void scheduler_run();
 
+/* Block the current running process */
+void block_running_process(int);
+
+/* Unblock either the given process, or the FIFO first process */
+void unblock_process(int, int);
+
 /* Yield the processor to another process */
 int k_release_processor();
 

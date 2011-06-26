@@ -77,22 +77,14 @@ VOID reverse(CHAR *s, int length)
 void test1()
 {
 	while(1) {
-		/*
-		rtx_dbug_outs((CHAR *)"rtx_test: test1\r\n");
-		rtx_dbug_outs((CHAR *) "priority: ");
-		rtx_dbug_outs(itoa(g_test_fixture.get_process_priority(1)));
-		rtx_dbug_outs((CHAR *) "\r\n");
-		g_test_fixture.release_processor();
-		rtx_dbug_outs((CHAR *)"blah1\r\n");
-		*/
-
 		TRACE("\r\n--------------------\r\n");
 		TRACE("TEST 1\r\n");
 		TRACE("--------------------\r\n");
 
-		TRACE("Testing receive_message()'s blocking functionality\r\n");
-		int sender_ID = -1;
+		TRACE("Calling request_memory_block()\r\n");
+		void *envelope = g_test_fixture.request_memory_block();
 		TRACE("Calling receive_message()\r\n");
+		int sender_ID = -1;
 		g_test_fixture.receive_message(&sender_ID);
 		g_test_fixture.release_processor();
 	}
@@ -102,13 +94,6 @@ void test1()
 void test2()
 {
 	while(1) {
-		/*
-		rtx_dbug_outs((CHAR *)"rtx_test: test2\r\n");
-		g_test_fixture.release_processor();
-		g_test_fixture.set_process_priority(4, 1);
-		rtx_dbug_outs((CHAR *)"blah2\r\n");
-		*/
-
 		TRACE("\r\n--------------------\r\n");
 		TRACE("TEST 2\r\n");
 		TRACE("--------------------\r\n");

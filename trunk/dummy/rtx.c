@@ -13,6 +13,7 @@
 #include "rtx.h"
 #include "dbug.h"
 #include "trap.h"
+#include "util.h"
 
 
 /* Interprocess Communications*/
@@ -20,6 +21,8 @@ int send_message (int process_ID, void * MessageEnvelope)
 {
 	int result;
     TRACE("rtx: send_message \r\n");
+	TRACE(itoa(MessageEnvelope));
+	TRACE("\r\n");
 	//push d2 & d3 on stack
 	asm("move.l %d2, -(%a7)");
 	asm("move.l %d3, -(%a7)");
@@ -45,17 +48,30 @@ void * receive_message(int * sender_ID)
 	asm("move.l %0, %%d2 " : : "m" (sender_ID));
 	setpr(1);
 	asm( "TRAP #10" );
+
+	/* Get sender_ID from d2 */
+	asm("move.l %%d2, %0" : "=m" (sender_ID));
+
 	asm("move.l (%a7)+, %d2");
-	
 }
 
 /*Memory Management*/
 void * request_memory_block() 
 {
+	void *result;
+	/* Save registers */
+	asm("move.l %d2, -(%a7)");
+
     TRACE("rtx: request_memory_block \r\n");
 	setpr(2);
 	asm( "TRAP #10" );
-    return NULL;
+
+	/* Get result out of d2 */
+	asm("move.l %%d2, %0" : "=m" (result));
+
+	/* Restore registers */
+	asm("move.l (%a7)+, %d2");
+    return result;
 }
 
 int release_memory_block(void * MemoryBlock)

@@ -54,6 +54,10 @@ mdummy.s19: m2.s19 rtx_loader.s19
 	python merge.py mdummy.s19 m2.s19 rtx_loader.s19 
 	chmod u+x mdummy.s19
 
+mdummy1.s19: rtx.s19 light_03Mar2011/mlight.s19
+	python merge.py mdummy.s19 rtx.s19 light_03Mar2011/mlight.s19 
+	chmod u+x mdummy.s19
+
 .c.o:
 	$(CC) $(CFLAGS) -c $< 
 

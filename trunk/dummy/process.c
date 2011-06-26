@@ -17,6 +17,8 @@
  */
 void scheduler_init()
 {
+	TRACE("scheduler_init()\r\n");
+
 	ready_queue = malloc(sizeof(struct queue));
 	queue_init(ready_queue);
 
@@ -31,6 +33,8 @@ void scheduler_init()
  */
 void scheduler_run()
 {
+	TRACE("scheduler_run()\r\n");
+
 	if (ready_queue->head == NULL
 		|| running_process->priority <= ready_queue->head->priority)
 		return;
@@ -52,11 +56,86 @@ void scheduler_run()
 }
 
 /**
+ * @brief: Enqueue the running process onto the blocked_queue and update
+ * 	the state information
+ * @param: block_type An integer representing the cause of the block
+ */
+void block_running_process(int block_type)
+{
+	if (running_process == NULL)
+		return;
+
+	save_context(running_process->ID);
+	running_process->state = STATE_BLOCKED;
+	running_process->block_type = block_type;
+
+	enqueue(blocked_queue,
+			running_process->ID,
+			running_process->priority);
+
+	running_process = NULL;
+}
+
+/**
+ * @brief: If process_ID is specified then process with given process_ID
+ *	is moved to the ready_queue regardless of block_type. If process_ID 
+ *	is NULL then the FIFO 1st process in the blocked_queue with the
+ *	given block_type is moved to the ready_queue
+ * @param: process_ID The ID of the process to be unblocked; can be NULL
+ * @param: block_type The block type of the process to dequeue from the
+ *	blocked_queue; can be NULL
+ */
+void unblock_process(int process_ID, int block_type)
+{
+	if (process_ID != NULL)
+	{
+		if (process_ID < 0 || process_ID >= NUM_PROCS)
+			return;
+
+		if (remove(blocked_queue, process_ID) == RTX_SUCCESS)
+		{
+			struct process *p = get_proc(process_ID);
+			p->state = STATE_READY;
+			p->block_type = BLOCK_NONE;
+			enqueue(ready_queue,
+					p->ID,
+					p->priority);
+		}
+	}
+	else if (block_type != NULL)
+	{
+		struct queue_node *node = blocked_queue->head;
+		struct process *proc;
+
+		/* Search for appropriate node to unblock */
+		while (node != NULL)
+		{
+			proc = get_proc(node->value);
+			if (proc->block_type == block_type)
+			{
+				remove(blocked_queue, proc->ID);
+				proc->state = STATE_READY;
+				proc->block_type = BLOCK_NONE;
+				enqueue(ready_queue,
+						proc->ID,
+						proc->priority);
+			}
+
+			node = node->next;
+		}
+	}
+	else
+		return;
+}
+
+/**
  * @brief: Swaps the currently running process with the next one in the
  *	ready queue
  */
 int k_release_processor()
 {
+	TRACE("k_release_processor()\r\n");
+
 	//switch between processes 
 	//in order to get the previous process
 	save_context(running_process->ID);
@@ -76,7 +155,7 @@ int k_release_processor()
 
 void save_context(int process_ID)
 {
-	TRACE("----- Saving context -----\r\n");
+	TRACE("save_context()\r\n");
 	struct process * curr_process;
 	curr_process = get_proc(process_ID);
 
@@ -103,7 +182,7 @@ void save_context(int process_ID)
 
 void load_context(int process_ID)
 {
-	TRACE("----- Loading context -----\r\n");
+	TRACE("load_context()\r\n");
 	struct process *next_process = 
 	next_process = get_proc(process_ID);
 	int *sp = next_process->curr_SP;
@@ -152,7 +231,7 @@ struct process * get_proc(int process_ID)
  */
 int k_set_process_priority(int process_ID, int priority)
 {
-	TRACE("\n\r In Set process Priority" );
+	TRACE("k_set_process_priority()\r\n" );
 
 	/* Check for invalid priorities */
 	if (priority > PRIORITY_3 || priority < PRIORITY_0)
@@ -160,7 +239,7 @@ int k_set_process_priority(int process_ID, int priority)
 
 	/* Don't need to change anything */
 	if (priority == k_get_process_priority(process_ID)) {
-		TRACE("Exiting!!\n\r" );
+		TRACE("Exiting k_set_process_priority()\n\r" );
 		return RTX_SUCCESS;
 	}
 
@@ -193,7 +272,7 @@ int k_set_process_priority(int process_ID, int priority)
  */ 
 int k_get_process_priority(int process_ID)
 {
-	TRACE(itoa(process_ID));
+	TRACE("k_get_process_priority\r\n");
 	return get_proc(process_ID)->priority;
 }
 
@@ -205,8 +284,14 @@ int k_get_process_priority(int process_ID)
  */
 int k_send_message(int process_ID, void *message_envelope)
 {
+	TRACE("k_send_message()\r\n");
+	TRACE("process_ID = ");
+	TRACE(itoa(process_ID));
+	TRACE("\r\nmessage_envelope = ");
+	TRACE(itoa(message_envelope));
+	TRACE("\r\n");
 	/* Check if given parameters are invalid */
-	if (process_ID >= NUM_PROCS || process_ID < 0 || message_envelope == NULL)
+	if (process_ID < 0 || process_ID > NUM_PROCS ||  message_envelope == NULL)
 		return RTX_ERROR;
 
 	/* Populate header fields */
@@ -230,14 +315,9 @@ int k_send_message(int process_ID, void *message_envelope)
 	/* Unblock destination process if it is blocked on receive */
 	if(dest_process->state == STATE_BLOCKED 
 		&& dest_process->block_type == BLOCK_RECEIVE)
-	{
-		dest_process->state = STATE_READY;
-		dest_process->block_type = BLOCK_NONE;
-		remove(blocked_queue, process_ID);
-		enqueue(ready_queue, 
-				dest_process->ID, 
-				dest_process->priority);
-	}
+		unblock_process(process_ID, NULL);
+
+	return RTX_SUCCESS;
 }
 
 /**
@@ -256,15 +336,7 @@ void *k_receive_message(int *sender_ID)
 		TRACE("Mailbox is empty!\r\n");
 
 		/* Mailbox is empty! Block the process */
-		save_context(running_process->ID);
-		running_process->state = STATE_BLOCKED;
-		running_process->block_type = BLOCK_RECEIVE;
-
-		enqueue(blocked_queue, 
-				running_process->ID, 
-				running_process->priority);
-
-		running_process = NULL;
+		block_running_process(BLOCK_RECEIVE);
 
 		return NULL;
 	}

@@ -9,6 +9,7 @@
 #include "rtx_inc.h"
 #include "dbug.h"
 #include "process.h"
+#include "util.h"
 
 int CURR_TRAP = 0;
 void setpr(int value) {
@@ -20,20 +21,28 @@ void setpr(int value) {
  */
 VOID c_trap_handler( VOID )
 {
+	TRACE("c_trap_handler()\r\n");
+
     int process_ID, delay, priority;
 	void * MessageEnvelope, * MemoryBlock;
 	int * sender_ID;
 	int result;
-	
-	TRACE("Trap Handler!!\n\r" );
+	void *rmb_result = NULL;
+
 	switch (CURR_TRAP) {
 		case 0:
 			//initializing the variables
 			asm("move.l %%d2 , %0" : "=m" (process_ID));
 			asm("move.l %%d3 , %0" : "=m" (MessageEnvelope));
+
+			TRACE("MessageEnvelope = ");
+			TRACE(itoa(MessageEnvelope));
+			TRACE("\r\n");
 			
 			result = k_send_message(process_ID,MessageEnvelope);
+			TRACE("send message result: ");
 			TRACE(itoa(result));
+			TRACE("\r\n");
 			
 			asm("move.l %0, %%d2" : : "m" (result));
 			
@@ -43,10 +52,13 @@ VOID c_trap_handler( VOID )
 			asm("move.l %%d2 , %0" : "=m" (sender_ID));
 			k_receive_message(sender_ID);
 			
+			asm("move.l %0, %%d2" : : "m" (sender_ID));
 			break;
 		
 		case 2:
-			//k_request_memory_block();
+			rmb_result = k_request_memory_block();
+
+			asm("move.l %0, %%d2" : : "m" (rmb_result));
 			break;
 		
 		case 3:
@@ -97,12 +109,11 @@ VOID c_trap_handler( VOID )
  */
 int init_trap( void )
 {
+	TRACE("init_trap()\r\n");
     /* Load the vector table for TRAP #10 with our assembly stub
        address */
     asm( "move.l #asm_trap_entry,%d0" );
     asm( "move.l %d0,0x100000A8" );
-
-	TRACE("in Trap Init!!\n\r" );
 
     return 0;
 }
