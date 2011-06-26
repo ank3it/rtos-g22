@@ -26,75 +26,71 @@ VOID c_trap_handler( VOID )
     int process_ID, delay, priority;
 	void * MessageEnvelope, * MemoryBlock;
 	int * sender_ID;
-	int result;
-	void *rmb_result = NULL;
+	int result1;
+	void *result2 = NULL;
 
 	switch (CURR_TRAP) {
-		case 0:
+		case 0:	/* k_send_message() */
 			//initializing the variables
 			asm("move.l %%d2 , %0" : "=m" (process_ID));
 			asm("move.l %%d3 , %0" : "=m" (MessageEnvelope));
 
-			TRACE("MessageEnvelope = ");
-			TRACE(itoa(MessageEnvelope));
-			TRACE("\r\n");
+			result1 = k_send_message(process_ID,MessageEnvelope);
 			
-			result = k_send_message(process_ID,MessageEnvelope);
-			TRACE("send message result: ");
-			TRACE(itoa(result));
-			TRACE("\r\n");
-			
-			asm("move.l %0, %%d2" : : "m" (result));
-			
+			asm("move.l %0, %%d2" : : "m" (result1));
 			break;
 		
-		case 1:
+		case 1:	/* k_receive_message() */
 			asm("move.l %%d2 , %0" : "=m" (sender_ID));
-			k_receive_message(sender_ID);
+			result2 = k_receive_message(sender_ID);
 			
-			asm("move.l %0, %%d2" : : "m" (sender_ID));
+			asm("move.l %0, %%d2" : : "m" (result2));
+			asm("move.l %0, %%d3" : : "m" (sender_ID));
 			break;
 		
-		case 2:
-			rmb_result = k_request_memory_block();
+		case 2:	/* k_request_memory_block() */
+			result2 = k_request_memory_block();
 
-			asm("move.l %0, %%d2" : : "m" (rmb_result));
+			asm("move.l %0, %%d2" : : "m" (result2));
 			break;
 		
-		case 3:
+		case 3:	/* k_release_memory_block */
 			asm("move.l %%d2 , %0" : "=m" (MemoryBlock));
-			//k_release_memory_block(MemoryBlock);
-			
+			result1 = k_release_memory_block(MemoryBlock);
+
+			asm("move.l %0, %%d2" : : "m" (result1));
 			break;
 			
-		case 4:
-			k_release_processor();
+		case 4:	/* k_release_processor() */
+			result1 = k_release_processor();
 			
+			asm("move.l %0, %%d2" : : "m" (result1));
 			break;
 			
-		case 5:
+		case 5: /* k_delayed_send() */
 			asm("move.l %%d2 , %0" : "=m" (process_ID));
 			asm("move.l %%d3 , %0" : "=m" (MessageEnvelope));
 			asm("move.l %%d4 , %0" : "=m" (delay));
-			//k_delayed_send(process_ID, MessageEnvelope, delay);
-			
+			//result1 = k_delayed_send(process_ID, MessageEnvelope, delay);
+
+			asm("move.l %0, %%d2" : : "m" (result1));
 			break;
 			
-		case 6:
+		case 6:	/* k_set_process_priority() */
 			asm("move.l %%d2 , %0" : "=m" (process_ID));
 			asm("move.l %%d3 , %0" : "=m" (priority));
-			k_set_process_priority(process_ID,priority);
+			result1 = k_set_process_priority(process_ID,priority);
 			
+			asm("move.l %0, %%d2" : : "m" (result1));
 			break;
 		
-		case 7:
+		case 7:	/* k_get_process_priority() */
 			asm("move.l %%d2 , %0" : "=m" (process_ID));
 			
-			int result = k_get_process_priority(process_ID);
-			TRACE(itoa(result));
+			result1 = k_get_process_priority(process_ID);
+			TRACE(itoa(result1));
 			
-			asm("move.l %0, %%d2" : : "m" (result));
-
+			asm("move.l %0, %%d2" : : "m" (result1));
 			break;
 		
 		default:
