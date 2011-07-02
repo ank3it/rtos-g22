@@ -8,14 +8,16 @@
 #ifndef _UART1_H_
 #define _UART1_H_
 
-#include "../shared/rtx_inc.h"
-#include "../dbug/dbug.h"
+#include "rtx_inc.h"
+#include "dbug.h"
+#include "hotkeys.h"
 
 volatile BOOLEAN Caught;
 volatile BYTE CharIn;
 volatile BYTE CharOut;
 volatile BOOLEAN TransmitReady;
 
+void hotkeys();
 VOID uart1_init();				/* Initialize uart1 */
 VOID c_serial_handler( VOID );	/* Interrupt handler for UART1 */
 VOID print_char( CHAR c);		/* Put the character in the transmit register */
