@@ -9,6 +9,49 @@
 #include "uart1.h"
 
 /**
+ * @brief: Setting hotkeys
+ */
+void hotkeys()
+{
+	char char_input = SERIAL1_RD;
+	TRACE("\r\n");
+	switch(char_input)
+	{		
+		#ifdef _HOTKEYS_DEBUG
+			case 'Q'
+				TRACE("A hotkey was pressed");
+				print_ready_queue();
+				break;
+			case 'W'
+				TRACE("A hotkey was pressed");
+				print_blocked_memory_queue();
+				break;
+			case 'E'
+				TRACE("A hotkey was pressed");
+				print_blocked_receive_queue();
+				break;
+			case 'R'
+				TRACE("A hotkey was pressed");
+				print_all_process_info();
+				break;
+			case 'T'
+				TRACE("A hotkey was pressed");
+				print_avail_memory_block_queue();
+				break;			
+			case 'Y'
+				TRACE("A hotkey was pressed");
+				print_message_queue();
+				break;	
+		#endif
+	}
+	
+	TRACE("Sending message to KCD \r\n\");
+	envelope *message_send = (envelope *)request_memory_block();
+	message->message_data[0] = char_input;
+	send_message(KCD_ID, message_send);
+}
+
+/**
  * @brief: Initialize UART1 for I/O
  */
 VOID uart1_init()

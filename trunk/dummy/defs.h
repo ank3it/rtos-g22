@@ -17,6 +17,13 @@
 
 // Constant Defines
 #define NULL_PROCESS_ID			0
+#define PROCESS_A_ID			7
+#define PROCESS_B_ID			8
+#define PROCESS_C_ID			9
+#define KCD_ID					10
+#define CRT_ID					11
+#define UART_ID					12
+
 
 /* Process Priorities */
 #define PRIORITY_0				0
