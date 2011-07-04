@@ -8,7 +8,7 @@
 #ifndef _ENVELOPE_H_
 #define _ENVELOPE_H_
 
-#define MESSAGE_DATA_SIZE = 64
+#define MESSAGE_DATA_SIZE 64
 
 struct envelope
 {
