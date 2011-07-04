@@ -23,7 +23,7 @@ void set_priority_process()
 		{
 			process_id = //do some calculation to go from ascii to int
 			priority = //do some calculation to go from ascii to int
-			if(process_id >= 0 && priority >= 0 && priority <= 4)
+			if(process_id >= 0 && priority >= 0 && priority < 4)
 			{
 				TRACE("Inputed values are valid");
 				TRACE("\r\n");
