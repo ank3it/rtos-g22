@@ -13,9 +13,9 @@
  */
 void hotkeys()
 {
-	char char_input = SERIAL1_RD;
+	CharIn = SERIAL1_RD;
 	TRACE("\r\n");
-	switch(char_input)
+	switch(CharIn)
 	{		
 		#ifdef _HOTKEYS_DEBUG
 			case 'Q'
@@ -47,7 +47,7 @@ void hotkeys()
 	
 	TRACE("Sending message to KCD \r\n\");
 	envelope *message_send = (envelope *)request_memory_block();
-	message->message_data[0] = char_input;
+	message->message_data[0] = CharIn;
 	send_message(KCD_ID, message_send);
 }
 
