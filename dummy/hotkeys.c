@@ -27,14 +27,14 @@ void print_ready_queue()
 
 void print_blocked_memory_queue()
 {
-	int block_type;
+	
 	struct process *proc;
 	proc = blocked_queue->head;
 	
 	while(proc != blocked_queue->tail)
 	{
 		TRACE("\r\n");
-		if(block_type = BLOCK_MEMORY)
+		if(proc->block_type == BLOCK_MEMORY)
 		{
 			TRACE("Process ID: ");
 			TRACE(itoa(proc->ID));
@@ -56,7 +56,7 @@ void print_blocked_receive_queue()
 	while(proc != blocked_queue->tail)
 	{
 		TRACE("\r\n");
-		if(block_type = BLOCK_RECEIVE)
+		if(proc->block_type == = BLOCK_RECEIVE)
 		{
 			TRACE("Process ID: ");
 			TRACE(itoa(proc->ID));
