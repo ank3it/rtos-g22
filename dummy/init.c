@@ -175,7 +175,7 @@ void init_pcb()
 
 	init_memory();
 	uart_init();
-	//timer_init();
+	timer_init();
 	
 	// System Processes
 	load_null_process();
@@ -184,6 +184,8 @@ void init_pcb()
 	load_kcd_process();
 
 	load_test_processes();
+
+	//load_sys_process();
 
 //	init_funcs();
 

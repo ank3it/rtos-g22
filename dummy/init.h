@@ -4,7 +4,7 @@
 #include "process.h"
 #include "defs.h"
 #include "memory.h"
-//#include "timer.h"
+#include "timer.h"
 #include "queue.h"
 
 void load_null_process();
