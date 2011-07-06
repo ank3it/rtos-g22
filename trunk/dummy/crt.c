@@ -14,7 +14,7 @@ void crt()
 	{		
 		TRACE("Entering CRT....\n\r");
 		
-		envelope * msg_envl = (envelope *)receive_message(NULL);
+		envelope * msg_envl = (envelope *)k_receive_message(NULL);
 		TRACE("Message envelope = ");
 		TRACE(itoa(msg_envl));
 		TRACE("\r\n");
@@ -26,15 +26,15 @@ void crt()
 		}
 		else
 		{
-			while(msg_envl->message_data[i] != "\0")
+			while(msg_envl->message_data[i] != '\0')
 			{
-				envelope * UART_msg_envl = (envelope *)request_memory_block();
+				envelope * UART_msg_envl = (envelope *)k_request_memory_block();
 				UART_msg_envl->message_data[0] = msg_envl->message_data[i];
-				send_message(UART_ID, UART_msg_envl);
+				k_send_message(UART_ID, UART_msg_envl);
 				i++;
 			}
 		}
-		release_memory_block((void *) msg_envl);		
+		k_release_memory_block((void *) msg_envl);		
 		}
 	}
 }

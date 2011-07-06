@@ -14,6 +14,7 @@
 #include "dbug.h"
 #include "util.h"
 #include "malloc.h"
+#include "defs.h"
 
 void print_ready_queue();
 void print_blocked_memory_queue();

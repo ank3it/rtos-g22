@@ -31,10 +31,10 @@ void print_blocked_memory_queue()
 	struct process *proc;
 	proc = blocked_queue->head;
 	
-	if(block_type = BLOCK_MEMORY)
+	while(proc != blocked_queue->tail)
 	{
 		TRACE("\r\n");
-		while(proc != blocked_queue->tail)
+		if(block_type = BLOCK_MEMORY)
 		{
 			TRACE("Process ID: ");
 			TRACE(itoa(proc->ID));
@@ -53,10 +53,10 @@ void print_blocked_receive_queue()
 	struct process *proc;
 	proc = blocked_queue->head;
 	
-	if(block_type = BLOCK_RECEIVE)
+	while(proc != blocked_queue->tail)
 	{
 		TRACE("\r\n");
-		while(proc != blocked_queue->tail)
+		if(block_type = BLOCK_RECEIVE)
 		{
 			TRACE("Process ID: ");
 			TRACE(itoa(proc->ID));
@@ -70,10 +70,20 @@ void print_blocked_receive_queue()
 }
 
 //TODO: Print available memory and used memory
-void print_avail_memory_block_queue()
+void print_used_memory_block()
 {
-	return NULL;
-
+	int traverse_mem;
+	int chk_mem_blk;
+	TRACE("Printing out used memory blocks\r\n");
+	while ( i< NUM_MEM_BLKS ) {
+		traverse_mem = (int)head + ( NUM_MEM_BLKS + 1 )*4 + ( MAX_BLK_SIZE / 4 * i )*4; 
+		if ( chk_mem_blk == traverse_mem ) {
+			TRACE(itoa(traverse_mem));
+			TRACE("\r\n");
+			break;
+		}
+		i++;
+	}
 }
 
 void print_all_process_info()

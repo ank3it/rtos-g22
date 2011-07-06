@@ -18,27 +18,27 @@ void hotkeys()
 	switch(CharIn)
 	{		
 		#ifdef _HOTKEYS_DEBUG
-			case 'Q'
+			case '!'
 				TRACE("A hotkey was pressed");
 				print_ready_queue();
 				break;
-			case 'W'
+			case '@'
 				TRACE("A hotkey was pressed");
 				print_blocked_memory_queue();
 				break;
-			case 'E'
+			case '#'
 				TRACE("A hotkey was pressed");
 				print_blocked_receive_queue();
 				break;
-			case 'R'
+			case '$'
 				TRACE("A hotkey was pressed");
 				print_all_process_info();
 				break;
-			case 'T'
+			case '^'
 				TRACE("A hotkey was pressed");
-				print_avail_memory_block_queue();
+				print_used_memory_block();
 				break;			
-			case 'Y'
+			case '&'
 				TRACE("A hotkey was pressed");
 				print_message_queue();
 				break;	
