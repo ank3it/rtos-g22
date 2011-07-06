@@ -180,8 +180,8 @@ void init_pcb()
 	// System Processes
 	load_null_process();
 	load_uart_iprocess();
-	load_crt_process();
-	load_kcd_process();
+	//load_crt_process();
+	//load_kcd_process();
 
 	load_test_processes();
 
