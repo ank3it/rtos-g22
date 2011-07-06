@@ -10,7 +10,8 @@
 
 #include "dbug.h"
 
-void c_trap_handler( void );
+void c_trap_handler();
+void execute_sys_call();
 void setpr(int value);
 int init_trap( void );
 
