@@ -24,31 +24,31 @@ void enqueue_local_message(envelope *message)
 void ProcessA()
 {
 	struct envelope *p;
-	p = request_memory_block();
+	p = k_request_memory_block();
 	//not sure about the commands yet
 	command('Z');
 	
 	while(1)
 	{
-		p = (envelope *)receive_message(NULL);
+		p = (envelope *)k_receive_message(NULL);
 		if(message p contains 'Z')
 		{
-			release_memory_block((void *)p);
+			k_release_memory_block((void *)p);
 			break;
 		}
 		else
-			release_memory_block((void *)p);
+			k_release_memory_block((void *)p);
 	}
 	
 	num = 0;
 	while(1)
 	{
-		p = (envelope *)request_memory_block();
+		p = (envelope *)k_request_memory_block();
 		p->message_type = COUNT_REPORT;
 		p->data = num;
-		send_message(PROCESS_B, p);
+		k_send_message(PROCESS_B, p);
 		num = num + 1;
-		release_processor();
+		k_release_processor();
 	}
 }
 
@@ -57,8 +57,8 @@ void ProcessB()
 	struct envelope *pB;
 	while(1)
 	{
-		pB = receive_message(NULL);
-		send_message(PROCESS_C, pB);
+		pB = k_receive_message(NULL);
+		k_send_message(PROCESS_C, pB);
 	}
 }
 
@@ -73,7 +73,7 @@ void ProcessC()
 	{
 		if(temp_message_head == NULL)
 		{
-			pC = (envelope *)receive_message(NULL);
+			pC = (envelope *)k_receive_message(NULL);
 		}
 		else
 		{
@@ -85,17 +85,17 @@ void ProcessC()
 		{
 			if(msg_data[0] % 20 == 0)
 			{
-				pC = (envelope *)request_memory_block();
-				send_message(CRT, pC);
+				pC = (envelope *)k_request_memory_block();
+				k_send_message(CRT, pC);
 				
-				q = (envelope *)request_memory_block();
+				q = (envelope *)k_request_memory_block();
 				q->message_type = WAKEUP10;
 				//not sure
-				delayed_send(PROCESS_C_ID ,q, 10000);
+				k_delayed_send(PROCESS_C_ID ,q, 10000);
 				
 				while(1)
 				{
-					pC = (envelope *)receive_message(NULL);
+					pC = (envelope *)k_receive_message(NULL);
 					if(pC->message_type = WAKEUP10)
 					{
 						break;
@@ -107,7 +107,7 @@ void ProcessC()
 				}				
 			}
 		}		
-		release_memory_block((void *)pC);
-		release_processor();
+		k_release_memory_block((void *)pC);
+		k_release_processor();
 	}
 }
