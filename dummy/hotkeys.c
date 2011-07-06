@@ -72,7 +72,8 @@ void print_blocked_receive_queue()
 //TODO: Print available memory and used memory
 void print_used_memory_block()
 {
-	int traverse_mem;
+  void * memory_block;
+	int traverse_mem = (int *)memory_block;
 	int chk_mem_blk;
 	TRACE("Printing out used memory blocks\r\n");
 	while ( i< NUM_MEM_BLKS ) {
