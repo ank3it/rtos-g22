@@ -15,13 +15,13 @@ AR=m68k-elf-ar
 ARFLAGS=
 OBJCPY=m68k-elf-objcopy
 OBJDUMP=m68k-elf-objdump
-ASM_ENTRY = trap_entry.s uart_entry.s
+ASM_ENTRY = trap_entry.s uart_entry.s timer_entry.s
 ASM=start.s
 LDFLAGS_RTX = -Trtx.ld -Wl,-Map=rtx.map
 LDFLAGS_RTX_LOADER = -Trtx_loader.ld -Wl,-Map=rtx_loader.map
 LDFLAGS_RTX_TEST = -Trtx_test.ld -Wl,-Map=rtx_test.map
 
-RTX_OBJS = dbug.o util.o malloc.o queue.o uart.o process.o init.o trap.o rtx.o memory.o 
+RTX_OBJS = dbug.o util.o malloc.o queue.o process.o init.o trap.o rtx.o memory.o timer.o uart.o 
 RTX_LOADER_OBJS = dbug.o rtx_loader.o
 RTX_TEST_DUMMY_OBJS = dbug.o rtx_test_dummy.o
 
