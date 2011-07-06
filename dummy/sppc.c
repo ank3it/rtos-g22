@@ -14,11 +14,11 @@ void set_priority_process()
 	envelope * msg_envl = NULL;
 	msg_envl->message_data[0] = '%';
 	msg_envl->message_data[1] = 'C';
-	msg_envl = (envelope *)request_memory_block();
+	msg_envl = (envelope *)k_request_memory_block();
 	
 	while(1)
 	{
-		msg_envl = (envelope *)receive_message(NULL);
+		msg_envl = (envelope *)k_receive_message(NULL);
 		if(msg_envl->message_data[2] = ' ')
 		{
 			process_id = //do some calculation to go from ascii to int
@@ -41,9 +41,9 @@ void set_priority_process()
 					
 					Trace("Value(s) inputted are incorrect");
 					TRACE("\r\n");
-					send_message(CRT_ID, msg_envl);
+					k_send_message(CRT_ID, msg_envl);
 			}
-			release_memory_block(msg_envl);
+			k_release_memory_block(msg_envl);
 		}
 	}
 }
