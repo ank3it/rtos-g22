@@ -10,7 +10,9 @@
 #include "defs.h"
 #include "dbug.h"
 #include "process.h"
+#include "memory.h"
 #include "util.h"
+#include "trap.h"
 
 int CURR_TRAP = 0;
 void setpr(int value) {
@@ -20,7 +22,7 @@ void setpr(int value) {
 /*
  * This function is called by the assembly STUB function
  */
-VOID c_trap_handler( VOID )
+void c_trap_handler()
 {
 	TRACE("c_trap_handler()\r\n");
 

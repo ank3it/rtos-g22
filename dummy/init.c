@@ -3,10 +3,10 @@
 #include "rtx.h"
 #include "malloc.h"
 #include "trap.h"
+#include "uart.h"
 
 char* current_sp;
 extern int __end;
-int* blah;
 
 void null_process()
 {
@@ -17,12 +17,12 @@ void null_process()
 	}
 }
 
-void load_null_process() {
-	
+void load_null_process() 
+{
 	TRACE("load_null_process()\r\n");
 
-	all_processes[0].ID = 0;
-	all_processes[0].priority = 4;
+	all_processes[0].ID = NULL_PROCESS_ID;
+	all_processes[0].priority = NULL_PROCESS_PRIORITY;
 	all_processes[0].sz_stack = 512;
 	all_processes[0].entry = null_process;
 	all_processes[0].state = STATE_NEW;
@@ -40,6 +40,79 @@ void load_null_process() {
 	*all_processes[0].curr_SP = 0x4000 << 16 | K_SR; // Value to be decided by sudhir for User Process
 
 	enqueue(ready_queue , all_processes[0].ID , all_processes[0].priority );
+}
+
+void load_uart_iprocess()
+{
+	TRACE("load_uart_iprocess()\r\n");
+
+	all_processes[UART_IPROCESS_ID].ID = UART_IPROCESS_ID;
+	all_processes[UART_IPROCESS_ID].priority = UART_IPROCESS_PRIORITY;
+	all_processes[UART_IPROCESS_ID].sz_stack = 512;
+	all_processes[UART_IPROCESS_ID].entry = uart_iprocess;
+	all_processes[UART_IPROCESS_ID].state = STATE_READY;
+	all_processes[UART_IPROCESS_ID].block_type = BLOCK_NONE;
+	all_processes[UART_IPROCESS_ID].pending_sys_call = SYS_CALL_NONE;
+	// Increment the current_sp as this will the starting point of the stack of the next process
+	current_sp = malloc(all_processes[UART_IPROCESS_ID].sz_stack) + all_processes[UART_IPROCESS_ID].sz_stack;//current_sp+all_processes[i].sz_stack ; 
+	all_processes[UART_IPROCESS_ID].curr_SP = current_sp;
+	all_processes[UART_IPROCESS_ID].mailbox_head = NULL;
+	all_processes[UART_IPROCESS_ID].mailbox_tail = NULL;
+
+	// Save the Exceprtion Stack Frame
+	*all_processes[UART_IPROCESS_ID].curr_SP = all_processes[UART_IPROCESS_ID].entry;
+	all_processes[UART_IPROCESS_ID].curr_SP--;
+	*all_processes[UART_IPROCESS_ID].curr_SP = 0x4000 << 16 | K_SR; // Value to be decided by sudhir for User Process
+}
+
+void load_crt_process()
+{
+	TRACE("load_crt_process()\r\n");
+
+	all_processes[CRT_PROCESS_ID].ID = CRT_PROCESS_ID;
+	all_processes[CRT_PROCESS_ID].priority = CRT_PROCESS_PRIORITY;
+	all_processes[CRT_PROCESS_ID].sz_stack = 512;
+	all_processes[CRT_PROCESS_ID].entry = crt_display_process;
+	all_processes[CRT_PROCESS_ID].state = STATE_NEW;
+	all_processes[CRT_PROCESS_ID].block_type = BLOCK_NONE;
+	all_processes[CRT_PROCESS_ID].pending_sys_call = SYS_CALL_NONE;
+	// Increment the current_sp as this will the starting point of the stack of the next process
+	current_sp = malloc(all_processes[CRT_PROCESS_ID].sz_stack) + all_processes[CRT_PROCESS_ID].sz_stack;//current_sp+all_processes[i].sz_stack ; 
+	all_processes[CRT_PROCESS_ID].curr_SP = current_sp;
+	all_processes[CRT_PROCESS_ID].mailbox_head = NULL;
+	all_processes[CRT_PROCESS_ID].mailbox_tail = NULL;
+
+	// Save the Exceprtion Stack Frame
+	*all_processes[CRT_PROCESS_ID].curr_SP = all_processes[CRT_PROCESS_ID].entry;
+	all_processes[CRT_PROCESS_ID].curr_SP--;
+	*all_processes[CRT_PROCESS_ID].curr_SP = 0x4000 << 16 | K_SR; // Value to be decided by sudhir for User Process
+
+	enqueue(ready_queue , all_processes[CRT_PROCESS_ID].ID , all_processes[CRT_PROCESS_ID].priority );
+}
+
+void load_kcd_process()
+{
+	TRACE("load_kcd_process()\r\n");
+
+	all_processes[KCD_PROCESS_ID].ID = KCD_PROCESS_ID;
+	all_processes[KCD_PROCESS_ID].priority = KCD_PROCESS_PRIORITY;
+	all_processes[KCD_PROCESS_ID].sz_stack = 512;
+	all_processes[KCD_PROCESS_ID].entry = crt_display_process;
+	all_processes[KCD_PROCESS_ID].state = STATE_NEW;
+	all_processes[KCD_PROCESS_ID].block_type = BLOCK_NONE;
+	all_processes[KCD_PROCESS_ID].pending_sys_call = SYS_CALL_NONE;
+	// Increment the current_sp as this will the starting point of the stack of the next process
+	current_sp = malloc(all_processes[KCD_PROCESS_ID].sz_stack) + all_processes[KCD_PROCESS_ID].sz_stack;//current_sp+all_processes[i].sz_stack ; 
+	all_processes[KCD_PROCESS_ID].curr_SP = current_sp;
+	all_processes[KCD_PROCESS_ID].mailbox_head = NULL;
+	all_processes[KCD_PROCESS_ID].mailbox_tail = NULL;
+
+	// Save the Exceprtion Stack Frame
+	*all_processes[KCD_PROCESS_ID].curr_SP = all_processes[KCD_PROCESS_ID].entry;
+	all_processes[KCD_PROCESS_ID].curr_SP--;
+	*all_processes[KCD_PROCESS_ID].curr_SP = 0x4000 << 16 | K_SR; // Value to be decided by sudhir for User Process
+
+	enqueue(ready_queue , all_processes[KCD_PROCESS_ID].ID , all_processes[KCD_PROCESS_ID].priority );
 }
 
 void load_test_processes() {
@@ -101,10 +174,14 @@ void init_pcb()
     init_trap();
 
 	init_memory();
+	uart_init();
 	//timer_init();
 	
-	// Null Process
+	// System Processes
 	load_null_process();
+	load_uart_iprocess();
+	load_crt_process();
+	load_kcd_process();
 
 	load_test_processes();
 

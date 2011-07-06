@@ -16,13 +16,16 @@
 #define U_SR 0x0
 
 // Constant Defines
+
+/* System process IDs */
 #define NULL_PROCESS_ID			0
 #define PROCESS_A_ID			7
 #define PROCESS_B_ID			8
 #define PROCESS_C_ID			9
-#define KCD_ID					10
-#define CRT_ID					11
-#define UART_ID					12
+#define KCD_PROCESS_ID			10
+#define CRT_PROCESS_ID			11
+#define UART_IPROCESS_ID		12
+#define TIMER_IPROCESS_ID		13
 
 
 /* Process Priorities */
@@ -30,7 +33,11 @@
 #define PRIORITY_1				1
 #define PRIORITY_2				2
 #define PRIORITY_3				3
+
 #define NULL_PROCESS_PRIORITY	4
+#define UART_IPROCESS_PRIORITY	0
+#define KCD_PROCESS_PRIORITY	0
+#define CRT_PROCESS_PRIORITY	0
 
 /* Process states */
 #define STATE_NEW				0
@@ -53,5 +60,12 @@
 #define SYS_CALL_DELAYED_SEND			5
 #define SYS_CALL_SET_PROCESS_PRIORITY	6
 #define SYS_CALL_GET_PROCESS_PRIORITY	7
+
+/* Command identifier used by the KCD */
+#define COMMAND_PROMPT			'%'
+
+/* KCD process message types */
+#define COMMAND_REGISTRATION	0
+#define KEYBOARD_INPUT			1
 
 #endif /* _DEFS_H_ */
