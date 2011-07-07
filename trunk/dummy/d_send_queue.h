@@ -20,6 +20,7 @@ struct queue_node
 	int process_ID;
 	void * MessageEnvelope; 
 	int delay;
+	struct queue_node *next;
 };
 
 struct queue
@@ -32,7 +33,7 @@ struct queue
 void queue_init(struct queue *);
 
 /* Add node to queue */
-int enqueue(struct queue *, int, int);
+int enqueue(struct queue *, int, void *, int);
 
 /* Pop first node from queue and return node value */
 int dequeue(struct queue *); 
