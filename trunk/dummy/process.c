@@ -8,9 +8,12 @@
 
 #include "process.h"
 #include "init.h"
+#include "timer.h"
+
 
 #define MESSAGE_HEADER_OFFSET 64
 
+extern SINT32 __Counter2;
 /**
  * @brief: Initialize scheduler by creating ready and blocked 
  *	queues and setting the running process to NULL
@@ -364,4 +367,21 @@ void *k_receive_message(int *sender_ID)
 			*sender_ID = e->sender_process_ID;
 		return e;
 	}
+}
+
+
+/* * @brief: the invoking process does not block. The message (in the memory block pointed to by the second parameter) will be 
+   sent to the destination process (process_ID) after the expiration of the delay (timeout, given in msec units).
+ * @param: sender_ID Filled by the function with the message sender's ID
+ */
+
+void k_send_delay(int process_ID, void * MessageEnvelope, int delay)
+{
+	int TimeAdded_delay;
+	TimeAdded_delay = __Counter2 + delay;
+	
+	if ( TimeAdded_delay > __Counter2){
+		enqueue(delayed_send_queue, process_ID, MessageEnvelope, TimeAdded_delay)
+	}
+	
 }
