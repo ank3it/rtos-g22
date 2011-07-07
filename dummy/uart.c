@@ -86,7 +86,21 @@ void c_uart_handler()
 {
 	TRACE("c_uart_handler()\r\n");
 	/* TODO: Load uart_iprocess */
-	scheduler_run();
+	save_context(running_process->ID);
+	
+	if(running_process->state == STATE_RUNNING){
+		running_process->state = STATE_READY;
+
+		enqueue(ready_queue, 
+				running_process->ID, 
+				running_process->priority);
+
+		running_process = NULL;
+	}
+	
+	running_process = get_proc(UART_IPROCESS_ID);
+	
+	load_context(UART_IPROCESS_ID);
 	return;
 }
 
@@ -95,6 +109,7 @@ void c_uart_handler()
  */
 void uart_iprocess()
 {
+	while(1) {
 	TRACE("uart_iprocess()\r\n");
 
 	/* Acknowledge interrupt */
@@ -121,6 +136,7 @@ void uart_iprocess()
 	}
 
 	k_release_processor();
+	}
 }
 
 /**
