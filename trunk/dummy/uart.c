@@ -20,6 +20,8 @@
  */
 void uart_init()
 {
+
+	TRACE (" in uart init");
 	UINT32 mask;
 
 	/* Disable all interrupts */
@@ -82,7 +84,9 @@ void uart_init()
  */
 void c_uart_handler()
 {
+	TRACE("c_uart_handler()\r\n");
 	/* TODO: Load uart_iprocess */
+	scheduler_run();
 	return;
 }
 
@@ -131,7 +135,7 @@ void kcd_process()
 
 	while (TRUE)
 	{
-		struct envelope *e = (struct envelope *)k_receive_message(NULL);
+		struct envelope *e = (struct envelope *)receive_message(NULL);
 
 		if (e->message_type == COMMAND_REGISTRATION)
 		{
@@ -175,9 +179,9 @@ void crt_display_process()
 {
 	while(TRUE)
 	{
-		struct envelope *e = (struct envelope *)k_receive_message(NULL);
+		struct envelope *e = (struct envelope *)receive_message(NULL);
 		/* Extract character string from message */
-		k_release_memory_block((void *)e);
+		release_memory_block((void *)e);
 		/* Loop through the characters in the string, sending each character to 
 		 * the uart_iprocess for transmission to uart1 */
 	}
