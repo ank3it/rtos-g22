@@ -76,12 +76,11 @@ VOID reverse(CHAR *s, int length)
 /* third party dummy test process 1 */ 
 void test1()
 {
-	g_test_fixture.set_process_priority(1, 1);
 	while(1) {
 		TRACE("\r\n--------------------\r\n");
 		TRACE("TEST 1\r\n");
 		TRACE("--------------------\r\n");
-
+/*
 		int sender_ID = -1;
 		TRACE("Calling receive_message()\r\n");
 		void * envelope = g_test_fixture.receive_message(&sender_ID);
@@ -99,6 +98,8 @@ void test1()
 		TRACE("sender_ID = ");
 		TRACE(itoa(sender_ID));
 		TRACE("\r\n");
+*/
+		g_test_fixture.release_processor();
 	}
 }
 
@@ -109,7 +110,7 @@ void test2()
 		TRACE("\r\n--------------------\r\n");
 		TRACE("TEST 2\r\n");
 		TRACE("--------------------\r\n");
-
+/*
 		TRACE("Calling request_memory_block()\r\n");
 		void *envelope = g_test_fixture.request_memory_block();
 		TRACE("evelope = ");
@@ -126,8 +127,8 @@ void test2()
 		*(int *)(envelope2 + 64) = 123;
 		TRACE("Calling send_message()\r\n");
 		g_test_fixture.send_message(1, envelope2);
+*/
 		g_test_fixture.release_processor();
-		break;
 	}
 }
 /* third party dummy test process 3 */ 

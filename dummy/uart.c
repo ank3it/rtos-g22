@@ -12,6 +12,7 @@
 #include "process.h"
 #include "envelope.h"
 #include "memory.h"
+#include "rtx.h"
 
 #include "uart.h"
 
@@ -20,8 +21,7 @@
  */
 void uart_init()
 {
-
-	TRACE (" in uart init");
+	TRACE ("uart_init()\r\n");
 	UINT32 mask;
 
 	/* Disable all interrupts */
@@ -74,9 +74,6 @@ void uart_init()
 	mask = SIM_IMR;
 	mask &= 0x0003dfff;
 	SIM_IMR = mask;
-
-	/* Enable all interrupts */
-	asm ( "move.w #0x2000,%sr" );
 }
 
 /**
@@ -84,8 +81,9 @@ void uart_init()
  */
 void c_uart_handler()
 {
-	TRACE("c_uart_handler()\r\n");
-	/* TODO: Load uart_iprocess */
+	/* Acknowledge interrupt by reading register */
+	BYTE temp = SERIAL1_USR;
+
 	save_context(running_process->ID);
 	
 	if(running_process->state == STATE_RUNNING){
@@ -109,33 +107,34 @@ void c_uart_handler()
  */
 void uart_iprocess()
 {
-	while(1) {
-	TRACE("uart_iprocess()\r\n");
-
-	/* Acknowledge interrupt */
-	BYTE temp = SERIAL1_USR;
-
-	if (temp & 1)
+	while(TRUE) 
 	{
-		TRACE("Receiving character...\r\n");
+		TRACE("\n\n\n.......................uart_iprocess()\r\n");
 
-		/* Non-blocking call to k_request_memory_block() */
-		void *mem_block = k_request_memory_block();
-		*(char *)(mem_block + 64) = SERIAL1_RD;
-		k_send_message(KCD_PROCESS_ID, mem_block);
-	}
-	else if (temp & 4)
-	{
-		TRACE("Transmitting character...\r\n");
+		/* Acknowledge interrupt */
+		BYTE temp = SERIAL1_USR;
 
-		/* Non-blocking call to k_receive_mesasge() */
-		struct envelope	*e = (struct envelope *)k_receive_message(NULL);
-		
-		if (e != NULL)
-			SERIAL1_WD = *(char *)e->message;
-	}
+		if (temp & 1)
+		{
+			TRACE("Receiving character...\r\n");
 
-	k_release_processor();
+			/* Non-blocking call to request_memory_block() */
+			void *mem_block = request_memory_block();
+			*(char *)(mem_block + 64) = SERIAL1_RD;
+			send_message(KCD_PROCESS_ID, mem_block);
+		}
+		else if (temp & 4)
+		{
+			TRACE("Transmitting character...\r\n");
+
+			/* Non-blocking call to receive_mesasge() */
+			struct envelope	*e = (struct envelope *)receive_message(NULL);
+			
+			if (e != NULL)
+				SERIAL1_WD = *(char *)e->message;
+		}
+
+		release_processor();
 	}
 }
 
@@ -149,18 +148,37 @@ void kcd_process()
 	struct keyboard_command *head = NULL;
 	struct keyboard_command *tail = NULL;
 
+	/* Buffer to store keyboard input */
+	char buffer[KCD_BUFFER_SIZE];
+	int buffer_index = 0;
+
 	while (TRUE)
 	{
 		struct envelope *e = (struct envelope *)receive_message(NULL);
 
-		if (e->message_type == COMMAND_REGISTRATION)
+		if (e->sender_process_ID != UART_IPROCESS_ID)
 		{
-			/* TODO: add error check? */
+			/* Command registration message */
 			/* Construct a new keyboard_command struct */
-			struct keyboard_command *kc = (struct keyboard_command *)malloc(sizeof(struct keyboard_command));
-			*kc->command_identifier = *(char *)e->message;
+			struct keyboard_command *kc = 
+				(struct keyboard_command *)malloc(sizeof(struct keyboard_command));
+
+			/* Copy command identifier to struct */
+			char *ch = (char *)e->message; 
+			int i;
+			for (i = 0; ch[i] != '\0' && i < MAX_IDENTIFIER_LENGTH; i++)
+				kc->command_identifier[i] = ch[i];
+			
+			kc->command_identifier[i] = '\0';
+
 			kc->registrant_process_ID = e->sender_process_ID;
 			kc->next = NULL;
+
+			TRACE("Registering command ");
+			TRACE(kc->command_identifier);
+			TRACE("to process ID ");
+			TRACE(itoa(kc->registrant_process_ID));
+			TRACE("\r\n");
 
 			/* Add to command registration list */
 			if (head == NULL)
@@ -170,21 +188,29 @@ void kcd_process()
 
 			tail = kc;
 		}
-		else if (e->message_type == KEYBOARD_INPUT)
+		else
 		{
-			/* TODO: Check if the string input in the message starts with a COMMMAND_PROMPT
-			 * - If no then send the string to the CRT display process for output
-			 * - If yes then send string to registered process in addition to the CRT display process 
-			 */
-			
-			/* TODO: Send message to CRT display process */
+			char *input_char = (char *)e->message;
 
-			char *first_char = (char *)e->message;
-			if (*first_char == COMMAND_PROMPT)
+			/* Send received character to CRT process to be echoed on screen */
+			struct envelope *out_e = (struct envelope *)request_memory_block();
+			*(char *)out_e->message = *input_char;
+
+			send_message(CRT_PROCESS_ID, (void *)out_e);
+
+			/* Add characters to buffer until user presses enter */
+			if (*input_char == CR || *input_char == LF)
 			{
-				/* TODO: Send message to registered process */
+				buffer[buffer_index] = '\0';
+				buffer_index = 0;
+
+				//if (buffer
 			}
+			else
+				buffer[buffer_index++] = *input_char;
 		}
+
+		release_memory_block((void *)e);
 	}
 }
 

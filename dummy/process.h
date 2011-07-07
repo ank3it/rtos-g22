@@ -26,6 +26,7 @@ struct process
 	int state;
 	int block_type;
 	int pending_sys_call;
+	int is_iprocess;
 	VOID (*entry)();
 	int* curr_SP;
 	int sz_stack;

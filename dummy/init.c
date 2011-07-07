@@ -29,6 +29,7 @@ void load_null_process()
 	all_processes[0].state = STATE_NEW;
 	all_processes[0].block_type = BLOCK_NONE;
 	all_processes[0].pending_sys_call = SYS_CALL_NONE;
+	all_processes[0].is_iprocess = FALSE;
 	// Increment the current_sp as this will the starting point of the stack of the next process
 	current_sp = malloc(all_processes[0].sz_stack) + all_processes[0].sz_stack;//current_sp+all_processes[i].sz_stack ; 
 	all_processes[0].curr_SP = current_sp;
@@ -46,7 +47,7 @@ void load_null_process()
 
 void load_timer_iprocess()
 {
-	TRACE("load_uart_iprocess()\r\n");
+	TRACE("load_timer_iprocess()\r\n");
 
 	all_processes[TIMER_IPROCESS_ID].ID = TIMER_IPROCESS_ID;
 	all_processes[TIMER_IPROCESS_ID].priority = TIMER_IPROCESS_PRIORITY;
@@ -55,6 +56,7 @@ void load_timer_iprocess()
 	all_processes[TIMER_IPROCESS_ID].state = STATE_NEW;
 	all_processes[TIMER_IPROCESS_ID].block_type = BLOCK_NONE;
 	all_processes[TIMER_IPROCESS_ID].pending_sys_call = SYS_CALL_NONE;
+	all_processes[TIMER_IPROCESS_ID].is_iprocess = TRUE;
 	// Increment the current_sp as this will the starting point of the stack of the next process
 	current_sp = malloc(all_processes[TIMER_IPROCESS_ID].sz_stack) + all_processes[TIMER_IPROCESS_ID].sz_stack;//current_sp+all_processes[i].sz_stack ; 
 	all_processes[TIMER_IPROCESS_ID].curr_SP = current_sp;
@@ -79,6 +81,7 @@ void load_uart_iprocess()
 	all_processes[UART_IPROCESS_ID].state = STATE_NEW;
 	all_processes[UART_IPROCESS_ID].block_type = BLOCK_NONE;
 	all_processes[UART_IPROCESS_ID].pending_sys_call = SYS_CALL_NONE;
+	all_processes[UART_IPROCESS_ID].is_iprocess = TRUE;
 	// Increment the current_sp as this will the starting point of the stack of the next process
 	current_sp = malloc(all_processes[UART_IPROCESS_ID].sz_stack) + all_processes[UART_IPROCESS_ID].sz_stack;//current_sp+all_processes[i].sz_stack ; 
 	all_processes[UART_IPROCESS_ID].curr_SP = current_sp;
@@ -103,6 +106,7 @@ void load_crt_process()
 	all_processes[CRT_PROCESS_ID].state = STATE_NEW;
 	all_processes[CRT_PROCESS_ID].block_type = BLOCK_NONE;
 	all_processes[CRT_PROCESS_ID].pending_sys_call = SYS_CALL_NONE;
+	all_processes[CRT_PROCESS_ID].is_iprocess = FALSE;
 	// Increment the current_sp as this will the starting point of the stack of the next process
 	current_sp = malloc(all_processes[CRT_PROCESS_ID].sz_stack) + all_processes[CRT_PROCESS_ID].sz_stack;//current_sp+all_processes[i].sz_stack ; 
 	all_processes[CRT_PROCESS_ID].curr_SP = current_sp;
@@ -129,6 +133,7 @@ void load_kcd_process()
 	all_processes[KCD_PROCESS_ID].state = STATE_NEW;
 	all_processes[KCD_PROCESS_ID].block_type = BLOCK_NONE;
 	all_processes[KCD_PROCESS_ID].pending_sys_call = SYS_CALL_NONE;
+	all_processes[KCD_PROCESS_ID].is_iprocess = FALSE;
 	// Increment the current_sp as this will the starting point of the stack of the next process
 	current_sp = malloc(all_processes[KCD_PROCESS_ID].sz_stack) + all_processes[KCD_PROCESS_ID].sz_stack;//current_sp+all_processes[i].sz_stack ; 
 	all_processes[KCD_PROCESS_ID].curr_SP = current_sp;
@@ -155,6 +160,7 @@ void load_wc_process()
 	all_processes[WC_PROCESS_ID].state = STATE_NEW;
 	all_processes[WC_PROCESS_ID].block_type = BLOCK_NONE;
 	all_processes[WC_PROCESS_ID].pending_sys_call = SYS_CALL_NONE;
+	all_processes[WC_PROCESS_ID].is_iprocess = FALSE;
 	// Increment the current_sp as this will the starting point of the stack of the next process
 	current_sp = malloc(all_processes[WC_PROCESS_ID].sz_stack) + all_processes[WC_PROCESS_ID].sz_stack;//current_sp+all_processes[i].sz_stack ; 
 	all_processes[WC_PROCESS_ID].curr_SP = current_sp;
@@ -188,6 +194,7 @@ void load_test_processes() {
 		all_processes[i].state = STATE_NEW;
 		all_processes[i].block_type = BLOCK_NONE;
 		all_processes[i].pending_sys_call = SYS_CALL_NONE;
+		all_processes[i].is_iprocess = FALSE;
 		// Increment the current_sp as this will the starting point of the stack
 		current_sp = malloc(all_processes[i].sz_stack) + all_processes[i].sz_stack; 
 		all_processes[i].curr_SP = current_sp;
