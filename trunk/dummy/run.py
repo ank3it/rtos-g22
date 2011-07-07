@@ -55,7 +55,7 @@ print "telnet cf-server %i" % PORT
 cfserver.interact()
 
 # clean up
-if os.system('make clean') != 0:
-		print 'Error cleaning up'
-else:
-		print 'Clean up successful!'
+#if os.system('make clean') != 0:
+		#print 'Error cleaning up'
+#else:
+		#print 'Clean up successful!'

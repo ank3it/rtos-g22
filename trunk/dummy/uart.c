@@ -84,6 +84,9 @@ void c_uart_handler()
 	/* Acknowledge interrupt by reading register */
 	BYTE temp = SERIAL1_USR;
 
+	if (temp & 4)
+		SERIAL1_IMR = 0x02;
+
 	save_context(running_process->ID);
 	
 	if(running_process->state == STATE_RUNNING){
@@ -131,7 +134,12 @@ void uart_iprocess()
 			struct envelope	*e = (struct envelope *)receive_message(NULL);
 			
 			if (e != NULL)
+			{
+				TRACE("e->message = ");
+				TRACE((char *)e->message);
+				TRACE("\r\n");
 				SERIAL1_WD = *(char *)e->message;
+			}
 		}
 
 		release_processor();
@@ -154,8 +162,11 @@ void kcd_process()
 
 	while (TRUE)
 	{
+		TRACE("kcd_process()\r\n");
+
 		struct envelope *e = (struct envelope *)receive_message(NULL);
 
+		/* ----- COMMAND REGISTRATION ----- */
 		if (e->sender_process_ID != UART_IPROCESS_ID)
 		{
 			/* Command registration message */
@@ -174,12 +185,6 @@ void kcd_process()
 			kc->registrant_process_ID = e->sender_process_ID;
 			kc->next = NULL;
 
-			TRACE("Registering command ");
-			TRACE(kc->command_identifier);
-			TRACE("to process ID ");
-			TRACE(itoa(kc->registrant_process_ID));
-			TRACE("\r\n");
-
 			/* Add to command registration list */
 			if (head == NULL)
 				head = kc;
@@ -188,15 +193,24 @@ void kcd_process()
 
 			tail = kc;
 		}
+		/* ----- KEYBOARD INPUT ----- */
 		else
 		{
 			char *input_char = (char *)e->message;
 
-			/* Send received character to CRT process to be echoed on screen */
-			struct envelope *out_e = (struct envelope *)request_memory_block();
-			*(char *)out_e->message = *input_char;
+			TRACE("Sending message to CRT display process\r\n");
 
-			send_message(CRT_PROCESS_ID, (void *)out_e);
+			/* Send received character to CRT process to be echoed on screen */
+			void *out_e = request_memory_block();
+			TRACE("out_e = ");
+			TRACE(itoa(out_e));
+			TRACE("\r\n");
+			*(char *)(out_e + 64) = *input_char;
+			*(char *)(out_e + 65) = '\0';
+			TRACE("out_e + 64 = ");
+			TRACE((char *)(out_e + 64));
+
+			send_message(CRT_PROCESS_ID, out_e);
 
 			/* Add characters to buffer until user presses enter */
 			if (*input_char == CR || *input_char == LF)
@@ -204,7 +218,36 @@ void kcd_process()
 				buffer[buffer_index] = '\0';
 				buffer_index = 0;
 
-				//if (buffer
+				if (buffer[0] == COMMAND_PROMPT)
+				{
+					/* Extract command identifier from buffer */
+					char ci[MAX_IDENTIFIER_LENGTH];
+					int i = 0;
+					while (buffer[i] != ' ')
+					{
+						ci[i] = buffer[i];
+						i++;
+					}
+					ci[i] = '\0';
+
+					/* Search registration list for identifier match */
+					struct keyboard_command *kc = head;
+					while (kc != NULL)
+					{
+						if (*kc->command_identifier == *ci)
+						{
+							TRACE("Match found! Sending to process ");
+							TRACE(itoa(kc->registrant_process_ID));
+							TRACE("\r\n");
+
+							out_e = request_memory_block();
+							*(char *)(out_e + 64) = *buffer;
+							send_message(kc->registrant_process_ID, out_e);
+							break;
+						}
+						kc = kc->next;
+					}
+				}
 			}
 			else
 				buffer[buffer_index++] = *input_char;
@@ -221,10 +264,35 @@ void crt_display_process()
 {
 	while(TRUE)
 	{
-		struct envelope *e = (struct envelope *)receive_message(NULL);
-		/* Extract character string from message */
-		release_memory_block((void *)e);
-		/* Loop through the characters in the string, sending each character to 
-		 * the uart_iprocess for transmission to uart1 */
+		TRACE("crt_display_process()\n\r");
+		
+		struct envelope *msg_envl = (struct envelope *)receive_message(NULL);
+
+		TRACE("msg_envl = ");
+		TRACE(itoa(msg_envl));
+		TRACE("\r\n");
+
+		/* Extract character(s) from message */
+		char buffer[KCD_BUFFER_SIZE];
+		int buffer_index = 0;
+
+		while (*(char *)(msg_envl->message + buffer_index) != '\0')
+		{
+			buffer[buffer_index] = *(char *)(msg_envl->message + buffer_index);
+			buffer_index++;
+		}
+		buffer[buffer_index] = '\0';
+		buffer_index = 0;
+
+		release_memory_block((void *)msg_envl);
+
+		while(buffer[buffer_index] != '\0')
+		{
+			void *out_e = request_memory_block();
+			*(char *)(out_e + 64) = buffer[buffer_index];
+			send_message(UART_IPROCESS_ID, out_e);
+			SERIAL1_IMR = 0x03;
+			buffer_index++;
+		}
 	}
 }

@@ -378,14 +378,15 @@ void *k_receive_message(int *sender_ID)
    sent to the destination process (process_ID) after the expiration of the delay (timeout, given in msec units).
  * @param: sender_ID Filled by the function with the message sender's ID
  */
-
+/*
 void k_send_delay(int process_ID, void * MessageEnvelope, int delay)
 {
 	int TimeAdded_delay;
 	TimeAdded_delay = __Counter2 + delay;
 	
 	if ( TimeAdded_delay > __Counter2){
-		enqueue(delayed_send_queue, process_ID, MessageEnvelope, TimeAdded_delay)
+		enqueue(delayed_send_queue, process_ID, MessageEnvelope, TimeAdded_delay);
 	}
 	
 }
+*/
