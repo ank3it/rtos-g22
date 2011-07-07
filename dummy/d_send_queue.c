@@ -80,7 +80,7 @@ int enqueue(struct queue *q, int process_ID, void * MessageEnvelope, int delay)
  * @return: int Returns the value of the dequeued node if successful
  * 		else returns -1
  */
-int dequeue(struct queue *q) //how do i return a message envelope type
+MessageEnvelope* dequeue(struct queue *q) //how do i return a message envelope type
 {
 	int return_value;
 	if (q == NULL || q->head == NULL)
