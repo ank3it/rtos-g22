@@ -51,6 +51,7 @@ struct process all_processes[NUM_PROCS];
 struct process *running_process;
 struct queue *ready_queue;
 struct queue *blocked_queue;
+struct queue *delayed_send_queue;
 
 /* Initializae the scheduler */
 void scheduler_init();
