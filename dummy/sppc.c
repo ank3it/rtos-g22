@@ -21,8 +21,8 @@ void set_priority_process()
 		msg_envl = (envelope *)k_receive_message(NULL);
 		if(msg_envl->message_data[2] = ' ')
 		{
-			process_id = //do some calculation to go from ascii to int
-			priority = //do some calculation to go from ascii to int
+			process_id = atoi(message_data[3]);
+			priority = atoi(message_data[5]);
 			if(process_id >= 0 && priority >= 0 && priority < 4)
 			{
 				TRACE("Inputed values are valid");
