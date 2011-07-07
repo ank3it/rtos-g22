@@ -65,12 +65,12 @@ void scheduler_run()
 
 /**
  * @brief: Enqueue the running process onto the blocked_queue and update
- * 	the state information
+ * 	the state information. Does not block I-processes.
  * @param: block_type An integer representing the cause of the block
  */
 void block_running_process(int block_type)
 {
-	if (running_process == NULL)
+	if (running_process == NULL || running_process->is_iprocess)
 		return;
 
 	save_context(running_process->ID);
@@ -158,9 +158,13 @@ int k_release_processor()
 	if(running_process->state == STATE_RUNNING){
 		running_process->state = STATE_READY;
 
-		enqueue(ready_queue, 
-				running_process->ID, 
-				running_process->priority);
+		/* Add to ready queue if not an I-process */
+		if (!running_process->is_iprocess)
+		{
+			enqueue(ready_queue, 
+					running_process->ID, 
+					running_process->priority);
+		}
 
 		running_process = NULL;
 	}

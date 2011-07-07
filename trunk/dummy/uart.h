@@ -11,7 +11,7 @@
 /* Struct representing a command registration */
 struct keyboard_command
 {
-	char *command_identifier;
+	char command_identifier[MAX_IDENTIFIER_LENGTH];
 	int registrant_process_ID;
 	struct keyboard_command *next;
 };
@@ -20,7 +20,7 @@ struct keyboard_command
 void uart_init();
 
 /* Interrupt handler for UART1 */
-void c_serial_handler();
+void c_uart_handler();
 
 /* Process that gets loaded by the uart ISR */
 void uart_iprocess();

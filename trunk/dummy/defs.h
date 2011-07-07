@@ -15,7 +15,8 @@
 #define K_SR 0x2700
 #define U_SR 0x0
 
-// Constant Defines
+#define MAX_IDENTIFIER_LENGTH	16
+#define KCD_BUFFER_SIZE			64
 
 /* System process IDs */
 #define NULL_PROCESS_ID			0
@@ -36,9 +37,9 @@
 #define PRIORITY_3				3
 
 #define NULL_PROCESS_PRIORITY	4
-#define UART_IPROCESS_PRIORITY	5
-#define TIMER_IPROCESS_PRIORITY	5
-#define WC_PROCESS_PRIORITY	0
+#define UART_IPROCESS_PRIORITY	0
+#define TIMER_IPROCESS_PRIORITY	0
+#define WC_PROCESS_PRIORITY		0
 #define KCD_PROCESS_PRIORITY	0
 #define CRT_PROCESS_PRIORITY	0
 
@@ -66,9 +67,5 @@
 
 /* Command identifier used by the KCD */
 #define COMMAND_PROMPT			'%'
-
-/* KCD process message types */
-#define COMMAND_REGISTRATION	0
-#define KEYBOARD_INPUT			1
 
 #endif /* _DEFS_H_ */
