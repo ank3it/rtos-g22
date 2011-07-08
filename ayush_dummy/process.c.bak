@@ -9,6 +9,8 @@
 #include "process.h"
 #include "init.h"
 #include "timer.h"
+
+
 #define MESSAGE_HEADER_OFFSET 64
 
 extern SINT32 Counter2;
@@ -25,9 +27,6 @@ void scheduler_init()
 
 	blocked_queue = malloc(sizeof(struct queue));
 	queue_init(blocked_queue);
-	
-	delayed_send_queue = malloc(sizeof(struct d_queue));
-	d_queue_init(delayed_send_queue);
 
 	running_process = NULL;
 }
@@ -180,7 +179,7 @@ void save_context(int process_ID)
 	curr_process = get_proc(process_ID);
 
 	TRACE("Current Process= " );
-	TRACE( itoa(curr_process->ID) );
+	TRACE( itoa(curr_process) );
 	TRACE("\r\n");
 
 	asm("move.l %%d5, %0" : "=m" (curr_process->curr_SP));
@@ -309,17 +308,8 @@ int k_send_message(int process_ID, void *message_envelope)
 
 	/* Populate header fields */
 	struct envelope *e = (struct envelope *)message_envelope;
-	
-	// Need to do this as when Timer Sends a message after delayed send, the ID goes as the timer ID as that is the currently running process
-	if ( running_process->ID != TIMER_IPROCESS_ID ) {
-		e->sender_process_ID = running_process->ID;
-		e->dest_process_ID = process_ID;
-	}
-	else {
-		e->sender_process_ID = process_ID & 0xFFFF;
-		e->dest_process_ID = ( process_ID & 0xFFFF ) >> 16;
-	}
-	
+	e->sender_process_ID = running_process->ID;
+	e->dest_process_ID = process_ID;
 	e->next = NULL;
 	e->message = message_envelope + MESSAGE_HEADER_OFFSET;
 
@@ -379,14 +369,16 @@ void *k_receive_message(int *sender_ID)
 		/* Set sender_ID return parameter and return pointer to envelope */
 		if (sender_ID != NULL)
 			*sender_ID = e->sender_process_ID;
+			
+		TRACE ( " Recieve done " );	
 		return e;
 	}
 }
 
 
-/* * @brief: the invoking process does not block. The message (in the memory block pointed to by the second parameter) will be 
-   sent to the destination process (process_ID) after the expiration of the delay (timeout, given in msec units).
- * @param: sender_ID Filled by the function with the message sender's ID
+/* 
+ * @brief:send delay takes a send message and delays and it till the delay time 
+   enqueues the message in the delay_send_queue
  */
 
 void k_send_delay(int process_ID, void * MessageEnvelope, int delay)
@@ -395,7 +387,7 @@ void k_send_delay(int process_ID, void * MessageEnvelope, int delay)
 	TimeAdded_delay = Counter2 + delay;
 	
 	if ( TimeAdded_delay > Counter2){
-		d_enqueue(delayed_send_queue, process_ID, MessageEnvelope, TimeAdded_delay , running_process->ID);
+		d_enqueue(delayed_send_queue, process_ID, MessageEnvelope, TimeAdded_delay);
 	}
 	
 }

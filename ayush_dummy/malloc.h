@@ -8,9 +8,9 @@
 #ifndef _MALLOC_H_
 #define _MALLOC_H_
 
-#include "../shared/rtx_inc.h"
-#include "../dbug/dbug.h"
-#include "../util/util.h"
+#include "rtx_inc.h"
+#include "dbug.h"
+#include "util.h"
 
 struct memory_control_block
 {

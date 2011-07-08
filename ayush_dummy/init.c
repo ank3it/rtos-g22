@@ -3,56 +3,187 @@
 #include "rtx.h"
 #include "malloc.h"
 #include "trap.h"
+#include "uart.h"
+#include "timer.h"
 
 char* current_sp;
 extern int __end;
-int* blah;
 
 void null_process()
 {
-	//rtx_dbug_outs((CHAR *) "Null Process\n\r");
 	while(1)
 	{
-		rtx_dbug_outs((CHAR *) "Null Process\n\r");
+		TRACE("This is inside the Null Process\r\n");
 		//release_processor();
 	}
 }
 
-void load_null_process() {
-	
-	rtx_dbug_outs((CHAR *)"In Init Null Process() \r\n");
+void load_null_process() 
+{
+	TRACE("load_null_process()\r\n");
 
-	 all_processes[0].ID = 0;
-     all_processes[0].priority = 4;
-     all_processes[0].sz_stack = 512;
-	 all_processes[0].entry = null_process;
-	 all_processes[0].state = STATE_NEW;
-	 all_processes[0].block_type = BLOCK_NONE;
-	 // Increment the current_sp as this will the starting point of the stack of the next process
-	 current_sp = malloc(all_processes[0].sz_stack) + all_processes[0].sz_stack;//current_sp+all_processes[i].sz_stack ; 
-	 all_processes[0].curr_SP = current_sp;
+	all_processes[0].ID = NULL_PROCESS_ID;
+	all_processes[0].priority = NULL_PROCESS_PRIORITY;
+	all_processes[0].sz_stack = 512;
+	all_processes[0].entry = null_process;
+	all_processes[0].state = STATE_NEW;
+	all_processes[0].block_type = BLOCK_NONE;
+	all_processes[0].pending_sys_call = SYS_CALL_NONE;
+	all_processes[0].is_iprocess = FALSE;
+	// Increment the current_sp as this will the starting point of the stack of the next process
+	current_sp = malloc(all_processes[0].sz_stack) + all_processes[0].sz_stack;//current_sp+all_processes[i].sz_stack ; 
+	all_processes[0].curr_SP = current_sp;
+	all_processes[0].mailbox_head = NULL;
+	all_processes[0].mailbox_tail = NULL;
 
-	 // Save the Exceprtion Stack Frame
-	 *all_processes[0].curr_SP = all_processes[0].entry;
-	 all_processes[0].curr_SP--;
-	 *all_processes[0].curr_SP = 0x4000 << 16 | K_SR; // Value to be decided by sudhir for User Process
-	 //all_processes[0].curr_SP--; 
-	 //rtx_dbug_outs( itoa(all_processes[0].curr_SP) );
+	// Save the Exceprtion Stack Frame
+	all_processes[0].curr_SP--;
+	*all_processes[0].curr_SP = all_processes[0].entry;
+	all_processes[0].curr_SP--;
+	*all_processes[0].curr_SP = 0x4000 << 16 | K_SR; // Value to be decided by sudhir for User Process
 
-	 enqueue(ready_queue , all_processes[0].ID , all_processes[0].priority );
-	 //blah = all_processes[0].curr_SP;
-	 //asm("move.l  blah , %a7" ); // This is temp ( Need to figure out the Variable or method to store this)
-	 //asm("rte");
-	 
+	enqueue(ready_queue , all_processes[0].ID , all_processes[0].priority );
+}
+
+void load_timer_iprocess()
+{
+	TRACE("load_timer_iprocess()\r\n");
+
+	all_processes[TIMER_IPROCESS_ID].ID = TIMER_IPROCESS_ID;
+	all_processes[TIMER_IPROCESS_ID].priority = TIMER_IPROCESS_PRIORITY;
+	all_processes[TIMER_IPROCESS_ID].sz_stack = 512;
+	all_processes[TIMER_IPROCESS_ID].entry = timer_iprocess;
+	all_processes[TIMER_IPROCESS_ID].state = STATE_NEW;
+	all_processes[TIMER_IPROCESS_ID].block_type = BLOCK_NONE;
+	all_processes[TIMER_IPROCESS_ID].pending_sys_call = SYS_CALL_NONE;
+	all_processes[TIMER_IPROCESS_ID].is_iprocess = TRUE;
+	// Increment the current_sp as this will the starting point of the stack of the next process
+	current_sp = malloc(all_processes[TIMER_IPROCESS_ID].sz_stack) + all_processes[TIMER_IPROCESS_ID].sz_stack;//current_sp+all_processes[i].sz_stack ; 
+	all_processes[TIMER_IPROCESS_ID].curr_SP = current_sp;
+	all_processes[TIMER_IPROCESS_ID].mailbox_head = NULL;
+	all_processes[TIMER_IPROCESS_ID].mailbox_tail = NULL;
+
+	// Save the Exceprtion Stack Frame
+	all_processes[TIMER_IPROCESS_ID].curr_SP--;
+	*all_processes[TIMER_IPROCESS_ID].curr_SP = all_processes[TIMER_IPROCESS_ID].entry;
+	all_processes[TIMER_IPROCESS_ID].curr_SP--;
+	*all_processes[TIMER_IPROCESS_ID].curr_SP = 0x4000 << 16 | K_SR; // Value to be decided by sudhir for User Process
+}
+
+void load_uart_iprocess()
+{
+	TRACE("load_uart_iprocess()\r\n");
+
+	all_processes[UART_IPROCESS_ID].ID = UART_IPROCESS_ID;
+	all_processes[UART_IPROCESS_ID].priority = UART_IPROCESS_PRIORITY;
+	all_processes[UART_IPROCESS_ID].sz_stack = 512;
+	all_processes[UART_IPROCESS_ID].entry = uart_iprocess;
+	all_processes[UART_IPROCESS_ID].state = STATE_NEW;
+	all_processes[UART_IPROCESS_ID].block_type = BLOCK_NONE;
+	all_processes[UART_IPROCESS_ID].pending_sys_call = SYS_CALL_NONE;
+	all_processes[UART_IPROCESS_ID].is_iprocess = TRUE;
+	// Increment the current_sp as this will the starting point of the stack of the next process
+	current_sp = malloc(all_processes[UART_IPROCESS_ID].sz_stack) + all_processes[UART_IPROCESS_ID].sz_stack;//current_sp+all_processes[i].sz_stack ; 
+	all_processes[UART_IPROCESS_ID].curr_SP = current_sp;
+	all_processes[UART_IPROCESS_ID].mailbox_head = NULL;
+	all_processes[UART_IPROCESS_ID].mailbox_tail = NULL;
+
+	// Save the Exceprtion Stack Frame
+	all_processes[UART_IPROCESS_ID].curr_SP--;
+	*all_processes[UART_IPROCESS_ID].curr_SP = all_processes[UART_IPROCESS_ID].entry;
+	all_processes[UART_IPROCESS_ID].curr_SP--;
+	*all_processes[UART_IPROCESS_ID].curr_SP = 0x4000 << 16 | K_SR; // Value to be decided by sudhir for User Process
+}
+
+void load_crt_process()
+{
+	TRACE("load_crt_process()\r\n");
+
+	all_processes[CRT_PROCESS_ID].ID = CRT_PROCESS_ID;
+	all_processes[CRT_PROCESS_ID].priority = CRT_PROCESS_PRIORITY;
+	all_processes[CRT_PROCESS_ID].sz_stack = 512;
+	all_processes[CRT_PROCESS_ID].entry = crt_display_process;
+	all_processes[CRT_PROCESS_ID].state = STATE_NEW;
+	all_processes[CRT_PROCESS_ID].block_type = BLOCK_NONE;
+	all_processes[CRT_PROCESS_ID].pending_sys_call = SYS_CALL_NONE;
+	all_processes[CRT_PROCESS_ID].is_iprocess = FALSE;
+	// Increment the current_sp as this will the starting point of the stack of the next process
+	current_sp = malloc(all_processes[CRT_PROCESS_ID].sz_stack) + all_processes[CRT_PROCESS_ID].sz_stack;//current_sp+all_processes[i].sz_stack ; 
+	all_processes[CRT_PROCESS_ID].curr_SP = current_sp;
+	all_processes[CRT_PROCESS_ID].mailbox_head = NULL;
+	all_processes[CRT_PROCESS_ID].mailbox_tail = NULL;
+
+	// Save the Exceprtion Stack Frame
+	all_processes[CRT_PROCESS_ID].curr_SP--;
+	*all_processes[CRT_PROCESS_ID].curr_SP = all_processes[CRT_PROCESS_ID].entry;
+	all_processes[CRT_PROCESS_ID].curr_SP--;
+	*all_processes[CRT_PROCESS_ID].curr_SP = 0x4000 << 16 | K_SR; // Value to be decided by sudhir for User Process
+
+	enqueue(ready_queue , all_processes[CRT_PROCESS_ID].ID , all_processes[CRT_PROCESS_ID].priority );
+}
+
+void load_kcd_process()
+{
+	TRACE("load_kcd_process()\r\n");
+
+	all_processes[KCD_PROCESS_ID].ID = KCD_PROCESS_ID;
+	all_processes[KCD_PROCESS_ID].priority = KCD_PROCESS_PRIORITY;
+	all_processes[KCD_PROCESS_ID].sz_stack = 512;
+	all_processes[KCD_PROCESS_ID].entry = kcd_process;
+	all_processes[KCD_PROCESS_ID].state = STATE_NEW;
+	all_processes[KCD_PROCESS_ID].block_type = BLOCK_NONE;
+	all_processes[KCD_PROCESS_ID].pending_sys_call = SYS_CALL_NONE;
+	all_processes[KCD_PROCESS_ID].is_iprocess = FALSE;
+	// Increment the current_sp as this will the starting point of the stack of the next process
+	current_sp = malloc(all_processes[KCD_PROCESS_ID].sz_stack) + all_processes[KCD_PROCESS_ID].sz_stack;//current_sp+all_processes[i].sz_stack ; 
+	all_processes[KCD_PROCESS_ID].curr_SP = current_sp;
+	all_processes[KCD_PROCESS_ID].mailbox_head = NULL;
+	all_processes[KCD_PROCESS_ID].mailbox_tail = NULL;
+
+	// Save the Exceprtion Stack Frame
+	all_processes[KCD_PROCESS_ID].curr_SP--;
+	*all_processes[KCD_PROCESS_ID].curr_SP = all_processes[KCD_PROCESS_ID].entry;
+	all_processes[KCD_PROCESS_ID].curr_SP--;
+	*all_processes[KCD_PROCESS_ID].curr_SP = 0x4000 << 16 | K_SR; // Value to be decided by sudhir for User Process
+
+	enqueue(ready_queue , all_processes[KCD_PROCESS_ID].ID , all_processes[KCD_PROCESS_ID].priority );
+}
+
+void load_wc_process()
+{
+	TRACE("load_kcd_process()\r\n");
+
+	all_processes[WC_PROCESS_ID].ID = WC_PROCESS_ID;
+	all_processes[WC_PROCESS_ID].priority = WC_PROCESS_PRIORITY;
+	all_processes[WC_PROCESS_ID].sz_stack = 512;
+	all_processes[WC_PROCESS_ID].entry = wc_process;
+	all_processes[WC_PROCESS_ID].state = STATE_NEW;
+	all_processes[WC_PROCESS_ID].block_type = BLOCK_NONE;
+	all_processes[WC_PROCESS_ID].pending_sys_call = SYS_CALL_NONE;
+	all_processes[WC_PROCESS_ID].is_iprocess = FALSE;
+	// Increment the current_sp as this will the starting point of the stack of the next process
+	current_sp = malloc(all_processes[WC_PROCESS_ID].sz_stack) + all_processes[WC_PROCESS_ID].sz_stack;//current_sp+all_processes[i].sz_stack ; 
+	all_processes[WC_PROCESS_ID].curr_SP = current_sp;
+	all_processes[WC_PROCESS_ID].mailbox_head = NULL;
+	all_processes[WC_PROCESS_ID].mailbox_tail = NULL;
+
+	// Save the Exceprtion Stack Frame
+	all_processes[WC_PROCESS_ID].curr_SP--;
+	*all_processes[WC_PROCESS_ID].curr_SP = all_processes[WC_PROCESS_ID].entry;
+	all_processes[WC_PROCESS_ID].curr_SP--;
+	*all_processes[WC_PROCESS_ID].curr_SP = 0x4000 << 16 | K_SR; // Value to be decided by sudhir for User Process
+
+	enqueue(ready_queue , all_processes[WC_PROCESS_ID].ID , all_processes[WC_PROCESS_ID].priority );
 }
 
 void load_test_processes() {
 
+	TRACE("load_test_processes()\r\n");	
+	
 	int i;
-	rtx_dbug_outs((CHAR *)"In Init Null Process()8 \r\n");
+
 	 /* get the third party test proc initialization info */
     __REGISTER_TEST_PROCS_ENTRY__();
-	rtx_dbug_outs((CHAR *)"In Init Null Process()9 \r\n");
 
 	// Save Test Processes
     for (i =1; i< NUM_TEST_PROCS+1; i++ ) {
@@ -62,9 +193,13 @@ void load_test_processes() {
 		all_processes[i].entry = g_test_proc[i-1].entry;
 		all_processes[i].state = STATE_NEW;
 		all_processes[i].block_type = BLOCK_NONE;
+		all_processes[i].pending_sys_call = SYS_CALL_NONE;
+		all_processes[i].is_iprocess = FALSE;
 		// Increment the current_sp as this will the starting point of the stack
 		current_sp = malloc(all_processes[i].sz_stack) + all_processes[i].sz_stack; 
 		all_processes[i].curr_SP = current_sp;
+		all_processes[i].mailbox_head = NULL;
+		all_processes[i].mailbox_tail = NULL;
 	 
 		// Save the Exceprtion Stack Frame
 		all_processes[i].curr_SP--;
@@ -75,45 +210,55 @@ void load_test_processes() {
 		enqueue(ready_queue , all_processes[i].ID , all_processes[i].priority );
     }
 
+	/*
 	for (i =0; i< 10; i++ ) {
-		rtx_dbug_outs( (CHAR *) "\n\r Process= " );
+		TRACE("\r\nProcess= " );
 		struct process *next_process = &all_processes[i];
 		int *sp = all_processes[i].curr_SP;
 		int *ep = all_processes[i].entry;
-		rtx_dbug_outs( itoa((next_process)) );
-		rtx_dbug_outs( (CHAR *) "\n\r SP= " );
-		rtx_dbug_outs( itoa((sp)) );
-		rtx_dbug_outs( (CHAR *) "\n\r EP= " );
-		rtx_dbug_outs( itoa((ep)) );
+		TRACE(itoa((next_process)));
+		TRACE("\r\nSP= " );
+		TRACE(itoa((sp)));
+		TRACE("\r\nEP= " );
+		TRACE(itoa((ep)));
 	}
-	rtx_dbug_outs( (CHAR *) "\n\r" );
+	*/
 }
 
 void init_pcb()
 {
+	TRACE("init_pcb()\r\n");
+
 	int i;
 
 	malloc_init(&(__end));
 	scheduler_init();
     init_trap();
-	rtx_dbug_outs((CHAR *)"In init_pcb() \r\n");
 
-	//init_memory();
-	//timer_init();
-
-	//set_current_sp();// This will be set in memory.c at the end of memory pool
+	init_memory();
 	
-	// Null Process
+	
+	// System Processes
 	load_null_process();
+	load_uart_iprocess();
+	load_timer_iprocess();
+	load_crt_process();
+	load_wc_process();
+	load_kcd_process();
 
 	load_test_processes();
 
-	init_funcs();
+	//load_sys_process();
 
+//	init_funcs();
+
+	uart_init();
+	//timer_init();
 	scheduler_run();
 }
 
-init_funcs() {
+void  __attribute__ ((section ("__REGISTER_RTX__"))) init_funcs() {
+	TRACE("init_funcs()\r\n");
 
 	g_test_fixture.send_message = send_message;
     g_test_fixture.receive_message = receive_message;
@@ -123,4 +268,16 @@ init_funcs() {
     g_test_fixture.delayed_send = delayed_send;
     g_test_fixture.set_process_priority = set_process_priority;
     g_test_fixture.get_process_priority = get_process_priority;
+}
+
+int __main(void)
+{
+	return 0;
+}
+
+int main(void)
+{
+	TRACE("main() of init.c\r\n");
+	init_pcb();
+	return 0;
 }

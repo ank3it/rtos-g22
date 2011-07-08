@@ -8,12 +8,14 @@
 #ifndef _PROCESS_H_
 #define _PROCESS_H_
 
-#include "../shared/rtx_inc.h"
-#include "../dbug/dbug.h"
-#include "../util/util.h"
-#include "../malloc/malloc.h"
+#include "rtx_inc.h"
+#include "dbug.h"
+#include "util.h"
+#include "malloc.h"
 #include "defs.h"
 #include "queue.h"
+#include "d_send_queue.h"
+#include "envelope.h"
 
 /*
  * Global variables
@@ -24,16 +26,13 @@ struct process
 	int priority;
 	int state;
 	int block_type;
+	int pending_sys_call;
+	int is_iprocess;
 	VOID (*entry)();
 	int* curr_SP;
 	int sz_stack;
-	int a0;
-	int a1;
-	int a2;
-	int a3;
-	int a4;
-	int a5;
-	int a6;
+	struct envelope *mailbox_head;
+	struct envelope *mailbox_tail;
 	int d0;
 	int d1;
 	int d2;
@@ -42,12 +41,19 @@ struct process
 	int d5;
 	int d6;
 	int d7;
+	int a0;
+	int a1;
+	int a2;
+	int a3;
+	int a4;
+	int a5;
 };
 
 struct process all_processes[NUM_PROCS];
 struct process *running_process;
 struct queue *ready_queue;
 struct queue *blocked_queue;
+struct d_queue *delayed_send_queue;
 
 /* Initializae the scheduler */
 void scheduler_init();
@@ -55,22 +61,36 @@ void scheduler_init();
 /* Select a process to run based on priority */
 void scheduler_run();
 
+/* Block the current running process */
+void block_running_process(int);
+
+/* Unblock either the given process, or the FIFO first process */
+void unblock_process(int, int);
+
 /* Yield the processor to another process */
 int k_release_processor();
 
 /* Save the current process's context */
-void save_context(int process_ID);
+void save_context(int);
 
 /* Load the given process's context */
-void load_context(int process_ID);
+void load_context(int);
 
 /* Retrieve the PCB of the given process */
-struct process * get_proc(int process_ID);
+struct process *get_proc(int);
 
 /* Set process priority to given value */
-int k_set_process_priority(int process_ID, int priority); 
+int k_set_process_priority(int, int); 
 
 /* Return priority for given process */
-int k_get_process_priority(int process_ID);
+int k_get_process_priority(int);
+
+/* Send message in message envelope to another process */
+int k_send_message(int, void *);
+
+/* Receive message from process mailbox */
+void *k_receive_message(int *);
+
+void k_send_delay(int , void * , int );
 
 #endif /* _PROCESS_H_ */

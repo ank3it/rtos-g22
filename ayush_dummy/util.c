@@ -6,13 +6,17 @@
  */
 
 #include "util.h"
+#include "dbug.h"
 
 /**
  * @brief: Converts an integer to its ASCII representation
  * @param: n The integer to convert
  * @return: CHAR* Char pointer to the ASCII string
  */
-CHAR* itoa(int n)
+
+ CHAR s[100];
+
+ CHAR* itoa(int n)
 {
 	int i, sign;
 	int num_digits = 1;
@@ -33,8 +37,7 @@ CHAR* itoa(int n)
 	}
 
 	/* CHAR array to hold the result */
-	CHAR s[num_digits];
-
+	
 	i = 0;
 	do {
 		s[i++] = n % 10 + '0';
@@ -48,6 +51,35 @@ CHAR* itoa(int n)
 	reverse(s, num_digits);
 	
 	return s;
+}
+
+int atoi(char s[]) {
+	int returnVal = 0;
+	int i = 0;
+	int a;
+	while(s[i])
+	{
+		char b = s[i];
+		switch (b) {
+		 case '0' : a = 0; break;
+		 case '1' : a = 1; break;
+		 case '2' : a = 2; break;
+		 case '3' : a = 3; break;
+		 case '4' : a = 4; break;
+		 case '5' : a = 5; break;
+		 case '6' : a = 6; break;
+		 case '7' : a = 7; break;
+		 case '8' : a = 8; break;
+		 case '9' : a = 9; break;
+		 default: a = -1;
+		 }
+		if ( a == -1 ) {
+			break;
+		}
+		returnVal = returnVal * 10 + a;
+		i++;
+	}
+	return(returnVal);
 }
 
 /**
@@ -72,8 +104,8 @@ VOID reverse(CHAR *s, int length)
 	}
 }
 
-/*
-CHAR* itoa( int i ) {
+
+CHAR* itoa2( int i ) {
     int count = 0;
     CHAR *out = "";
     CHAR out_rev = "";
@@ -108,4 +140,4 @@ CHAR* itoa( int i ) {
 
     return out_track2;
 }
-*/
+
