@@ -7,38 +7,35 @@
  *
  */
 
-#ifndef _QUEUE_H_
-#define _QUEUE_H_
+#ifndef _QUEUE_H_D
+#define _QUEUE_H_D
 
 #include "rtx_inc.h"
 #include "dbug.h"
 #include "util.h"
 #include "malloc.h"
 
-struct queue_node
+struct d_queue_node
 {
 	int process_ID;
 	void * MessageEnvelope; 
 	int delay;
-	struct queue_node *next;
+	int sender_id;
+	struct d_queue_node *next;
 };
 
-struct queue
+struct d_queue
 {
-	struct queue_node *head;
-	struct queue_node *tail;
+	struct d_queue_node *head;
+	struct d_queue_node *tail;
 };
 
 /* Initialize the queue */
-void queue_init(struct queue *);
+void d_queue_init(struct d_queue *);
 
 /* Add node to queue */
-int enqueue(struct queue *, int, void *, int);
+int d_enqueue(struct d_queue *, int, void *, int , int);
 
-/* Pop first node from queue and return node value */
-int dequeue(struct queue *); 
-
-/* Remove the node with the given process_ID from the queue */
-int remove(struct queue *, int);
+int d_dequeue(struct d_queue *q);
 
 #endif /* _QUEUE_H_ */

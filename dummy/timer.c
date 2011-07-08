@@ -33,17 +33,17 @@ void wc_process()
 	int hours = 0 ;
 	int mins = 0 ;
 	int secs  = 0;
-	while(TRUE)
-	{
+	//while(TRUE)
+	//{
 		int sender_ID = -1;
 		TRACE("Calling receive_message()\r\n");
-		void * envelope = receive_message(&sender_ID);
+		//void * envelope = receive_message(&sender_ID);
 		
 		// To FIX
-		char *msgData = (char *)(envelope + 64);
-		if ( msgData[0] == 'S' || msgData[0] == 's') {
+		//char *msgData = (char *)(envelope + 64);
+		//if ( msgData[0] == 'S' || msgData[0] == 's') {
 		
-		}
+		//}
 		
 		if ( TimeUpdated == 1 ) TimeUpdated = 0;
 		else release_processor();
@@ -67,8 +67,18 @@ void wc_process()
 	
 		timeStr[6] = ( secs / 10 ) % 10 + 48;
 		timeStr[7] = secs % 10 + 48;
+		
+		//rtx_dbug_outs(" Timer Val ");
+		//rtx_dbug_outs((char*)timeStr);
+		//rtx_dbug_outs(" \r\n");
+		void *mem_block = request_memory_block();
+		*(char *)(mem_block + 64) = timeStr;
+		//CharEntered = 1;
+		//CharIn = SERIAL1_RD;
+		k_send_message(CRT_PROCESS_ID , mem_block);
+		release_memory_block(mem_block);
 
-	}
+	//}
 }
 
 /*
@@ -77,7 +87,6 @@ void wc_process()
 VOID c_timer_handler( VOID )
 {
 	asm( "move.w #0x2700,%sr" );				// Re-Enable all interrupts
-    TIMER0_TER = 2;/* Acknowledge interrupt */ 
 	Counter2++;	
 	// Load timer - i process
 	//TRACE (" In Timer Int " );
@@ -95,35 +104,49 @@ VOID c_timer_handler( VOID )
 	
 	running_process = get_proc(TIMER_IPROCESS_ID);
 	
-	 /*
-     * Set the reference counts, ~10ms
-     */
-    TIMER0_TRR = 0x6DDD;
+	load_context(TIMER_IPROCESS_ID);
+	
+	TIMER0_TRR = 0x6DDD;
 	//TIMER0_TRR = 0x01C2;
 
     /*
      * Setup the timer prescaler and stuff
      */
     TIMER0_TMR = 0x633D;
-	
-	load_context(TIMER_IPROCESS_ID);
-	
+	//TIMER0_TMR = 0x633B;
+
+	TIMER0_TER = 2;/* Acknowledge interrupt */ 
+	 
 	asm( "move.w #0x2000,%sr" );				// Re-Enable all interrupts
 }
 
 void timer_iprocess() {
 	// Check_Delay_Send();
 	while ( 1 ) {
-	TRACE (" In Timer I - Process " );
+
+	TRACE (" .........................................In Timer I - Process \r\n " );
+	if ( delayed_send_queue->head != NULL ) {
+	if ( delayed_send_queue->head->delay < Counter2 ) {
+		//TRACE(" ....................CHECKED...................................................CHECKED \r\n");
+		int process_ID = delayed_send_queue->head->process_ID << 16 | delayed_send_queue->head->sender_id;
+		void * MessageEnvelope = delayed_send_queue->head->MessageEnvelope;
+		d_dequeue(delayed_send_queue);		
+		send_message( process_ID , MessageEnvelope );
+	}
+	}
+	rtx_dbug_outs (" .........................................Back In Timer I - Process \r\n " );
 	if ( WC_Active ) 
 	{
 		WC_Start_Counter++;
-		if ( WC_Start_Counter % 1000 == 0 ) 
+		//rtx_dbug_outs(" ............. Due to Timer2 \r\n");
+		if ( WC_Start_Counter % 1000 == 0) 
 		{
 			Counter++;
 			TimeUpdated	= 1;
-			TRACE(" Due to Timer ");
-			scheduler_run();
+			//rtx_dbug_outs(" ............. Due to Timer \r\n");
+			//wc_process();
+			
+			//scheduler_run();
 		}
 	}
 	
@@ -175,13 +198,14 @@ void timer_init( void )
     /*
      * Set the reference counts, ~10ms
      */
-    //TIMER0_TRR = 0x6DDD;
-	TIMER0_TRR = 0x01C2;
+    TIMER0_TRR = 0x6DDD;
+	//TIMER0_TRR = 0x01C2;
 
     /*
      * Setup the timer prescaler and stuff
      */
-    TIMER0_TMR = 0x633B;
+    TIMER0_TMR = 0x633D;
+	//TIMER0_TMR = 0x633B;
 
     /*
      * Set the interupt mask

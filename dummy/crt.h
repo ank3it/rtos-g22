@@ -14,6 +14,6 @@
 #include "util.h"
 #include "defs.h"
 
-void crt()
+void crt_process();
 
 #endif /* _CRT_H_ */

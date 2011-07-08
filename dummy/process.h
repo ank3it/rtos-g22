@@ -14,6 +14,7 @@
 #include "malloc.h"
 #include "defs.h"
 #include "queue.h"
+#include "d_send_queue.h"
 #include "envelope.h"
 
 /*
@@ -52,7 +53,7 @@ struct process all_processes[NUM_PROCS];
 struct process *running_process;
 struct queue *ready_queue;
 struct queue *blocked_queue;
-struct queue *delayed_send_queue;
+struct d_queue *delayed_send_queue;
 
 /* Initializae the scheduler */
 void scheduler_init();
@@ -89,5 +90,7 @@ int k_send_message(int, void *);
 
 /* Receive message from process mailbox */
 void *k_receive_message(int *);
+
+void k_send_delay(int , void * , int );
 
 #endif /* _PROCESS_H_ */

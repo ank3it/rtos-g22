@@ -9,11 +9,9 @@
 #include "process.h"
 #include "init.h"
 #include "timer.h"
-
-
 #define MESSAGE_HEADER_OFFSET 64
 
-extern SINT32 __Counter2;
+extern SINT32 Counter2;
 /**
  * @brief: Initialize scheduler by creating ready and blocked 
  *	queues and setting the running process to NULL
@@ -27,6 +25,9 @@ void scheduler_init()
 
 	blocked_queue = malloc(sizeof(struct queue));
 	queue_init(blocked_queue);
+	
+	delayed_send_queue = malloc(sizeof(struct d_queue));
+	d_queue_init(delayed_send_queue);
 
 	running_process = NULL;
 }
@@ -179,7 +180,7 @@ void save_context(int process_ID)
 	curr_process = get_proc(process_ID);
 
 	TRACE("Current Process= " );
-	TRACE( itoa(curr_process) );
+	TRACE( itoa(curr_process->ID) );
 	TRACE("\r\n");
 
 	asm("move.l %%d5, %0" : "=m" (curr_process->curr_SP));
@@ -301,15 +302,30 @@ int k_get_process_priority(int process_ID)
  */
 int k_send_message(int process_ID, void *message_envelope)
 {
-	TRACE("k_send_message()\r\n");
+	//rtx_dbug_outs("k_send_message .. SPID RPID()\r\n");
+	//rtx_dbug_outs((CHAR *)itoa(running_process->ID));
+	//rtx_dbug_outs(" ");
+	//rtx_dbug_outs((CHAR *)itoa(process_ID));
+	//rtx_dbug_outs("\r\n");
 	/* Check if given parameters are invalid */
 	if (process_ID < 0 || process_ID > NUM_PROCS ||  message_envelope == NULL)
 		return RTX_ERROR;
+		
+	//rtx_dbug_outs("k_send_message .. SPID RPID()\r\n");
 
 	/* Populate header fields */
 	struct envelope *e = (struct envelope *)message_envelope;
-	e->sender_process_ID = running_process->ID;
-	e->dest_process_ID = process_ID;
+	
+	// Need to do this as when Timer Sends a message after delayed send, the ID goes as the timer ID as that is the currently running process
+	if ( running_process->ID != TIMER_IPROCESS_ID ) {
+		e->sender_process_ID = running_process->ID;
+		e->dest_process_ID = process_ID;
+	}
+	else {
+		e->sender_process_ID = process_ID & 0xFFFF;
+		e->dest_process_ID = ( process_ID & 0xFFFF ) >> 16;
+	}
+	
 	e->next = NULL;
 	e->message = message_envelope + MESSAGE_HEADER_OFFSET;
 
@@ -378,15 +394,14 @@ void *k_receive_message(int *sender_ID)
    sent to the destination process (process_ID) after the expiration of the delay (timeout, given in msec units).
  * @param: sender_ID Filled by the function with the message sender's ID
  */
-/*
+
 void k_send_delay(int process_ID, void * MessageEnvelope, int delay)
 {
 	int TimeAdded_delay;
-	TimeAdded_delay = __Counter2 + delay;
+	TimeAdded_delay = Counter2 + delay;
 	
-	if ( TimeAdded_delay > __Counter2){
-		enqueue(delayed_send_queue, process_ID, MessageEnvelope, TimeAdded_delay);
+	if ( TimeAdded_delay > Counter2){
+		d_enqueue(delayed_send_queue, process_ID, MessageEnvelope, TimeAdded_delay , running_process->ID);
 	}
 	
 }
-*/

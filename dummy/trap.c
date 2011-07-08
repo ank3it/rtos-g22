@@ -48,7 +48,6 @@ void execute_sys_call()
 	int * sender_ID;
 	int result1;
 	void *result2 = NULL;
-
 	switch (CURR_TRAP) {
 		case SYS_CALL_SEND_MESSAGE:
 			//initializing the variables
@@ -91,7 +90,7 @@ void execute_sys_call()
 			asm("move.l %%d2 , %0" : "=m" (process_ID));
 			asm("move.l %%d3 , %0" : "=m" (MessageEnvelope));
 			asm("move.l %%d4 , %0" : "=m" (delay));
-			//result1 = k_delayed_send(process_ID, MessageEnvelope, delay);
+			k_send_delay(process_ID, MessageEnvelope, delay);
 
 			asm("move.l %0, %%d2" : : "m" (result1));
 			break;
