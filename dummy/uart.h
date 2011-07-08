@@ -16,6 +16,9 @@ struct keyboard_command
 	struct keyboard_command *next;
 };
 
+/* Initialize hotkeys */
+void hotkeys();
+
 /* Initialize uart */
 void uart_init();
 

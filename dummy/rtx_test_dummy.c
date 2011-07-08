@@ -99,6 +99,12 @@ void test1()
 		TRACE(itoa(sender_ID));
 		TRACE("\r\n");
 		g_test_fixture.release_processor();
+		
+		// TRACE("\r\n--------------------\r\n");
+		// TRACE("TEST 1\r\n");
+		// TRACE("--------------------\r\n");
+		// g_test_fixture.release_processor();
+		// rtx_dbug_outs((CHAR *)"blah1\r\n");
 	}
 }
 
@@ -129,6 +135,12 @@ void test2()
 		g_test_fixture.send_message(1, envelope2);
 
 		g_test_fixture.release_processor();
+		
+		// TRACE("\r\n--------------------\r\n");
+		// TRACE("TEST 2\r\n");
+		// TRACE("--------------------\r\n");
+		// g_test_fixture.release_processor();
+		// rtx_dbug_outs((CHAR *)"blah2\r\n");
 	}
 }
 /* third party dummy test process 3 */ 
