@@ -3,12 +3,14 @@
 
 #include "process.h"
 #include "defs.h"
-#include "nullprocess.h"
-#include "../memory/memory.h"
-#include "../timer0/timer.h"
+#include "memory.h"
+#include "timer.h"
 #include "queue.h"
 
 void load_null_process();
+void load_uart_iprocess();
+void load_crt_process();
+void load_kcd_process();
 void load_test_processes();
 void init_pcb();
 void null_process();

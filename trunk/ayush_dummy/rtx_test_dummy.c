@@ -13,14 +13,92 @@
 #include "rtx_test.h"
 #include "dbug.h"
 
+CHAR* itoa(int n)
+{
+	int i, sign;
+	int num_digits = 1;
+
+	/* Get number of digits in n */
+	i = n;
+	do
+	{
+		i /= 10;
+		++num_digits;
+	} while (i != 0);
+
+	/* Record sign, make n positive, increase num_digits */
+	if ((sign = n) < 0)						
+	{		
+		n = -n;
+		++num_digits;
+	}
+
+	/* CHAR array to hold the result */
+	CHAR s[num_digits];
+
+	i = 0;
+	do {
+		s[i++] = n % 10 + '0';
+	} while ((n /= 10) > 0);
+
+	if (sign < 0)
+		s[i++] = '-';				/* Append negative sign */
+
+	s[i] = '\0';					/* Append terminating null char */
+
+	reverse(s, num_digits);
+	
+	return s;
+}
+
+/**
+ * @brief: Reverses the given string
+ * @param: s String to be reversed
+ * @param: length The length of the string
+ */
+VOID reverse(CHAR *s, int length)
+{
+	CHAR c;
+	int i = 0;
+	int j = length - 2;
+
+	while (i < j)	
+	{
+		c = s[i];
+		s[i] = s[j];
+		s[j] = c;
+
+		i++;
+		j--;
+	}
+}
+
 /* third party dummy test process 1 */ 
 void test1()
 {
 	while(1) {
-		rtx_dbug_outs((CHAR *)"rtx_test: test1\r\n");
+		TRACE("\r\n--------------------\r\n");
+		TRACE("TEST 1\r\n");
+		TRACE("--------------------\r\n");
+
+		int sender_ID = -1;
+		TRACE("Calling receive_message()\r\n");
+		void * envelope = g_test_fixture.receive_message(&sender_ID);
+		TRACE("sender_ID = ");
+		TRACE(itoa(sender_ID));
+		TRACE("\r\n");
+		TRACE("envelope = ");
+		TRACE(itoa(envelope));
+		TRACE("\r\nvalue at message = ");
+		TRACE(itoa(*(int *)(envelope + 64)));
+		TRACE("\r\n");
+
+		TRACE("Calling receive_message()\r\n");
+		void * envelope2 = g_test_fixture.receive_message(&sender_ID);
+		TRACE("sender_ID = ");
+		TRACE(itoa(sender_ID));
+		TRACE("\r\n");
 		g_test_fixture.release_processor();
-		//g_test_fixture.set_process_priority(5 ,2 );
-		rtx_dbug_outs((CHAR *)"blah1\r\n");
 	}
 }
 
@@ -28,16 +106,38 @@ void test1()
 void test2()
 {
 	while(1) {
-		rtx_dbug_outs((CHAR *)"rtx_test: test2\r\n");
+		TRACE("\r\n--------------------\r\n");
+		TRACE("TEST 2\r\n");
+		TRACE("--------------------\r\n");
+
+		TRACE("Calling request_memory_block()\r\n");
+		void *envelope = g_test_fixture.request_memory_block();
+		TRACE("evelope = ");
+		TRACE(itoa(envelope));
+		int *num = (int *)(envelope + 64);
+		*num = 555;
+		TRACE("\r\nnum = ");
+		TRACE(itoa(*num));
+		TRACE("\r\nCalling send_message()\r\n");
+		g_test_fixture.delayed_send(1, envelope , 3);
+		g_test_fixture.set_process_priority(1, 1);
+		
+		TRACE("\r\nCalling request_memory_block()\r\n");
+		void *envelope2 = g_test_fixture.request_memory_block();
+		*(int *)(envelope2 + 64) = 123;
+		TRACE("Calling send_message()\r\n");
+		g_test_fixture.send_message(1, envelope2);
+
 		g_test_fixture.release_processor();
-		rtx_dbug_outs((CHAR *)"blah2\r\n");
 	}
 }
 /* third party dummy test process 3 */ 
 void test3()
 {
 	while(1) {
-		rtx_dbug_outs((CHAR *)"rtx_test: test3\r\n");
+		TRACE("\r\n--------------------\r\n");
+		TRACE("TEST 3\r\n");
+		TRACE("--------------------\r\n");
 		g_test_fixture.release_processor();
 		rtx_dbug_outs((CHAR *)"blah3\r\n");
 	}
@@ -47,7 +147,9 @@ void test3()
 void test4()
 {
 	while(1) {
-		rtx_dbug_outs((CHAR *)"rtx_test: test4\r\n");
+		TRACE("\r\n--------------------\r\n");
+		TRACE("TEST 4\r\n");
+		TRACE("--------------------\r\n");
 		g_test_fixture.release_processor();
 		rtx_dbug_outs((CHAR *)"blah4\r\n");
 	}
@@ -56,7 +158,9 @@ void test4()
 void test5()
 {
 	while(1) {
-		rtx_dbug_outs((CHAR *)"rtx_test: test5\r\n");
+		TRACE("\r\n--------------------\r\n");
+		TRACE("TEST 5\r\n");
+		TRACE("--------------------\r\n");
 		g_test_fixture.release_processor();
 		rtx_dbug_outs((CHAR *)"blah5\r\n");
 	}
@@ -65,7 +169,9 @@ void test5()
 void test6()
 {
 	while(1) {
-		rtx_dbug_outs((CHAR *)"rtx_test: test6\r\n");
+		TRACE("\r\n--------------------\r\n");
+		TRACE("TEST 6\r\n");
+		TRACE("--------------------\r\n");
 		g_test_fixture.release_processor();
 		rtx_dbug_outs((CHAR *)"blah6\r\n");
 	}

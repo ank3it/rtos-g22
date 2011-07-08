@@ -13,15 +13,12 @@
 #include "rtx.h"
 #include "dbug.h"
 #include "trap.h"
-#include "util.h"
 
 
 /* Interprocess Communications*/
 int send_message (int process_ID, void * MessageEnvelope)
 {
-    TRACE("rtx: send_message \r\n");
-
-	int result;
+    rtx_dbug_outs((CHAR *)"rtx: send_message \r\n");
 	//push d2 & d3 on stack
 	asm("move.l %d2, -(%a7)");
 	asm("move.l %d3, -(%a7)");
@@ -30,156 +27,119 @@ int send_message (int process_ID, void * MessageEnvelope)
 	asm("move.l %0, %%d3 " : : "m" (MessageEnvelope));
 	setpr(0);
 	asm( "TRAP #10" );
-	/* Get result out of d2 */
-	asm("move.l %%d2, %0" : "=m" (result));
-	//changing the values of registers back to their orginal values
-	asm("move.l (%a7)+, %d3");
-	asm("move.l (%a7)+, %d2");
-	return result;
+	return 0;
 }
 
 void * receive_message(int * sender_ID)
 {
-    TRACE("rtx: receive_message \r\n");
-
-	void *result;
 	//push d2 on stack
 	asm("move.l %d2, -(%a7)");
-	asm("move.l %d3, -(%a7)");
 	
+    rtx_dbug_outs((CHAR *)"rtx: receive_message \r\n");
 	asm("move.l %0, %%d2 " : : "m" (sender_ID));
 	setpr(1);
 	asm( "TRAP #10" );
-
-	/* Get sender_ID from d2 */
-	asm("move.l %%d2, %0" : "=m" (result));
-	asm("move.l %%d3, %0" : "=m" (sender_ID));
-
-	asm("move.l (%a7)+, %d3");
-	asm("move.l (%a7)+, %d2");
-
-	return result;
+	
 }
 
 /*Memory Management*/
 void * request_memory_block() 
 {
-	TRACE("rtx: request_memory_block \r\n");
 
-	void *result;
-	/* Save registers */
-	asm("move.l %d2, -(%a7)");
-    
-	setpr(2);
+int sp;
+    rtx_dbug_outs((CHAR *)"rtx: RQM \r\n");
+        setpr(4);
+//      asm("move.l %d5 , -(%a7)");
+        //asm("move.l %a7 , %d5");
+//asm("move.l %%a7, %0": "=m" (sp));
+        //rtx_dbug_outs((CHAR*)(itoa(sp)));
+        //rtx_dbug_outs((CHAR*)"\r\n");
+         asm("move.l %%a7, %0": "=m" (sp));
+        rtx_dbug_outs((CHAR*) itoa(sp));
+        rtx_dbug_outs((CHAR*)" CALL TRAP\r\n");
+
 	asm( "TRAP #10" );
-
-	/* Get result out of d2 */
-	asm("move.l %%d2, %0" : "=m" (result));
-
-	/* Restore registers */
-	asm("move.l (%a7)+, %d2");
-    return result;
+         asm("move.l %%a7, %0": "=m" (sp));
+        rtx_dbug_outs((CHAR*) itoa(sp));
+        rtx_dbug_outs((CHAR*)" EXIT RQM\r\n");
+//      asm("move.l (%a7)+ , %d5");
+    return 0;
 }
 
 int release_memory_block(void * MemoryBlock)
 {
-    TRACE("rtx: release_memory_block \r\n");
+    rtx_dbug_outs((CHAR *)"rtx: release_memory_block \r\n");
 	
-	int result;
-	/* Save registers */
+	//push d2 on stack
 	asm("move.l %d2, -(%a7)");
-
 	asm("move.l %0, %%d2 " : : "m" (MemoryBlock));
 	setpr(3);
 	asm( "TRAP #10" );
-
-	asm("move.l %%d2, %0" : "=m" (result));
-
-	/* Restore registers */
-	asm("move.l (%a7)+ , %d2");
-    return result;
+    return 0;
 }
 
 /*Process Management*/
 int release_processor()
 {
-    TRACE("rtx: release_processor \r\n");
-
-	int result;
-	/* Save registers */
-	asm("move.l %d2, -(%a7)");
-
+	int sp;
+    rtx_dbug_outs((CHAR *)"rtx: release_processor \r\n");
 	setpr(4);
+//	asm("move.l %d5 , -(%a7)");
+	//asm("move.l %a7 , %d5");
+//asm("move.l %%a7, %0": "=m" (sp));
+	//rtx_dbug_outs((CHAR*)(itoa(sp)));
+	//rtx_dbug_outs((CHAR*)"\r\n");
 	asm( "TRAP #10" );
-
-	asm("move.l %%d2, %0" : "=m" (result));
-
-	/* Restore registers */
-	asm("move.l (%a7)+ , %d2");
-    return result;
+	 asm("move.l %%a7, %0": "=m" (sp));
+	rtx_dbug_outs((CHAR*) itoa(sp));
+	rtx_dbug_outs((CHAR*)" blahsakjdaahdjks\r\n");
+//	asm("move.l (%a7)+ , %d5");
+    return 0;
 }
 
 /*Timing Service*/
 int delayed_send(int process_ID, void * MessageEnvelope, int delay)
 {
-    TRACE("................................................................rtx: delayed_send \r\n");
-
-	int result;
 	//push d2,d3 & d4 on stack
 	asm("move.l %d2, -(%a7)");
 	asm("move.l %d3, -(%a7)");
 	asm("move.l %d4, -(%a7)");
 	
+	
+    rtx_dbug_outs((CHAR *)"rtx: delayed_send \r\n");
     asm("move.l %0, %%d2 " : : "m" (process_ID));
 	asm("move.l %0, %%d3 " : : "m" (MessageEnvelope));
 	asm("move.l %0, %%d4 " : : "m" (delay));
 	setpr(5);
 	asm( "TRAP #10" );
-	
-	asm("move.l %%d2, %0" : "=m" (result));
-
-	asm("move.l (%a7)+, %d4");
-	asm("move.l (%a7)+, %d3");
-	asm("move.l (%a7)+, %d2");
-	return result;
+	return 0;
 }
 
 /*Process Priority*/
 int set_process_priority (int process_ID, int priority)
 {
-    TRACE("rtx: set_process_priority \r\n");
-
-	int result;
 	//push d2 & d3 on stack
 	asm("move.l %d2, -(%a7)");
 	asm("move.l %d3, -(%a7)");
 	
+    rtx_dbug_outs((CHAR *)"rtx: set_process_priority \r\n");
     asm("move.l %0, %%d2 " : : "m" (process_ID));
 	asm("move.l %0, %%d3 " : : "m" (priority));
 	setpr(6);
 	asm( "TRAP #10" );
-
-	asm("move.l %%d2, %0" : "=m" (result));
-
 	asm("move.l (%a7)+, %d3");
 	asm("move.l (%a7)+, %d2");
-	return result;
+	return 0;
 }
 
 int get_process_priority (int process_ID)
 {
-    TRACE("rtx: get_process_priority \r\n");
-
-	int result;
 	//push d2 on stack
 	asm("move.l %d2, -(%a7)");
 
+    rtx_dbug_outs((CHAR *)"rtx: get_process_priority \r\n");
     asm("move.l %0, %%d2 " : : "m" (process_ID));
 	setpr(7);
 	asm( "TRAP #10" );
-
-	asm("move.l %%d2, %0" : "=m" (result));
-
-	asm("move.l (%a7)+, %d2");
-	return result;
+	return 0;
 }
