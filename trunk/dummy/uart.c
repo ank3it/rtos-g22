@@ -13,8 +13,65 @@
 #include "envelope.h"
 #include "memory.h"
 #include "rtx.h"
+#include "hotkeys.h"
 
 #include "uart.h"
+
+volatile BYTE CharIn;
+
+
+/**
+ * @brief: Setting hotkeys
+ */
+void hotkeys()
+{
+	CharIn = SERIAL1_RD;
+	rtx_dbug_outs("\r\n");
+	rtx_dbug_outs("Entering switch");
+	rtx_dbug_outs("\r\n");
+	rtx_dbug_outs(&CharIn);
+	rtx_dbug_outs("\r\n");
+	switch(CharIn)
+	{
+	
+		
+			case '!':
+				rtx_dbug_outs("! hotkey");
+				print_ready_queue();
+				break;
+			case '@':
+				rtx_dbug_outs("@ hotkey");
+				print_blocked_memory_queue();
+				break;
+			case '#':
+				rtx_dbug_outs("# hotkey");
+				print_blocked_receive_queue();
+				break;
+			case '$':
+				rtx_dbug_outs("$ hotkey");
+				print_all_process_info();
+				break;
+			case '^':
+				rtx_dbug_outs("^ hotkey");
+				print_used_memory_block();
+				break;			
+			case '&':
+				rtx_dbug_outs("& hotkey");
+				print_message_queue();
+				break;	
+			default:
+				rtx_dbug_outs("\r\n");
+				rtx_dbug_outs("nothing found");
+				break;
+				
+
+	}
+	//TRACE ("Sending message to KCD \r\n");
+	struct envelope *message_send = (struct envelope *)request_memory_block();
+	message_send->message_data[0] = CharIn;
+	//send_message(KCD_PROCESS_ID, message_send);
+}
+
 
 /**
  * @brief: Initializes the uart for serial IO 
@@ -119,6 +176,7 @@ void uart_iprocess()
 
 		if (temp & 1)
 		{
+			hotkeys();
 			TRACE("Receiving character...\r\n");
 
 			/* Non-blocking call to request_memory_block() */
