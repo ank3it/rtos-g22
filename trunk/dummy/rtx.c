@@ -122,7 +122,7 @@ int release_processor()
 /*Timing Service*/
 int delayed_send(int process_ID, void * MessageEnvelope, int delay)
 {
-    TRACE("rtx: delayed_send \r\n");
+    TRACE("................................................................rtx: delayed_send \r\n");
 
 	int result;
 	//push d2,d3 & d4 on stack

@@ -84,8 +84,8 @@ void c_uart_handler()
 	/* Acknowledge interrupt by reading register */
 	BYTE temp = SERIAL1_USR;
 
-	if (temp & 4)
-		SERIAL1_IMR = 0x02;
+	//if (temp & 4)
+	//	SERIAL1_IMR = 0x02;
 
 	save_context(running_process->ID);
 	
@@ -123,22 +123,34 @@ void uart_iprocess()
 
 			/* Non-blocking call to request_memory_block() */
 			void *mem_block = request_memory_block();
+			if ( mem_block == NULL ) {
+				rtx_dbug_outs(" Received NULL \r\n");
+				} else {
+				rtx_dbug_outs( " Msg Block = " );
+				rtx_dbug_outs( itoa( mem_block ));
+				rtx_dbug_outs( " \r\n " );
+				}
+				
 			*(char *)(mem_block + 64) = SERIAL1_RD;
 			send_message(KCD_PROCESS_ID, mem_block);
 		}
-		else if (temp & 4)
+		if (temp & 4)
 		{
 			TRACE("Transmitting character...\r\n");
 
 			/* Non-blocking call to receive_mesasge() */
 			struct envelope	*e = (struct envelope *)receive_message(NULL);
 			
+			//rtx_dbug_outs("Transmitting character2...\r\n");
+			
 			if (e != NULL)
 			{
+				//rtx_dbug_outs("Transmitting character3...\r\n");
 				TRACE("e->message = ");
 				TRACE((char *)e->message);
 				TRACE("\r\n");
 				SERIAL1_WD = *(char *)e->message;
+				release_memory_block(e);
 			}
 		}
 
@@ -162,7 +174,7 @@ void kcd_process()
 
 	while (TRUE)
 	{
-		TRACE("kcd_process()\r\n");
+		rtx_dbug_outs("kcd_process()\r\n");
 
 		struct envelope *e = (struct envelope *)receive_message(NULL);
 
@@ -209,8 +221,9 @@ void kcd_process()
 			*(char *)(out_e + 65) = '\0';
 			TRACE("out_e + 64 = ");
 			TRACE((char *)(out_e + 64));
-
+			rtx_dbug_outs("1\r\n");
 			send_message(CRT_PROCESS_ID, out_e);
+			rtx_dbug_outs("2\r\n");
 
 			/* Add characters to buffer until user presses enter */
 			if (*input_char == CR || *input_char == LF)
@@ -249,7 +262,8 @@ void kcd_process()
 					}
 				}
 			}
-			else
+			else if ( KCD_BUFFER_SIZE > buffer_index )
+			
 				buffer[buffer_index++] = *input_char;
 		}
 
@@ -264,9 +278,10 @@ void crt_display_process()
 {
 	while(TRUE)
 	{
-		TRACE("crt_display_process()\n\r");
+		rtx_dbug_outs("crt_display_process()\n\r");
 		
 		struct envelope *msg_envl = (struct envelope *)receive_message(NULL);
+		rtx_dbug_outs("In crt\n\r");
 
 		TRACE("msg_envl = ");
 		TRACE(itoa(msg_envl));
@@ -280,6 +295,7 @@ void crt_display_process()
 		{
 			buffer[buffer_index] = *(char *)(msg_envl->message + buffer_index);
 			buffer_index++;
+			rtx_dbug_outs("In here\n\r");
 		}
 		buffer[buffer_index] = '\0';
 		buffer_index = 0;
@@ -292,6 +308,12 @@ void crt_display_process()
 			*(char *)(out_e + 64) = buffer[buffer_index];
 			send_message(UART_IPROCESS_ID, out_e);
 			SERIAL1_IMR = 0x03;
+			if (  buffer[buffer_index] == CR ) {
+				void *out_e1 = request_memory_block();
+				*(char *)(out_e1 + 64) = '\n';
+				send_message(UART_IPROCESS_ID, out_e1);
+				}
+				
 			buffer_index++;
 		}
 	}

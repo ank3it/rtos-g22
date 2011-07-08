@@ -8,33 +8,36 @@
 
 #include "crt.h"
 
-void crt()
+void crt_process()
 { 
 	while(1)
 	{		
 		TRACE("Entering CRT....\n\r");
 		
-		envelope * msg_envl = (envelope *)k_receive_message(NULL);
+		struct envelope * msg_envl = (struct envelope *)receive_message(NULL);
 		TRACE("Message envelope = ");
 		TRACE(itoa(msg_envl));
 		TRACE("\r\n");
 		
 		int i = 0;
-		if(msg_envl->dest_process_ID != CRT_ID)
-		{
-			TRACE("You are not in the CRT process");
-		}
-		else
-		{
+		//if(msg_envl->dest_process_ID != CRT_ID)
+		//{
+		//	TRACE("You are not in the CRT process");
+		//}
+		//else
+		//{
+		TRACE(msg_envl->message_data);
 			while(msg_envl->message_data[i] != '\0')
 			{
-				envelope * UART_msg_envl = (envelope *)k_request_memory_block();
+				TRACE("Entering CRT2....\n\r");
+				struct envelope * UART_msg_envl = (struct envelope *)request_memory_block();
 				UART_msg_envl->message_data[0] = msg_envl->message_data[i];
-				k_send_message(UART_ID, UART_msg_envl);
+				/* Enable tx interrupts */
+				SERIAL1_IMR = 3;
+				send_message(UART_IPROCESS_ID, UART_msg_envl);
 				i++;
+				release_memory_block((void *) msg_envl);	
 			}
-		}
-		k_release_memory_block((void *) msg_envl);		
-		}
+		//}	
 	}
 }

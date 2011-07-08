@@ -10,12 +10,12 @@
 #include "d_send_queue.h"
 #include "timer.h"
 
-extern SINT32 __Counter2;
+extern SINT32 Counter2;
 /**
  * @brief: Initialize the queue 
  * @param: q The queue to operate on
  */
-void queue_init(struct queue *q)
+void d_queue_init(struct d_queue *q)
 {
 	q->head = q->tail = NULL;	
 }
@@ -27,15 +27,16 @@ void queue_init(struct queue *q)
  * @param: priority The priority of the node
  * @return: int Returns 0 on success, -1 otherwise
  */
-int enqueue(struct queue *q, int process_ID, void * MessageEnvelope, int delay)
+int d_enqueue(struct d_queue *q, int process_ID, void * MessageEnvelope, int delay , int sender_id)
 {
 	if (q == NULL)
 		return RTX_ERROR;
 	
-	struct queue_node *new_node = malloc(sizeof(struct queue_node));
+	struct d_queue_node *new_node = malloc(sizeof(struct d_queue_node));
 	new_node->MessageEnvelope = MessageEnvelope;
 	new_node->process_ID = process_ID;
 	new_node->delay = delay;
+	new_node->sender_id = sender_id;
 	
 	if (q->head == NULL)
 	{
@@ -45,7 +46,7 @@ int enqueue(struct queue *q, int process_ID, void * MessageEnvelope, int delay)
 	}
 	else	
 	{
-		struct queue_node *curr_node = q->head;
+		struct d_queue_node *curr_node = q->head;
 		
 		if (delay < curr_node->delay)
 		{
@@ -80,17 +81,13 @@ int enqueue(struct queue *q, int process_ID, void * MessageEnvelope, int delay)
  * @return: int Returns the value of the dequeued node if successful
  * 		else returns -1
  */
-MessageEnvelope* dequeue(struct queue *q) //how do i return a message envelope type
+int d_dequeue(struct d_queue *q) //how do i return a message envelope type
 {
 	int return_value;
 	if (q == NULL || q->head == NULL)
 		return RTX_ERROR;
 	
-	struct queue_node *dequeue_node = q->head;
-	
-	if( __Counter2 < dequeue_node->delay){
-		
-		return_value = dequeue_node->MessageEnvelope;
+	struct d_queue_node *dequeue_node = q->head;
 		
 		if (q->head == q->tail)
 			q->head = q->tail = NULL;
@@ -100,10 +97,5 @@ MessageEnvelope* dequeue(struct queue *q) //how do i return a message envelope t
 		free(dequeue_node);
 		
 		return return_value;
-	
-	}else {
-				//what should i be doing here
-	}
-
 }
-
+ 

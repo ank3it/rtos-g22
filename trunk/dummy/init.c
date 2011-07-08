@@ -13,8 +13,8 @@ void null_process()
 {
 	while(1)
 	{
-		TRACE("This is inside the Null Process\r\n");
-		//release_processor();
+		rtx_dbug_outs("This is inside the Null Process\r\n");
+		release_processor();
 	}
 }
 
@@ -236,8 +236,7 @@ void init_pcb()
     init_trap();
 
 	init_memory();
-	uart_init();
-	//timer_init();
+	
 	
 	// System Processes
 	load_null_process();
@@ -253,6 +252,8 @@ void init_pcb()
 
 //	init_funcs();
 
+	uart_init();
+	//timer_init();
 	scheduler_run();
 }
 

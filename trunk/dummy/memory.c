@@ -14,6 +14,8 @@
 //extern int __end;
 int* head;
 int* tail;
+int CountUserMemBlock = 0;
+int TotalUsedMemBlock = 0;
 
 /**
  * @brief: Memory initialization routine
@@ -21,6 +23,8 @@ int* tail;
 void init_memory()
 {
 	int i = 0 ;
+	CountUserMemBlock = 0;
+	TotalUsedMemBlock = 0;
 	head = malloc( (NUM_MEM_BLKS + 1) * MAX_BLK_SIZE + (NUM_MEM_BLKS + 2 ) * sizeof(int*) )  ;
 	head++;
 	tail = head;
@@ -44,15 +48,20 @@ void* k_request_memory_block()
 {
 	TRACE("k_request_memory_block()\r\n");
 	void* returnVal = *tail;
-	if ( tail == head ) {
+	rtx_dbug_outs(itoa(TotalUsedMemBlock));
+	rtx_dbug_outs(" Block1 \r\n");
+	if ( tail == head  || ( running_process->ID < 10 && CountUserMemBlock >= MAX_USER_MEM_BLKS ) ) {
 		block_running_process(BLOCK_MEMORY);
 		return 0;
 	}
-	
+	rtx_dbug_outs(" Block \r\n");
 	tail--;
 	TRACE("returnVal = ");
 	TRACE(itoa(returnVal));
 	TRACE("\r\n");
+	if ( running_process->ID < 10 )
+	CountUserMemBlock++;
+	TotalUsedMemBlock++;
 	return returnVal;
 }
 	
@@ -109,7 +118,11 @@ int k_release_memory_block( void* memory_block )
 	*tail = memory_block;
 	
 	unblock_process(NULL, BLOCK_MEMORY);
-	
+	if ( running_process->ID < 10 )
+	CountUserMemBlock--;
+	TotalUsedMemBlock--;
+	rtx_dbug_outs(itoa(TotalUsedMemBlock));
+	rtx_dbug_outs(" In Release \r\n");
 	return 0;
 
 	
