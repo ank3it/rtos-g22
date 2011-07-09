@@ -27,15 +27,11 @@ SINT32 Counter = 86390;
 SINT32 Counter2 = 0;
 SINT32 WC_Start_Counter = 0;
 SINT32 TimeUpdated = 0;
-SINT32 WC_Active = 0;
+SINT32 WC_Active = 1;
 CHAR timeStr[11];
 extern int CURR_TRAP;
 void wc_process() 
 {
-	void *mem_block2 = request_memory_block();
-	*(char *)(mem_block2 + 64) = 'W';
-	*(char *)(mem_block2 + 65) = '\0';	
-	send_message(KCD_PROCESS_ID , mem_block2);
 	int hours = 0 ;
 	int mins = 0 ;
 	int secs  = 0;
@@ -43,22 +39,22 @@ void wc_process()
 	while(TRUE)
 	{
 		int sender_ID = -1;
-		
-		void *envelope  = receive_message(&sender_ID);
-		
-		if ( sender_ID == KCD_PROCESS_ID ) {
-		// toggle WC-Active
-		}
-		
-		if ( WC_Active == 0 ) {
-			continue;
-		}
-
-		void *envelope2 = request_memory_block();
-		delayed_send(WC_PROCESS_ID, envelope2 , 950);
+		rtx_dbug_outs("In WC1\r\n");
+		TRACE("Calling receive_message()\r\n");
+		void *envelope = request_memory_block();
+		rtx_dbug_outs(itoa(envelope));
+		if ( envelope == NULL ) 
+			rtx_dbug_outs("In WC2\r\n");
+		delayed_send(WC_PROCESS_ID, envelope , 950);
+		rtx_dbug_outs("In WC3\r\n");
+		envelope  = receive_message(&sender_ID);
+		rtx_dbug_outs(itoa(envelope));
+		rtx_dbug_outs("In WC4\r\n");
+		rtx_dbug_outs(itoa(envelope));
 		release_memory_block(envelope);
-
+		rtx_dbug_outs("In WC5\r\n");
 		Counter++;
+		rtx_dbug_outs("In WC\r\n");
 		
 		// To FIX
 		//char *msgData = (char *)(envelope + 64);
@@ -100,6 +96,8 @@ void wc_process()
 			*(char *)(mem_block + 64 + i) = timeStr[i];
 			}
 		send_message(CRT_PROCESS_ID , mem_block);
+		release_processor();
+
 	}
 }
 
@@ -108,6 +106,7 @@ void wc_process()
  */
 VOID c_timer_handler( VOID )
 {
+
 	Counter2 += 10;
 	TIMER0_TER = 2;/* Acknowledge interrupt */ 
 	// Load timer - i process
