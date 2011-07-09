@@ -18,7 +18,7 @@ void set_priority_process()
 	
 	while(1)
 	{
-		msg_envl = (struct envelope *)k_receive_message(NULL);
+		msg_envl = (struct envelope *)receive_message(NULL);
 		if(msg_envl->message_data[2] = ' ')
 		{
 			process_id = atoi(message_data[3]);
