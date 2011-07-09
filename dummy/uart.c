@@ -171,7 +171,7 @@ void uart_iprocess()
 {
 	while(TRUE) 
 	{
-		rtx_dbug_outs("\n\n\n.......................uart_iprocess()\r\n");
+		TRACE("\n\n\n.......................uart_iprocess()\r\n");
 
 		/* Acknowledge interrupt */
 		BYTE temp = SERIAL1_USR;
@@ -259,6 +259,12 @@ void kcd_process()
 			kc->command_identifier[i] = '\0';
 
 			kc->registrant_process_ID = e->sender_process_ID;
+			
+			rtx_dbug_outs(" yessdsdskfjk123 ");
+			rtx_dbug_outs(itoa(kc->registrant_process_ID));
+			rtx_dbug_outs(" ");
+			rtx_dbug_outs(kc->command_identifier);
+			rtx_dbug_outs("\r\n ");
 			kc->next = NULL;
 
 			/* Add to command registration list */
@@ -297,6 +303,7 @@ void kcd_process()
 
 				if (buffer[0] == COMMAND_PROMPT)
 				{
+				rtx_dbug_outs(" yessdsdskfjk");
 					/* Extract command identifier from buffer */
 					char ci[MAX_IDENTIFIER_LENGTH];
 					int i = 0;
@@ -311,15 +318,25 @@ void kcd_process()
 					struct keyboard_command *kc = head;
 					while (kc != NULL)
 					{
-						if (*kc->command_identifier == *ci)
+					rtx_dbug_outs("Match Not found! Sending to process ");
+					rtx_dbug_outs(kc->command_identifier);
+					rtx_dbug_outs(" ");
+					rtx_dbug_outs(ci);
+					rtx_dbug_outs("\r\n ");
+						if (*kc->command_identifier == ci[1])
 						{
-							TRACE("Match found! Sending to process ");
-							TRACE(itoa(kc->registrant_process_ID));
-							TRACE("\r\n");
+							rtx_dbug_outs("Match found! Sending to process ");
+							rtx_dbug_outs(itoa(kc->registrant_process_ID));
+							rtx_dbug_outs("\r\n");
 
 							out_e = request_memory_block();
-							*(char *)(out_e + 64) = *buffer;
+							int i1 = 0;
+							for ( i1 = 0 ; i1 < 10 ; i1++ ) {
+								*(char *)(out_e + 64 + i1) = buffer[i1];
+							}
 							send_message(kc->registrant_process_ID, out_e);
+							rtx_dbug_outs(" Yesss " );
+							rtx_dbug_outs( itoa(kc->registrant_process_ID));
 							break;
 						}
 						kc = kc->next;

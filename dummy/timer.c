@@ -27,34 +27,82 @@ SINT32 Counter = 86390;
 SINT32 Counter2 = 0;
 SINT32 WC_Start_Counter = 0;
 SINT32 TimeUpdated = 0;
-SINT32 WC_Active = 1;
+SINT32 WC_Active = 0;
 CHAR timeStr[11];
 extern int CURR_TRAP;
 void wc_process() 
 {
+	void *mem_block2 = request_memory_block();
+	*(char *)(mem_block2 + 64) = 'W';
+	*(char *)(mem_block2 + 65) = '\0';	
+	send_message(KCD_PROCESS_ID , mem_block2);
 	int hours = 0 ;
 	int mins = 0 ;
 	int secs  = 0;
 	int i;
+	WC_Active = 0;
 	while(TRUE)
 	{
 		int sender_ID = -1;
-		rtx_dbug_outs("In WC1\r\n");
-		TRACE("Calling receive_message()\r\n");
-		void *envelope = request_memory_block();
-		rtx_dbug_outs(itoa(envelope));
-		if ( envelope == NULL ) 
-			rtx_dbug_outs("In WC2\r\n");
-		delayed_send(WC_PROCESS_ID, envelope , 950);
-		rtx_dbug_outs("In WC3\r\n");
-		envelope  = receive_message(&sender_ID);
-		rtx_dbug_outs(itoa(envelope));
-		rtx_dbug_outs("In WC4\r\n");
-		rtx_dbug_outs(itoa(envelope));
+		
+		struct envelope *envelope  = receive_message(&sender_ID);
+		
+		rtx_dbug_outs(" In KCD \r\n");
+		rtx_dbug_outs(itoa(sender_ID));
+		if ( envelope->message != NULL ) {
+		
+			rtx_dbug_outs(" In KCD \r\n");
+			/* Extract character(s) from message */
+			char buffer[KCD_BUFFER_SIZE];
+			int buffer_index = 0;
+
+			while (*(char *)(envelope->message + buffer_index) != '\0')
+			{
+				buffer[buffer_index] = *(char *)(envelope->message + buffer_index);
+				rtx_dbug_outs(buffer[buffer_index]);
+				buffer_index++;
+				////rtx_dbug_outs("\n\rIn here\n\r");
+			}
+			//rtx_dbug_outs("Done\n\r");
+			buffer[buffer_index] = '\0';
+			buffer_index = 0;
+			rtx_dbug_outs(buffer);
+		
+			if ( buffer[2] == 'T' ) {
+				rtx_dbug_outs(" Yes in T ");
+				WC_Active = 0;
+			}
+			else if ( buffer[2] == 'S' ) {
+				rtx_dbug_outs(" Yes in S \r\n");
+				WC_Active = 1;
+		
+				/*while(buffer[buffer_index] != '\0')
+				{
+					if ( 
+					void *out_e = request_memory_block();
+					*(char *)(out_e + 64) = buffer[buffer_index];
+					send_message(UART_IPROCESS_ID, out_e);
+					SERIAL1_IMR = 0x03;
+					if (  buffer[buffer_index] == CR ) {
+						void *out_e1 = request_memory_block();
+						*(char *)(out_e1 + 64) = '\n';
+						send_message(UART_IPROCESS_ID, out_e1);
+					}	
+					buffer_index++;
+				}*/
+			}
+		}
+		
 		release_memory_block(envelope);
-		rtx_dbug_outs("In WC5\r\n");
+		
+		if ( WC_Active == 0 ) {
+			continue;
+		}
+
+		void *envelope2 = request_memory_block();
+		*(char *)(envelope2 + 64) = NULL;
+		delayed_send(WC_PROCESS_ID, envelope2 , 950);
 		Counter++;
-		rtx_dbug_outs("In WC\r\n");
 		
 		// To FIX
 		//char *msgData = (char *)(envelope + 64);
@@ -96,8 +144,6 @@ void wc_process()
 			*(char *)(mem_block + 64 + i) = timeStr[i];
 			}
 		send_message(CRT_PROCESS_ID , mem_block);
-		release_processor();
-
 	}
 }
 
@@ -106,7 +152,6 @@ void wc_process()
  */
 VOID c_timer_handler( VOID )
 {
-
 	Counter2 += 10;
 	TIMER0_TER = 2;/* Acknowledge interrupt */ 
 	// Load timer - i process
