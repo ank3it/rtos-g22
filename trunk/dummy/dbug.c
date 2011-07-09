@@ -60,3 +60,20 @@ SINT32 rtx_dbug_outs( CHAR* s )
      }
     return RTX_SUCCESS;
 }
+
+/**
+ * @brief: Prints a C-style null terminated string
+ * @param: s the string to output to janusROM terminal 
+ */
+SINT32 rtx_dbug_outs_hotkeys( CHAR* s )
+{
+     if ( s == NULL )
+     {
+         return RTX_ERROR;
+     }
+     while ( *s != '\0' )
+     {
+         rtx_dbug_out_char( *s++ );
+     }
+    return RTX_SUCCESS;
+}

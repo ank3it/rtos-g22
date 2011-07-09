@@ -36,32 +36,30 @@ void hotkeys()
 	
 		
 			case '!':
-				rtx_dbug_outs("! hotkey");
+				rtx_dbug_outs_hotkeys("! hotkey");
 				print_ready_queue();
 				break;
 			case '@':
-				rtx_dbug_outs("@ hotkey");
+				rtx_dbug_outs_hotkeys("@ hotkey");
 				print_blocked_memory_queue();
 				break;
 			case '#':
-				rtx_dbug_outs("# hotkey");
+				rtx_dbug_outs_hotkeys("# hotkey");
 				print_blocked_receive_queue();
 				break;
 			case '$':
-				rtx_dbug_outs("$ hotkey");
+				rtx_dbug_outs_hotkeys("$ hotkey");
 				print_all_process_info();
 				break;
 			case '^':
-				rtx_dbug_outs("^ hotkey");
+				rtx_dbug_outs_hotkeys("^ hotkey");
 				print_used_memory_block();
 				break;			
 			case '&':
-				rtx_dbug_outs("& hotkey");
+				rtx_dbug_outs_hotkeys("& hotkey");
 				print_message_queue();
 				break;	
 			default:
-				//rtx_dbug_outs("\r\n");
-				//rtx_dbug_outs("nothing found");
 				break;
 				
 
