@@ -50,13 +50,13 @@ VOID rtx_dbug_out_char( CHAR c )
  */
 SINT32 rtx_dbug_outs( CHAR* s )
 {
-    if ( s == NULL )
-    {
-        return RTX_ERROR;
-    }
-    while ( *s != '\0' )
-    {
-        rtx_dbug_out_char( *s++ );
-    }
+     // if ( s == NULL )
+     // {
+         // return RTX_ERROR;
+     // }
+     // while ( *s != '\0' )
+     // {
+         // rtx_dbug_out_char( *s++ );
+     // }
     return RTX_SUCCESS;
 }

@@ -13,7 +13,7 @@ void null_process()
 {
 	while(1)
 	{
-		rtx_dbug_outs("This is inside the Null Process\r\n");
+		//rtx_dbug_outs("This is inside the Null Process\r\n");
 		release_processor();
 	}
 }
@@ -40,7 +40,7 @@ void load_null_process()
 	all_processes[0].curr_SP--;
 	*all_processes[0].curr_SP = all_processes[0].entry;
 	all_processes[0].curr_SP--;
-	*all_processes[0].curr_SP = 0x4000 << 16 | K_SR; // Value to be decided by sudhir for User Process
+	*all_processes[0].curr_SP = 0x4000 << 16 | U_SR; // Value to be decided by sudhir for User Process
 
 	enqueue(ready_queue , all_processes[0].ID , all_processes[0].priority );
 }
@@ -117,7 +117,7 @@ void load_crt_process()
 	all_processes[CRT_PROCESS_ID].curr_SP--;
 	*all_processes[CRT_PROCESS_ID].curr_SP = all_processes[CRT_PROCESS_ID].entry;
 	all_processes[CRT_PROCESS_ID].curr_SP--;
-	*all_processes[CRT_PROCESS_ID].curr_SP = 0x4000 << 16 | K_SR; // Value to be decided by sudhir for User Process
+	*all_processes[CRT_PROCESS_ID].curr_SP = 0x4000 << 16 | U_SR; // Value to be decided by sudhir for User Process
 
 	enqueue(ready_queue , all_processes[CRT_PROCESS_ID].ID , all_processes[CRT_PROCESS_ID].priority );
 }
@@ -144,7 +144,7 @@ void load_kcd_process()
 	all_processes[KCD_PROCESS_ID].curr_SP--;
 	*all_processes[KCD_PROCESS_ID].curr_SP = all_processes[KCD_PROCESS_ID].entry;
 	all_processes[KCD_PROCESS_ID].curr_SP--;
-	*all_processes[KCD_PROCESS_ID].curr_SP = 0x4000 << 16 | K_SR; // Value to be decided by sudhir for User Process
+	*all_processes[KCD_PROCESS_ID].curr_SP = 0x4000 << 16 | U_SR; // Value to be decided by sudhir for User Process
 
 	enqueue(ready_queue , all_processes[KCD_PROCESS_ID].ID , all_processes[KCD_PROCESS_ID].priority );
 }
@@ -171,7 +171,7 @@ void load_wc_process()
 	all_processes[WC_PROCESS_ID].curr_SP--;
 	*all_processes[WC_PROCESS_ID].curr_SP = all_processes[WC_PROCESS_ID].entry;
 	all_processes[WC_PROCESS_ID].curr_SP--;
-	*all_processes[WC_PROCESS_ID].curr_SP = 0x4000 << 16 | K_SR; // Value to be decided by sudhir for User Process
+	*all_processes[WC_PROCESS_ID].curr_SP = 0x4000 << 16 | U_SR; // Value to be decided by sudhir for User Process
 
 	enqueue(ready_queue , all_processes[WC_PROCESS_ID].ID , all_processes[WC_PROCESS_ID].priority );
 }
@@ -253,7 +253,7 @@ void init_pcb()
 //	init_funcs();
 
 	uart_init();
-	//timer_init();
+	timer_init();
 	scheduler_run();
 }
 

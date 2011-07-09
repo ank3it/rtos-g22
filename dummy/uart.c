@@ -26,11 +26,11 @@ volatile BYTE CharIn;
 void hotkeys()
 {
 	CharIn = SERIAL1_RD;
-	rtx_dbug_outs("\r\n");
-	rtx_dbug_outs("Entering switch");
-	rtx_dbug_outs("\r\n");
-	rtx_dbug_outs(&CharIn);
-	rtx_dbug_outs("\r\n");
+	//rtx_dbug_outs("\r\n");
+	//rtx_dbug_outs("Entering switch");
+	//rtx_dbug_outs("\r\n");
+	//rtx_dbug_outs(&CharIn);
+	//rtx_dbug_outs("\r\n");
 	switch(CharIn)
 	{
 	
@@ -60,15 +60,15 @@ void hotkeys()
 				print_message_queue();
 				break;	
 			default:
-				rtx_dbug_outs("\r\n");
-				rtx_dbug_outs("nothing found");
+				//rtx_dbug_outs("\r\n");
+				//rtx_dbug_outs("nothing found");
 				break;
 				
 
 	}
 	//TRACE ("Sending message to KCD \r\n");
-	struct envelope *message_send = (struct envelope *)request_memory_block();
-	message_send->message_data[0] = CharIn;
+	//struct envelope *message_send = (struct envelope *)request_memory_block();
+	//message_send->message_data[0] = CharIn;
 	//send_message(KCD_PROCESS_ID, message_send);
 }
 
@@ -138,6 +138,7 @@ void uart_init()
  */
 void c_uart_handler()
 {
+	asm ( "move.w #0x2700,%sr" );
 	/* Acknowledge interrupt by reading register */
 	BYTE temp = SERIAL1_USR;
 
@@ -157,8 +158,9 @@ void c_uart_handler()
 	}
 	
 	running_process = get_proc(UART_IPROCESS_ID);
-	
+	//asm ( "move.w #0x2000,%sr" );
 	load_context(UART_IPROCESS_ID);
+
 	return;
 }
 
@@ -169,7 +171,7 @@ void uart_iprocess()
 {
 	while(TRUE) 
 	{
-		TRACE("\n\n\n.......................uart_iprocess()\r\n");
+		rtx_dbug_outs("\n\n\n.......................uart_iprocess()\r\n");
 
 		/* Acknowledge interrupt */
 		BYTE temp = SERIAL1_USR;
@@ -182,11 +184,11 @@ void uart_iprocess()
 			/* Non-blocking call to request_memory_block() */
 			void *mem_block = request_memory_block();
 			if ( mem_block == NULL ) {
-				rtx_dbug_outs(" Received NULL \r\n");
+				//rtx_dbug_outs(" Received NULL \r\n");
 				} else {
-				rtx_dbug_outs( " Msg Block = " );
-				rtx_dbug_outs( itoa( mem_block ));
-				rtx_dbug_outs( " \r\n " );
+				//rtx_dbug_outs( " Msg Block = " );
+				//rtx_dbug_outs( itoa( mem_block ));
+				//rtx_dbug_outs( " \r\n " );
 				}
 				
 			*(char *)(mem_block + 64) = SERIAL1_RD;
@@ -199,19 +201,23 @@ void uart_iprocess()
 			/* Non-blocking call to receive_mesasge() */
 			struct envelope	*e = (struct envelope *)receive_message(NULL);
 			
-			//rtx_dbug_outs("Transmitting character2...\r\n");
+			////rtx_dbug_outs("Transmitting character2...\r\n");
 			
 			if (e != NULL)
 			{
-				//rtx_dbug_outs("Transmitting character3...\r\n");
+				////rtx_dbug_outs("Transmitting character3...\r\n");
 				TRACE("e->message = ");
 				TRACE((char *)e->message);
 				TRACE("\r\n");
 				SERIAL1_WD = *(char *)e->message;
 				release_memory_block(e);
 			}
+			else {
+			SERIAL1_IMR = 0x2;
+			}
 		}
-
+		
+		//rtx_dbug_outs( " Exiting = " );
 		release_processor();
 	}
 }
@@ -232,7 +238,7 @@ void kcd_process()
 
 	while (TRUE)
 	{
-		rtx_dbug_outs("kcd_process()\r\n");
+		//rtx_dbug_outs("kcd_process()\r\n");
 
 		struct envelope *e = (struct envelope *)receive_message(NULL);
 
@@ -279,9 +285,9 @@ void kcd_process()
 			*(char *)(out_e + 65) = '\0';
 			TRACE("out_e + 64 = ");
 			TRACE((char *)(out_e + 64));
-			rtx_dbug_outs("1\r\n");
+			//rtx_dbug_outs("1\r\n");
 			send_message(CRT_PROCESS_ID, out_e);
-			rtx_dbug_outs("2\r\n");
+			//rtx_dbug_outs("2\r\n");
 
 			/* Add characters to buffer until user presses enter */
 			if (*input_char == CR || *input_char == LF)
@@ -321,8 +327,8 @@ void kcd_process()
 				}
 			}
 			else if ( KCD_BUFFER_SIZE > buffer_index )
-			
-				buffer[buffer_index++] = *input_char;
+				buffer[buffer_index++] = *input_char;				
+				
 		}
 
 		release_memory_block((void *)e);
@@ -336,10 +342,10 @@ void crt_display_process()
 {
 	while(TRUE)
 	{
-		rtx_dbug_outs("crt_display_process()\n\r");
+		//rtx_dbug_outs("crt_display_process()\n\r");
 		
 		struct envelope *msg_envl = (struct envelope *)receive_message(NULL);
-		rtx_dbug_outs("In crt\n\r");
+		//rtx_dbug_outs("In crt\n\r");
 
 		TRACE("msg_envl = ");
 		TRACE(itoa(msg_envl));
@@ -352,9 +358,11 @@ void crt_display_process()
 		while (*(char *)(msg_envl->message + buffer_index) != '\0')
 		{
 			buffer[buffer_index] = *(char *)(msg_envl->message + buffer_index);
+			////rtx_dbug_outs(buffer[buffer_index]);
 			buffer_index++;
-			rtx_dbug_outs("In here\n\r");
+			////rtx_dbug_outs("\n\rIn here\n\r");
 		}
+		//rtx_dbug_outs("Done\n\r");
 		buffer[buffer_index] = '\0';
 		buffer_index = 0;
 

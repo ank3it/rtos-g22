@@ -125,7 +125,7 @@ void test2()
 		TRACE("\r\nnum = ");
 		TRACE(itoa(*num));
 		TRACE("\r\nCalling send_message()\r\n");
-		g_test_fixture.delayed_send(1, envelope , 3);
+		//g_test_fixture.delayed_send(1, envelope , 3);
 		g_test_fixture.set_process_priority(1, 1);
 		
 		TRACE("\r\nCalling request_memory_block()\r\n");
@@ -151,7 +151,7 @@ void test3()
 		TRACE("TEST 3\r\n");
 		TRACE("--------------------\r\n");
 		g_test_fixture.release_processor();
-		rtx_dbug_outs((CHAR *)"blah3\r\n");
+		////rtx_dbug_outs((CHAR *)"blah3\r\n");
 	}
 }
 
@@ -163,7 +163,7 @@ void test4()
 		TRACE("TEST 4\r\n");
 		TRACE("--------------------\r\n");
 		g_test_fixture.release_processor();
-		rtx_dbug_outs((CHAR *)"blah4\r\n");
+		////rtx_dbug_outs((CHAR *)"blah4\r\n");
 	}
 }
 /* third party dummy test process 5 */ 
@@ -174,7 +174,7 @@ void test5()
 		TRACE("TEST 5\r\n");
 		TRACE("--------------------\r\n");
 		g_test_fixture.release_processor();
-		rtx_dbug_outs((CHAR *)"blah5\r\n");
+		////rtx_dbug_outs((CHAR *)"blah5\r\n");
 	}
 }
 /* third party dummy test process 6 */ 
@@ -185,7 +185,7 @@ void test6()
 		TRACE("TEST 6\r\n");
 		TRACE("--------------------\r\n");
 		g_test_fixture.release_processor();
-		rtx_dbug_outs((CHAR *)"blah6\r\n");
+		////rtx_dbug_outs((CHAR *)"blah6\r\n");
 	}
 }
 
@@ -194,7 +194,7 @@ void __attribute__ ((section ("__REGISTER_TEST_PROCS__")))register_test_proc()
 {
     int i;
 
-    //rtx_dbug_outs((CHAR *)"rtx_test: register_test_proc()\r\n");
+    //////rtx_dbug_outs((CHAR *)"rtx_test: register_test_proc()\r\n");
 
     for (i =0; i< NUM_TEST_PROCS; i++ ) {
         g_test_proc[i].pid = i + 1;
@@ -215,6 +215,6 @@ void __attribute__ ((section ("__REGISTER_TEST_PROCS__")))register_test_proc()
  */
 int main(void)
 {
-    //rtx_dbug_outs((CHAR *)"rtx_test: started\r\n");
+    //////rtx_dbug_outs((CHAR *)"rtx_test: started\r\n");
     return 0;
 }

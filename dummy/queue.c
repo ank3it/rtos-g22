@@ -27,7 +27,7 @@ int enqueue(struct queue *q, int value, int priority)
 {
 	if (q == NULL)
 		return RTX_ERROR;
-
+		
 	struct queue_node *new_node = malloc(sizeof(struct queue_node));
 	new_node->value = value;
 	new_node->priority = priority;

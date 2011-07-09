@@ -9,7 +9,6 @@
 #include "process.h"
 #include "init.h"
 #include "timer.h"
-#define MESSAGE_HEADER_OFFSET 64
 
 extern SINT32 Counter2;
 /**
@@ -39,8 +38,9 @@ void scheduler_run()
 {
 	TRACE("scheduler_run()\r\n");
 
+	if ( running_process != NULL )
 	if (ready_queue->head == NULL
-		|| running_process->priority <= ready_queue->head->priority)
+		|| running_process->priority <= ready_queue->head->priority || running_process->is_iprocess)
 		return;
 
 	if (running_process != NULL)
@@ -185,7 +185,7 @@ void save_context(int process_ID)
 
 	asm("move.l %%d5, %0" : "=m" (curr_process->curr_SP));
 
-	asm("move.l %%d0, %0" : "=m" (curr_process->d0));
+	/*asm("move.l %%d0, %0" : "=m" (curr_process->d0));
 	asm("move.l %%d1, %0" : "=m" (curr_process->d1));
 	asm("move.l %%d2, %0" : "=m" (curr_process->d2));
 	asm("move.l %%d3, %0" : "=m" (curr_process->d3));
@@ -197,12 +197,13 @@ void save_context(int process_ID)
 	asm("move.l %%a2, %0" : "=m" (curr_process->a2));
 	asm("move.l %%a3, %0" : "=m" (curr_process->a3));
 	asm("move.l %%a4, %0" : "=m" (curr_process->a4));
-	asm("move.l %%a5, %0" : "=m" (curr_process->a5));
+	asm("move.l %%a5, %0" : "=m" (curr_process->a5));*/
 }
 
 void load_context(int process_ID)
 {
-	TRACE("load_context()\r\n");
+	////rtx_dbug_outs("load_context()\r\n");
+	//rtx_dbug_outs(itoa(process_ID));
 	struct process *next_process = 
 	next_process = get_proc(process_ID);
 	int *sp = next_process->curr_SP;
@@ -214,7 +215,7 @@ void load_context(int process_ID)
 			TRACE("Loading context of ready process\n\r" );
 			asm("move.l %0, %%d5" : : "m" (sp));
 
-			asm("move.l %0, %%d0" : : "m" (next_process->d0));
+			/*asm("move.l %0, %%d0" : : "m" (next_process->d0));
 			asm("move.l %0, %%d1" : : "m" (next_process->d1));
 			asm("move.l %0, %%d2" : : "m" (next_process->d2));
 			asm("move.l %0, %%d3" : : "m" (next_process->d3));
@@ -226,7 +227,7 @@ void load_context(int process_ID)
 			asm("move.l %0, %%a2" : : "m" (next_process->a2));
 			asm("move.l %0, %%a3" : : "m" (next_process->a3));
 			asm("move.l %0, %%a4" : : "m" (next_process->a4));
-			asm("move.l %0, %%a5" : : "m" (next_process->a5));
+			asm("move.l %0, %%a5" : : "m" (next_process->a5));*/
 		}
 		else {
 			TRACE("Loading context of new process\r\n");
@@ -302,29 +303,17 @@ int k_get_process_priority(int process_ID)
  */
 int k_send_message(int process_ID, void *message_envelope)
 {
-	//rtx_dbug_outs("k_send_message .. SPID RPID()\r\n");
-	//rtx_dbug_outs((CHAR *)itoa(running_process->ID));
-	//rtx_dbug_outs(" ");
-	//rtx_dbug_outs((CHAR *)itoa(process_ID));
-	//rtx_dbug_outs("\r\n");
+	TRACE("k_send_message()\r\n");
 	/* Check if given parameters are invalid */
 	if (process_ID < 0 || process_ID > NUM_PROCS ||  message_envelope == NULL)
 		return RTX_ERROR;
-		
-	//rtx_dbug_outs("k_send_message .. SPID RPID()\r\n");
 
 	/* Populate header fields */
 	struct envelope *e = (struct envelope *)message_envelope;
 	
 	// Need to do this as when Timer Sends a message after delayed send, the ID goes as the timer ID as that is the currently running process
-	if ( running_process->ID != TIMER_IPROCESS_ID ) {
 		e->sender_process_ID = running_process->ID;
 		e->dest_process_ID = process_ID;
-	}
-	else {
-		e->sender_process_ID = process_ID & 0xFFFF;
-		e->dest_process_ID = ( process_ID & 0xFFFF ) >> 16;
-	}
 	
 	e->next = NULL;
 	e->message = message_envelope + MESSAGE_HEADER_OFFSET;
@@ -349,7 +338,6 @@ int k_send_message(int process_ID, void *message_envelope)
 
 	return RTX_SUCCESS;
 }
-
 /**
  * @brief: Receive message from process mailbox. Blocks the calling process
  * 	if the maailbox is empty
@@ -397,6 +385,10 @@ void *k_receive_message(int *sender_ID)
 
 void k_send_delay(int process_ID, void * MessageEnvelope, int delay)
 {
+	
+	if (process_ID < 0 || process_ID > NUM_PROCS ||  MessageEnvelope == NULL)
+		return RTX_ERROR;
+		
 	int TimeAdded_delay;
 	TimeAdded_delay = Counter2 + delay;
 	
