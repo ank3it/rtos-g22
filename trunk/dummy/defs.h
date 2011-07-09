@@ -40,7 +40,7 @@
 #define NULL_PROCESS_PRIORITY	4
 #define UART_IPROCESS_PRIORITY	0
 #define TIMER_IPROCESS_PRIORITY	0
-#define WC_PROCESS_PRIORITY		5
+#define WC_PROCESS_PRIORITY		0
 #define KCD_PROCESS_PRIORITY	0
 #define CRT_PROCESS_PRIORITY	0
 
@@ -68,5 +68,7 @@
 
 /* Command identifier used by the KCD */
 #define COMMAND_PROMPT			'%'
+
+#define MESSAGE_HEADER_OFFSET 64
 
 #endif /* _DEFS_H_ */

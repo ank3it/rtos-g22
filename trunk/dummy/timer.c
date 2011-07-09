@@ -27,17 +27,38 @@ SINT32 Counter = 86390;
 SINT32 Counter2 = 0;
 SINT32 WC_Start_Counter = 0;
 SINT32 TimeUpdated = 0;
-SINT32 WC_Active = 1;
+SINT32 WC_Active = 0;
+CHAR timeStr[11];
+extern int CURR_TRAP;
 void wc_process() 
 {
+	void *mem_block2 = request_memory_block();
+	*(char *)(mem_block2 + 64) = 'W';
+	*(char *)(mem_block2 + 65) = '\0';	
+	send_message(KCD_PROCESS_ID , mem_block2);
 	int hours = 0 ;
 	int mins = 0 ;
 	int secs  = 0;
-	//while(TRUE)
-	//{
+	int i;
+	while(TRUE)
+	{
 		int sender_ID = -1;
-		TRACE("Calling receive_message()\r\n");
-		//void * envelope = receive_message(&sender_ID);
+		
+		void *envelope  = receive_message(&sender_ID);
+		
+		if ( sender_ID == KCD_PROCESS_ID ) {
+		// toggle WC-Active
+		}
+		
+		if ( WC_Active == 0 ) {
+			continue;
+		}
+
+		void *envelope2 = request_memory_block();
+		delayed_send(WC_PROCESS_ID, envelope2 , 950);
+		release_memory_block(envelope);
+
+		Counter++;
 		
 		// To FIX
 		//char *msgData = (char *)(envelope + 64);
@@ -45,40 +66,41 @@ void wc_process()
 		
 		//}
 		
-		if ( TimeUpdated == 1 ) TimeUpdated = 0;
-		else release_processor();
+		/*if ( TimeUpdated == 1 ) 
+			TimeUpdated = 0;
+		else release_processor();*/
 
-		CHAR timeStr[] = "00:00:00\r";
-	
 		if ( Counter == MaxSec ) {
 			Counter = 0;
 		}
 	
-		secs = Counter % 60;
+		secs = Counter % 60; 
 		mins = Counter / 60;
 		hours = mins / 60;
 		mins = mins % 60;
 	
 		timeStr[0] = ( hours / 10 ) % 10 + 48;
 		timeStr[1] = hours % 10 + 48;
+		timeStr[2] = ':';
 	
 		timeStr[3] = ( mins / 10 ) % 10 + 48;
 		timeStr[4] = mins % 10 + 48;
+		timeStr[5] = ':';
 	
 		timeStr[6] = ( secs / 10 ) % 10 + 48;
 		timeStr[7] = secs % 10 + 48;
+		timeStr[8] = '\r';
+		timeStr[9] = '\0';
 		
 		//rtx_dbug_outs(" Timer Val ");
 		//rtx_dbug_outs((char*)timeStr);
 		//rtx_dbug_outs(" \r\n");
-		void *mem_block = request_memory_block();
-		*(char *)(mem_block + 64) = timeStr;
-		//CharEntered = 1;
-		//CharIn = SERIAL1_RD;
-		k_send_message(CRT_PROCESS_ID , mem_block);
-		release_memory_block(mem_block);
-
-	//}
+		void *mem_block = request_memory_block();		
+		for ( i = 0 ; i < 10 ; i++ ) {
+			*(char *)(mem_block + 64 + i) = timeStr[i];
+			}
+		send_message(CRT_PROCESS_ID , mem_block);
+	}
 }
 
 /*
@@ -86,69 +108,103 @@ void wc_process()
  */
 VOID c_timer_handler( VOID )
 {
-	asm( "move.w #0x2700,%sr" );				// Re-Enable all interrupts
-	Counter2++;	
+	Counter2 += 10;
+	TIMER0_TER = 2;/* Acknowledge interrupt */ 
 	// Load timer - i process
-	//TRACE (" In Timer Int " );
-	save_context(running_process->ID);
 	
-	if(running_process->state == STATE_RUNNING){
-		running_process->state = STATE_READY;
+	//save_context(running_process->ID);
+	
+	if ( delayed_send_queue->head != NULL ) {
+	if ( delayed_send_queue->head->delay < Counter2 ) {
+		rtx_dbug_outs (" In Timer Int " );
+		int process_ID = delayed_send_queue->head->process_ID ;
+		int sender_ID = delayed_send_queue->head->sender_id;
+		void * MessageEnvelope = delayed_send_queue->head->MessageEnvelope;
+		d_dequeue(delayed_send_queue);
+		
+		struct envelope *e = (struct envelope *)MessageEnvelope;
+		e->sender_process_ID = sender_ID;
+		e->dest_process_ID = process_ID;
+	
+		e->next = NULL;
+		e->message = MessageEnvelope + MESSAGE_HEADER_OFFSET;
 
-		enqueue(ready_queue, 
-				running_process->ID, 
-				running_process->priority);
+		struct process *dest_process;
+		dest_process = get_proc(e->dest_process_ID);
+	
+		/* Add message to process mailbox */
+		if (dest_process->mailbox_head == NULL)
+			dest_process->mailbox_head = e;
+		else
+			dest_process->mailbox_tail->next = e;
 
-		running_process = NULL;
-	}
+		dest_process->mailbox_tail = e;
+
+		/* Unblock destination process if it is blocked on receive */
+		if(dest_process->state == STATE_BLOCKED 
+			&& dest_process->block_type == BLOCK_RECEIVE)
+		{
+			unblock_process(e->dest_process_ID, NULL);
+			scheduler_run();				
+		}
+		}
+		}
+	if (running_process->pending_sys_call != SYS_CALL_NONE)
+	{
+		CURR_TRAP = running_process->pending_sys_call;
+		execute_sys_call();
+		running_process->pending_sys_call = SYS_CALL_NONE;
+	}	
 	
-	running_process = get_proc(TIMER_IPROCESS_ID);
-	
-	load_context(TIMER_IPROCESS_ID);
-	
-	TIMER0_TRR = 0x6DDD;
+	    //TIMER0_TRR = 0x6DDD;
 	//TIMER0_TRR = 0x01C2;
+	TIMER0_TRR = 0x1194;
 
     /*
      * Setup the timer prescaler and stuff
      */
-    TIMER0_TMR = 0x633D;
-	//TIMER0_TMR = 0x633B;
-
-	TIMER0_TER = 2;/* Acknowledge interrupt */ 
-	 
-	asm( "move.w #0x2000,%sr" );				// Re-Enable all interrupts
+    //TIMER0_TMR = 0x633D;
+	TIMER0_TMR = 0x633B;
 }
 
 void timer_iprocess() {
 	// Check_Delay_Send();
 	while ( 1 ) {
 
-	TRACE (" .........................................In Timer I - Process \r\n " );
+	//TRACE (" .........................................In Timer I - Process \r\n " );
 	if ( delayed_send_queue->head != NULL ) {
 	if ( delayed_send_queue->head->delay < Counter2 ) {
-		//TRACE(" ....................CHECKED...................................................CHECKED \r\n");
+		//rtx_dbug_outs(" ....................CHECKED...................................................CHECKED \r\n");
 		int process_ID = delayed_send_queue->head->process_ID << 16 | delayed_send_queue->head->sender_id;
 		void * MessageEnvelope = delayed_send_queue->head->MessageEnvelope;
-		d_dequeue(delayed_send_queue);		
+		d_dequeue(delayed_send_queue);
+		rtx_dbug_outs(itoa(		process_ID ));
 		send_message( process_ID , MessageEnvelope );
 	}
 	}
-	rtx_dbug_outs (" .........................................Back In Timer I - Process \r\n " );
-	if ( WC_Active ) 
+	////rtx_dbug_outs (" .........................................Back In Timer I - Process \r\n " );
+	/*if ( WC_Active ) 
 	{
 		WC_Start_Counter++;
-		//rtx_dbug_outs(" ............. Due to Timer2 \r\n");
-		if ( WC_Start_Counter % 1000 == 0) 
+		////rtx_dbug_outs(" ............. Due to Timer2 \r\n");
+		if (  WC_Start_Counter % 1000 == 0) 
 		{
 			Counter++;
 			TimeUpdated	= 1;
-			//rtx_dbug_outs(" ............. Due to Timer \r\n");
-			//wc_process();
+			//rtx_dbug_outs(" Due to Timer \r\n");
+			/* Non-blocking call to request_memory_block() */
+			/*if ( get_proc(WC_PROCESS_ID)->mailbox_head == NULL ) {
+				//rtx_dbug_outs(" Due to Timer2 \r\n");
+				void *mem_block = request_memory_block();
+				if ( mem_block != NULL ) {
+					*(char *)(mem_block + 64) = "";
+					send_message(WC_PROCESS_ID, mem_block);
+				}
+			}*/
 			
 			//scheduler_run();
-		}
-	}
+		//}
+	//}
 	
 	//running_process->state = STATE_READY;
 	//running_process = NULL;
@@ -198,14 +254,15 @@ void timer_init( void )
     /*
      * Set the reference counts, ~10ms
      */
-    TIMER0_TRR = 0x6DDD;
+    //TIMER0_TRR = 0x6DDD;
 	//TIMER0_TRR = 0x01C2;
+	TIMER0_TRR = 0x1194;
 
     /*
      * Setup the timer prescaler and stuff
      */
-    TIMER0_TMR = 0x633D;
-	//TIMER0_TMR = 0x633B;
+    //TIMER0_TMR = 0x633D;
+	TIMER0_TMR = 0x633B;
 
     /*
      * Set the interupt mask
