@@ -75,6 +75,25 @@ void wc_process()
 			else if ( buffer[2] == 'S' ) {
 				rtx_dbug_outs(" Yes in S \r\n");
 				WC_Active = 1;
+				
+				hours = atoi(buffer[4]);
+				if ( buffer[6] != ':' ) {				
+					WC_Active = 0;
+				}
+				mins = atoi(buffer[7]);
+				if ( buffer[9] != ':' ) {				
+					WC_Active = 0;
+				}
+				secs = atoi(buffer[10]);
+				
+				if ( hours < 0 || hours > 23 || mins < 0 || mins > 60 || secs < 0 || secs > 60 ) {				
+					WC_Active = 0;
+				}
+				
+				if ( WC_Active ) {
+					Counter = secs + mins*60 + hours*3600;
+				}
+				
 		
 				/*while(buffer[buffer_index] != '\0')
 				{
