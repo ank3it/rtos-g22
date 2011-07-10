@@ -40,8 +40,6 @@ int send_message (int process_ID, void * MessageEnvelope)
 
 void * receive_message(int * sender_ID)
 {
-    TRACE("rtx: receive_message \r\n");
-
 	void *result;
 	//push d2 on stack
 	asm("move.l %d2, -(%a7)");
@@ -51,9 +49,8 @@ void * receive_message(int * sender_ID)
 	setpr(1);
 	asm( "TRAP #10" );
 
-	/* Get sender_ID from d2 */
+	/* Get result from d2 */
 	asm("move.l %%d2, %0" : "=m" (result));
-	asm("move.l %%d3, %0" : "=m" (sender_ID));
 
 	asm("move.l (%a7)+, %d3");
 	asm("move.l (%a7)+, %d2");

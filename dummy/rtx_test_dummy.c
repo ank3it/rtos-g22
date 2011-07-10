@@ -12,6 +12,7 @@
 
 #include "rtx_test.h"
 #include "dbug.h"
+#include "defs.h"
 
 CHAR* itoa(int n)
 {
@@ -146,11 +147,36 @@ void test2()
 /* third party dummy test process 3 */ 
 void test3()
 {
+	g_test_fixture.set_process_priority(3, 2);
+
+	/* Register keyboard commands */
+	void *mem = g_test_fixture.request_memory_block();
+	*(char *)(mem + 64) = 'X';
+	*(char *)(mem + 65) = '\0';
+	g_test_fixture.send_message(KCD_PROCESS_ID, mem);
+
+	mem = g_test_fixture.request_memory_block();
+	*(char *)(mem + 64) = 'Y';
+	*(char *)(mem + 65) = 'Z';
+	*(char *)(mem + 66) = '\0';
+	g_test_fixture.send_message(KCD_PROCESS_ID, mem);
+
 	while(1) {
 		TRACE("\r\n--------------------\r\n");
 		TRACE("TEST 3\r\n");
 		TRACE("--------------------\r\n");
-		g_test_fixture.release_processor();
+
+		int sender_ID;
+		void *msg = g_test_fixture.receive_message(&sender_ID);
+
+		TRACE("Received message > ");
+		TRACE((char *)(msg + 64));
+		TRACE(" < from process > ");
+		TRACE(itoa(sender_ID));
+		TRACE(" < \r\n");
+
+		g_test_fixture.release_memory_block(msg);
+		//g_test_fixture.release_processor();
 		////rtx_dbug_outs((CHAR *)"blah3\r\n");
 	}
 }
@@ -158,6 +184,7 @@ void test3()
 /* third party dummy test process 4 */ 
 void test4()
 {
+	g_test_fixture.set_process_priority(4, 2);
 	while(1) {
 		TRACE("\r\n--------------------\r\n");
 		TRACE("TEST 4\r\n");

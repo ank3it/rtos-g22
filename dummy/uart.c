@@ -26,15 +26,8 @@ volatile BYTE CharIn;
 void hotkeys()
 {
 	CharIn = SERIAL1_RD;
-	//rtx_dbug_outs("\r\n");
-	//rtx_dbug_outs("Entering switch");
-	//rtx_dbug_outs("\r\n");
-	//rtx_dbug_outs(&CharIn);
-	//rtx_dbug_outs("\r\n");
 	switch(CharIn)
 	{
-	
-		
 			case '!':
 				rtx_dbug_outs_hotkeys("! hotkey");
 				print_ready_queue();
@@ -140,9 +133,6 @@ void c_uart_handler()
 	/* Acknowledge interrupt by reading register */
 	BYTE temp = SERIAL1_USR;
 
-	//if (temp & 4)
-	//	SERIAL1_IMR = 0x02;
-
 	save_context(running_process->ID);
 	
 	if(running_process->state == STATE_RUNNING){
@@ -156,7 +146,6 @@ void c_uart_handler()
 	}
 	
 	running_process = get_proc(UART_IPROCESS_ID);
-	//asm ( "move.w #0x2000,%sr" );
 	load_context(UART_IPROCESS_ID);
 
 	return;
@@ -169,7 +158,7 @@ void uart_iprocess()
 {
 	while(TRUE) 
 	{
-		TRACE("\n\n\n.......................uart_iprocess()\r\n");
+		TRACE("uart_iprocess()\r\n");
 
 		/* Acknowledge interrupt */
 		BYTE temp = SERIAL1_USR;
@@ -177,18 +166,10 @@ void uart_iprocess()
 		if (temp & 1)
 		{
 			hotkeys();
-			TRACE("Receiving character...\r\n");
+			TRACE((char *)"Receiving character...\r\n");
 
 			/* Non-blocking call to request_memory_block() */
 			void *mem_block = request_memory_block();
-			if ( mem_block == NULL ) {
-				//rtx_dbug_outs(" Received NULL \r\n");
-				} else {
-				//rtx_dbug_outs( " Msg Block = " );
-				//rtx_dbug_outs( itoa( mem_block ));
-				//rtx_dbug_outs( " \r\n " );
-				}
-				
 			*(char *)(mem_block + 64) = SERIAL1_RD;
 			send_message(KCD_PROCESS_ID, mem_block);
 		}
@@ -199,11 +180,8 @@ void uart_iprocess()
 			/* Non-blocking call to receive_mesasge() */
 			struct envelope	*e = (struct envelope *)receive_message(NULL);
 			
-			////rtx_dbug_outs("Transmitting character2...\r\n");
-			
 			if (e != NULL)
 			{
-				////rtx_dbug_outs("Transmitting character3...\r\n");
 				TRACE("e->message = ");
 				TRACE((char *)e->message);
 				TRACE("\r\n");
@@ -211,11 +189,10 @@ void uart_iprocess()
 				release_memory_block(e);
 			}
 			else {
-			SERIAL1_IMR = 0x2;
+				SERIAL1_IMR = 0x2;
 			}
 		}
 		
-		//rtx_dbug_outs( " Exiting = " );
 		release_processor();
 	}
 }
@@ -236,7 +213,7 @@ void kcd_process()
 
 	while (TRUE)
 	{
-		//rtx_dbug_outs("kcd_process()\r\n");
+		TRACE("kcd_process()\r\n");
 
 		struct envelope *e = (struct envelope *)receive_message(NULL);
 
@@ -255,14 +232,7 @@ void kcd_process()
 				kc->command_identifier[i] = ch[i];
 			
 			kc->command_identifier[i] = '\0';
-
 			kc->registrant_process_ID = e->sender_process_ID;
-			
-			rtx_dbug_outs(" yessdsdskfjk123 ");
-			rtx_dbug_outs(itoa(kc->registrant_process_ID));
-			rtx_dbug_outs(" ");
-			rtx_dbug_outs(kc->command_identifier);
-			rtx_dbug_outs("\r\n ");
 			kc->next = NULL;
 
 			/* Add to command registration list */
@@ -282,68 +252,71 @@ void kcd_process()
 
 			/* Send received character to CRT process to be echoed on screen */
 			void *out_e = request_memory_block();
-			TRACE("out_e = ");
-			TRACE(itoa(out_e));
-			TRACE("\r\n");
-			*(char *)(out_e + 64) = *input_char;
-			*(char *)(out_e + 65) = '\0';
-			TRACE("out_e + 64 = ");
-			TRACE((char *)(out_e + 64));
-			//rtx_dbug_outs("1\r\n");
+			if (*input_char == CR || *input_char == LF || *input_char == '\0')
+			{
+				*(char *)(out_e + 64) = CR;
+				*(char *)(out_e + 65) = LF;
+				*(char *)(out_e + 66) = '\0';
+			}
+			else
+			{
+				*(char *)(out_e + 64) = *input_char;
+				*(char *)(out_e + 65) = '\0';
+			}
+
 			send_message(CRT_PROCESS_ID, out_e);
-			//rtx_dbug_outs("2\r\n");
 
 			/* Add characters to buffer until user presses enter */
-			if (*input_char == CR || *input_char == LF)
+			if (*input_char == CR || *input_char == LF || *input_char == '\0')
 			{
 				buffer[buffer_index] = '\0';
 				buffer_index = 0;
-
+				
 				if (buffer[0] == COMMAND_PROMPT)
 				{
-				rtx_dbug_outs(" yessdsdskfjk");
-					/* Extract command identifier from buffer */
-					char ci[MAX_IDENTIFIER_LENGTH];
-					int i = 0;
-					while (buffer[i] != ' ')
-					{
-						ci[i] = buffer[i];
-						i++;
-					}
-					ci[i] = '\0';
-
 					/* Search registration list for identifier match */
 					struct keyboard_command *kc = head;
 					while (kc != NULL)
 					{
-					rtx_dbug_outs("Match Not found! Sending to process ");
-					rtx_dbug_outs(kc->command_identifier);
-					rtx_dbug_outs(" ");
-					rtx_dbug_outs(ci);
-					rtx_dbug_outs("\r\n ");
-						if (*kc->command_identifier == ci[1])
+						int j = 0;
+						int match_found = TRUE;
+						while (kc->command_identifier[j] != '\0')
 						{
-							rtx_dbug_outs("Match found! Sending to process ");
-							rtx_dbug_outs(itoa(kc->registrant_process_ID));
-							rtx_dbug_outs("\r\n");
-
-							out_e = request_memory_block();
-							int i1 = 0;
-							for ( i1 = 0 ; i1 < 10 ; i1++ ) {
-								*(char *)(out_e + 64 + i1) = buffer[i1];
+							if (kc->command_identifier[j] != buffer[j + 1]
+								|| buffer[j + 1] == '\0')
+							{
+								match_found = FALSE;
+								break;
 							}
+							j++;
+						}
+
+						if (match_found)
+						{
+							out_e = request_memory_block();
+							/* Copy input string into message */
+							int k = 0;
+							while (buffer[k] != '\0')
+							{
+								*(char *)(out_e + 64 + k) = buffer[k];
+								k++;
+							}
+							*(char *)(out_e + 64 + k) = '\0';
+
 							send_message(kc->registrant_process_ID, out_e);
-							rtx_dbug_outs(" Yesss " );
-							rtx_dbug_outs( itoa(kc->registrant_process_ID));
 							break;
 						}
 						kc = kc->next;
 					}
 				}
 			}
-			else if ( KCD_BUFFER_SIZE > buffer_index )
+			else if (buffer_index < KCD_BUFFER_SIZE && *input_char == BKSP)
+			{
+				/* Delete a character in buffer by decrementing buffer_index */
+				buffer_index = buffer_index > 0 ? --buffer_index : buffer_index;
+			}
+			else if (buffer_index < KCD_BUFFER_SIZE)
 				buffer[buffer_index++] = *input_char;				
-				
 		}
 
 		release_memory_block((void *)e);
@@ -357,14 +330,9 @@ void crt_display_process()
 {
 	while(TRUE)
 	{
-		//rtx_dbug_outs("crt_display_process()\n\r");
+		TRACE("crt_display_process()\n\r");
 		
 		struct envelope *msg_envl = (struct envelope *)receive_message(NULL);
-		//rtx_dbug_outs("In crt\n\r");
-
-		TRACE("msg_envl = ");
-		TRACE(itoa(msg_envl));
-		TRACE("\r\n");
 
 		/* Extract character(s) from message */
 		char buffer[KCD_BUFFER_SIZE];
@@ -373,11 +341,8 @@ void crt_display_process()
 		while (*(char *)(msg_envl->message + buffer_index) != '\0')
 		{
 			buffer[buffer_index] = *(char *)(msg_envl->message + buffer_index);
-			////rtx_dbug_outs(buffer[buffer_index]);
 			buffer_index++;
-			////rtx_dbug_outs("\n\rIn here\n\r");
 		}
-		//rtx_dbug_outs("Done\n\r");
 		buffer[buffer_index] = '\0';
 		buffer_index = 0;
 
@@ -389,12 +354,6 @@ void crt_display_process()
 			*(char *)(out_e + 64) = buffer[buffer_index];
 			send_message(UART_IPROCESS_ID, out_e);
 			SERIAL1_IMR = 0x03;
-			if (  buffer[buffer_index] == CR ) {
-				void *out_e1 = request_memory_block();
-				*(char *)(out_e1 + 64) = '\n';
-				send_message(UART_IPROCESS_ID, out_e1);
-				}
-				
 			buffer_index++;
 		}
 	}

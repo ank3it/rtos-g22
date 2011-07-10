@@ -61,10 +61,12 @@ void execute_sys_call()
 		
 		case SYS_CALL_RECEIVE_MESSAGE:
 			asm("move.l %%d2 , %0" : "=m" (sender_ID));
+			rtx_dbug_outs((CHAR *)"execute_sys_call()\r\n");
+			rtx_dbug_outs(itoa(sender_ID));
+			rtx_dbug_outs((CHAR *)"\r\n");
 			result2 = k_receive_message(sender_ID);
 			
 			asm("move.l %0, %%d2" : : "m" (result2));
-			asm("move.l %0, %%d3" : : "m" (sender_ID));
 			break;
 		
 		case SYS_CALL_REQUEST_MEMORY_BLOCK:
