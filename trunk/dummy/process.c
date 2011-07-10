@@ -185,7 +185,7 @@ void save_context(int process_ID)
 
 	asm("move.l %%d5, %0" : "=m" (curr_process->curr_SP));
 
-	/*asm("move.l %%d0, %0" : "=m" (curr_process->d0));
+	asm("move.l %%d0, %0" : "=m" (curr_process->d0));
 	asm("move.l %%d1, %0" : "=m" (curr_process->d1));
 	asm("move.l %%d2, %0" : "=m" (curr_process->d2));
 	asm("move.l %%d3, %0" : "=m" (curr_process->d3));
@@ -197,12 +197,12 @@ void save_context(int process_ID)
 	asm("move.l %%a2, %0" : "=m" (curr_process->a2));
 	asm("move.l %%a3, %0" : "=m" (curr_process->a3));
 	asm("move.l %%a4, %0" : "=m" (curr_process->a4));
-	asm("move.l %%a5, %0" : "=m" (curr_process->a5));*/
+	asm("move.l %%a5, %0" : "=m" (curr_process->a5));
 }
 
 void load_context(int process_ID)
 {
-	////rtx_dbug_outs("load_context()\r\n");
+	//rtx_dbug_outs("load_context()\r\n");
 	//rtx_dbug_outs(itoa(process_ID));
 	struct process *next_process = 
 	next_process = get_proc(process_ID);
@@ -215,7 +215,7 @@ void load_context(int process_ID)
 			TRACE("Loading context of ready process\n\r" );
 			asm("move.l %0, %%d5" : : "m" (sp));
 
-			/*asm("move.l %0, %%d0" : : "m" (next_process->d0));
+			asm("move.l %0, %%d0" : : "m" (next_process->d0));
 			asm("move.l %0, %%d1" : : "m" (next_process->d1));
 			asm("move.l %0, %%d2" : : "m" (next_process->d2));
 			asm("move.l %0, %%d3" : : "m" (next_process->d3));
@@ -227,7 +227,7 @@ void load_context(int process_ID)
 			asm("move.l %0, %%a2" : : "m" (next_process->a2));
 			asm("move.l %0, %%a3" : : "m" (next_process->a3));
 			asm("move.l %0, %%a4" : : "m" (next_process->a4));
-			asm("move.l %0, %%a5" : : "m" (next_process->a5));*/
+			asm("move.l %0, %%a5" : : "m" (next_process->a5));
 		}
 		else {
 			TRACE("Loading context of new process\r\n");
@@ -346,7 +346,6 @@ int k_send_message(int process_ID, void *message_envelope)
  */
 void *k_receive_message(int *sender_ID)
 {
-	TRACE("k_receive_message()\r\n");
 	/* Check if there is a message waiting in mailbox; blocking the
 	 * process if there isn't */
 	if(running_process->mailbox_head == NULL)
