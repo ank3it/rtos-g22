@@ -83,12 +83,8 @@ void block_running_process(int block_type)
 	if (block_type == BLOCK_RECEIVE)
 		running_process->pending_sys_call = SYS_CALL_RECEIVE_MESSAGE;
 	else if (block_type == BLOCK_MEMORY)
-	{
 		running_process->pending_sys_call = SYS_CALL_REQUEST_MEMORY_BLOCK;
-		rtx_dbug_outs("\r\n Enter process id for block_memory: ");
-		rtx_dbug_outs(itoa(running_process->ID));
-		rtx_dbug_outs("\r\n");
-	}
+	
 	enqueue(blocked_queue,
 			running_process->ID,
 			running_process->priority);
