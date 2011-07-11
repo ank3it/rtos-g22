@@ -10,7 +10,7 @@
 void print_ready_queue()
 {
 	rtx_dbug_outs_hotkeys("\r\n");
-	rtx_dbug_outs_hotkeys("Print ready queue");
+	rtx_dbug_outs_hotkeys("\r\nPrint ready queue");
 	struct queue_node *proc;
 	proc = ready_queue->head;
 	
@@ -31,17 +31,15 @@ void print_ready_queue()
 void print_blocked_memory_queue()
 {	
 	rtx_dbug_outs_hotkeys("\r\n");
-	rtx_dbug_outs_hotkeys("Print blocked memory queue");
-	//rtx_dbug_outs_hotkeys("\r\n");
+	rtx_dbug_outs_hotkeys("Print blocked memory queue\r\n");
 	
 	struct queue_node *proc;
 	proc = blocked_queue->head;
-	int block_type = (get_proc(proc->value))->block_type;
-	//rtx_dbug_outs_hotkeys(itoa(block_type));
+
 	
 	while(proc != NULL)
 	{
-		rtx_dbug_outs_hotkeys("\r\n");
+		int block_type = (get_proc(proc->value))->block_type;
 		if(block_type == BLOCK_MEMORY)
 		{
 			rtx_dbug_outs_hotkeys("Process ID: ");
@@ -117,18 +115,8 @@ void print_all_process_info()
 	rtx_dbug_outs_hotkeys("Print all process info");
 	rtx_dbug_outs_hotkeys("\r\n");
 
-	rtx_dbug_outs_hotkeys("Printing all process queues");
-	rtx_dbug_outs_hotkeys("\r\n");
-	rtx_dbug_outs_hotkeys("Printing ready queue:");
-	rtx_dbug_outs_hotkeys("\r\n");
 	print_ready_queue();
-	rtx_dbug_outs_hotkeys("\r\n");
-	rtx_dbug_outs_hotkeys("Printing blocked on memory queue:");
-	rtx_dbug_outs_hotkeys("\r\n");
 	print_blocked_memory_queue();
-	rtx_dbug_outs_hotkeys("\r\n");
-	rtx_dbug_outs_hotkeys("Printing blocked on receive queue:");
-	rtx_dbug_outs_hotkeys("\r\n");
 	print_blocked_receive_queue();	
 }
 

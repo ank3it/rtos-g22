@@ -23,44 +23,37 @@ volatile BYTE CharIn;
 /**
  * @brief: Setting hotkeys
  */
-void hotkeys()
+void hotkeys(char in_char)
 {
-	CharIn = SERIAL1_RD;
-	switch(CharIn)
+	switch(in_char)
 	{
-			case '!':
-				rtx_dbug_outs_hotkeys("! hotkey");
-				print_ready_queue();
-				break;
-			case '@':
-				rtx_dbug_outs_hotkeys("@ hotkey");
-				print_blocked_memory_queue();
-				break;
-			case '#':
-				rtx_dbug_outs_hotkeys("# hotkey");
-				print_blocked_receive_queue();
-				break;
-			case '$':
-				rtx_dbug_outs_hotkeys("$ hotkey");
-				print_all_process_info();
-				break;
-			case '^':
-				rtx_dbug_outs_hotkeys("^ hotkey");
-				print_used_memory_block();
-				break;			
-			case '&':
-				rtx_dbug_outs_hotkeys("& hotkey");
-				print_message_queue();
-				break;	
-			default:
-				break;
-				
-
+		case '!':
+			rtx_dbug_outs_hotkeys("! hotkey");
+			print_ready_queue();
+			break;
+		case '@':
+			rtx_dbug_outs_hotkeys("@ hotkey");
+			print_blocked_memory_queue();
+			break;
+		case '#':
+			rtx_dbug_outs_hotkeys("# hotkey");
+			print_blocked_receive_queue();
+			break;
+		case '$':
+			rtx_dbug_outs_hotkeys("$ hotkey");
+			print_all_process_info();
+			break;
+		case '^':
+			rtx_dbug_outs_hotkeys("^ hotkey");
+			print_used_memory_block();
+			break;			
+		case '&':
+			rtx_dbug_outs_hotkeys("& hotkey");
+			print_message_queue();
+			break;	
+		default:
+			break;
 	}
-	//TRACE ("Sending message to KCD \r\n");
-	//struct envelope *message_send = (struct envelope *)request_memory_block();
-	//message_send->message_data[0] = CharIn;
-	//send_message(KCD_PROCESS_ID, message_send);
 }
 
 
@@ -165,12 +158,17 @@ void uart_iprocess()
 
 		if (temp & 1)
 		{
-			hotkeys();
 			TRACE((char *)"Receiving character...\r\n");
+
+			char in_char = SERIAL1_RD;
+
+			#ifdef _DEBUG_HOTKEYS_
+			hotkeys(in_char);
+			#endif
 
 			/* Non-blocking call to request_memory_block() */
 			void *mem_block = request_memory_block();
-			*(char *)(mem_block + 64) = SERIAL1_RD;
+			*(char *)(mem_block + 64) = in_char;
 			send_message(KCD_PROCESS_ID, mem_block);
 		}
 		if (temp & 4)
@@ -252,7 +250,7 @@ void kcd_process()
 
 			/* Send received character to CRT process to be echoed on screen */
 			void *out_e = request_memory_block();
-			if (*input_char == CR || *input_char == LF || *input_char == '\0')
+			if (*input_char == CR || *input_char == LF)
 			{
 				*(char *)(out_e + 64) = CR;
 				*(char *)(out_e + 65) = LF;
