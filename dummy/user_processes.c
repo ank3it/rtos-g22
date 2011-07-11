@@ -25,24 +25,56 @@ void ProcessA()
 {
 	struct envelope *p;
 	p = k_request_memory_block();
+
+	//z-command declaration 
+	
+	void *mem_block2 = request_memory_block();
+	*(char *)(mem_block2 + 64) = 'Z';
+	*(char *)(mem_block2 + 65) = '\0';	
+	send_message(KCD_PROCESS_ID , mem_block2);
+
+	///
 	//not sure about the commands yet
 	//command('Z');
 	
-	void *mem_block2 = request_memory_block();
-    *(char *)(mem_block2 + 64) = 'C';
-    *(char *)(mem_block2 + 65) = '\0';  
-	send_message(KCD_PROCESS_ID , mem_block2);
-	
-	while(1)
+	while(TRUE)
 	{
-		p = (envelope *)k_receive_message(NULL);
-		if(message p contains 'Z')
-		{
-			k_release_memory_block((void *)p);
-			break;
+		
+		int sender_ID = -1;
+		
+		struct envelope *envelope  = receive_message(&sender_ID);
+		
+		rtx_dbug_outs(" In KCD \r\n");
+		rtx_dbug_outs(itoa(sender_ID));
+		if ( envelope->message != NULL ) {
+			
+			rtx_dbug_outs(" In KCD \r\n");
+			/* Extract character(s) from message */
+			char buffer[KCD_BUFFER_SIZE];
+			int buffer_index = 0;
+			
+			while (*(char *)(envelope->message + buffer_index) != '\0')
+			{
+				buffer[buffer_index] = *(char *)(envelope->message + buffer_index);
+				rtx_dbug_outs(buffer[buffer_index]);
+				buffer_index++;
+			}
+			
+			buffer[buffer_index] = '\0';
+			buffer_index = 0;
+			rtx_dbug_outs(buffer);
+		
+			p = (envelope *)k_receive_message(NULL);
+			
+			if(buffer[2]== 'Z')
+			{
+				k_release_memory_block((void *)p);
+				break;
+			}
+			else{
+				k_release_memory_block((void *)p);
+			}
 		}
-		else
-			k_release_memory_block((void *)p);
 	}
 	
 	num = 0;
