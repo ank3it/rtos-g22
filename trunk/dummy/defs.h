@@ -12,7 +12,7 @@
 #define NUM_MEM_BLKS 100
 #define MAX_BLK_SIZE 128
 
-#define NUM_PROCS 15
+#define NUM_PROCS 16
 #define K_SR 0x2700
 #define U_SR 0x0
 
@@ -29,6 +29,7 @@
 #define UART_IPROCESS_ID		12
 #define TIMER_IPROCESS_ID		13
 #define WC_PROCESS_ID			14
+#define SPPC_PROCESS_ID			15
 
 
 /* Process Priorities */
@@ -41,6 +42,7 @@
 #define UART_IPROCESS_PRIORITY	0
 #define TIMER_IPROCESS_PRIORITY	0
 #define WC_PROCESS_PRIORITY		0
+#define SPPC_PROCESS_PRIORITY	0
 #define KCD_PROCESS_PRIORITY	0
 #define CRT_PROCESS_PRIORITY	0
 

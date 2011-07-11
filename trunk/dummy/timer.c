@@ -59,7 +59,7 @@ void wc_process()
 			while (*(char *)(envelope->message + buffer_index) != '\0')
 			{
 				buffer[buffer_index] = *(char *)(envelope->message + buffer_index);
-				rtx_dbug_outs(buffer[buffer_index]);
+				//rtx_dbug_outs(buffer[buffer_index]);
 				buffer_index++;
 				////rtx_dbug_outs("\n\rIn here\n\r");
 			}
