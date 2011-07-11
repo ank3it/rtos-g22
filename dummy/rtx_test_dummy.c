@@ -78,6 +78,29 @@ VOID reverse(CHAR *s, int length)
 void test1()
 {
 	while(1) {
+		// TRACE("\r\n--------------------\r\n");
+		// TRACE("TEST 1\r\n");
+		// TRACE("--------------------\r\n");
+
+		// int sender_ID = -1;
+		// TRACE("Calling receive_message()\r\n");
+		// void * envelope = g_test_fixture.receive_message(&sender_ID);
+		// TRACE("sender_ID = ");
+		// TRACE(itoa(sender_ID));
+		// TRACE("\r\n");
+		// TRACE("envelope = ");
+		// TRACE(itoa(envelope));
+		// TRACE("\r\nvalue at message = ");
+		// TRACE(itoa(*(int *)(envelope + 64)));
+		// TRACE("\r\n");
+
+		// TRACE("Calling receive_message()\r\n");
+		// void * envelope2 = g_test_fixture.receive_message(&sender_ID);
+		// TRACE("sender_ID = ");
+		// TRACE(itoa(sender_ID));
+		// TRACE("\r\n");
+		// g_test_fixture.release_processor();
+		
 		TRACE("\r\n--------------------\r\n");
 		TRACE("TEST 1\r\n");
 		TRACE("--------------------\r\n");

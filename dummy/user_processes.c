@@ -26,7 +26,12 @@ void ProcessA()
 	struct envelope *p;
 	p = k_request_memory_block();
 	//not sure about the commands yet
-	command('Z');
+	//command('Z');
+	
+	void *mem_block2 = request_memory_block();
+    *(char *)(mem_block2 + 64) = 'C';
+    *(char *)(mem_block2 + 65) = '\0';  
+	send_message(KCD_PROCESS_ID , mem_block2);
 	
 	while(1)
 	{

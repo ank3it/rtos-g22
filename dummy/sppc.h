@@ -13,6 +13,7 @@
 #include "rtx_inc.h"
 #include "dbug.h"
 #include "util.h"
+#include "defs.h"
 
 void set_priority_process();
 

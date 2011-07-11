@@ -5,6 +5,7 @@
 #include "trap.h"
 #include "uart.h"
 #include "timer.h"
+#include "sppc.h"
 
 char* current_sp;
 extern int __end;
@@ -13,7 +14,7 @@ void null_process()
 {
 	while(1)
 	{
-		//rtx_dbug_outs("This is inside the Null Process\r\n");
+		rtx_dbug_outs("This is inside the Null Process\r\n");
 		release_processor();
 	}
 }
@@ -149,6 +150,33 @@ void load_kcd_process()
 	enqueue(ready_queue , all_processes[KCD_PROCESS_ID].ID , all_processes[KCD_PROCESS_ID].priority );
 }
 
+void load_sppc_process()
+{
+	TRACE("load_kcd_process()\r\n");
+
+	all_processes[SPPC_PROCESS_ID].ID = SPPC_PROCESS_ID;
+	all_processes[SPPC_PROCESS_ID].priority = SPPC_PROCESS_PRIORITY;
+	all_processes[SPPC_PROCESS_ID].sz_stack = 512;
+	all_processes[SPPC_PROCESS_ID].entry = set_priority_process;
+	all_processes[SPPC_PROCESS_ID].state = STATE_NEW;
+	all_processes[SPPC_PROCESS_ID].block_type = BLOCK_NONE;
+	all_processes[SPPC_PROCESS_ID].pending_sys_call = SYS_CALL_NONE;
+	all_processes[SPPC_PROCESS_ID].is_iprocess = FALSE;
+	// Increment the current_sp as this will the starting point of the stack of the next process
+	current_sp = malloc(all_processes[SPPC_PROCESS_ID].sz_stack) + all_processes[SPPC_PROCESS_ID].sz_stack;//current_sp+all_processes[i].sz_stack ; 
+	all_processes[SPPC_PROCESS_ID].curr_SP = current_sp;
+	all_processes[SPPC_PROCESS_ID].mailbox_head = NULL;
+	all_processes[SPPC_PROCESS_ID].mailbox_tail = NULL;
+
+	// Save the Exceprtion Stack Frame
+	all_processes[SPPC_PROCESS_ID].curr_SP--;
+	*all_processes[SPPC_PROCESS_ID].curr_SP = all_processes[SPPC_PROCESS_ID].entry;
+	all_processes[SPPC_PROCESS_ID].curr_SP--;
+	*all_processes[SPPC_PROCESS_ID].curr_SP = 0x4000 << 16 | U_SR; // Value to be decided by sudhir for User Process
+
+	enqueue(ready_queue , all_processes[SPPC_PROCESS_ID].ID , all_processes[SPPC_PROCESS_ID].priority );
+}
+
 void load_wc_process()
 {
 	TRACE("load_kcd_process()\r\n");
@@ -243,6 +271,7 @@ void init_pcb()
 	load_uart_iprocess();
 	load_timer_iprocess();
 	load_crt_process();
+	load_sppc_process();
 	load_wc_process();
 	load_kcd_process();
 
