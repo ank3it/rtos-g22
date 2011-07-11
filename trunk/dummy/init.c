@@ -6,6 +6,7 @@
 #include "uart.h"
 #include "timer.h"
 #include "sppc.h"
+#include "user_processes.h"
 
 char* current_sp;
 extern int __end;
@@ -204,6 +205,90 @@ void load_wc_process()
 	enqueue(ready_queue , all_processes[WC_PROCESS_ID].ID , all_processes[WC_PROCESS_ID].priority );
 }
 
+void load_process_A()
+{
+	TRACE("load_kcd_process()\r\n");
+
+	all_processes[PROCESS_A_ID].ID = PROCESS_A_ID;
+	all_processes[PROCESS_A_ID].priority = A_PROCESS_PRIORITY;
+	all_processes[PROCESS_A_ID].sz_stack = 512;
+	all_processes[PROCESS_A_ID].entry = ProcessA;
+	all_processes[PROCESS_A_ID].state = STATE_NEW;
+	all_processes[PROCESS_A_ID].block_type = BLOCK_NONE;
+	all_processes[PROCESS_A_ID].pending_sys_call = SYS_CALL_NONE;
+	all_processes[PROCESS_A_ID].is_iprocess = FALSE;
+	// Increment the current_sp as this will the starting point of the stack of the next process
+	current_sp = malloc(all_processes[PROCESS_A_ID].sz_stack) + all_processes[PROCESS_A_ID].sz_stack;//current_sp+all_processes[i].sz_stack ; 
+	all_processes[PROCESS_A_ID].curr_SP = current_sp;
+	all_processes[PROCESS_A_ID].mailbox_head = NULL;
+	all_processes[PROCESS_A_ID].mailbox_tail = NULL;
+
+	// Save the Exceprtion Stack Frame
+	all_processes[PROCESS_A_ID].curr_SP--;
+	*all_processes[PROCESS_A_ID].curr_SP = all_processes[PROCESS_A_ID].entry;
+	all_processes[PROCESS_A_ID].curr_SP--;
+	*all_processes[PROCESS_A_ID].curr_SP = 0x4000 << 16 | U_SR; // Value to be decided by sudhir for User Process
+
+	enqueue(ready_queue , all_processes[PROCESS_A_ID].ID , all_processes[PROCESS_A_ID].priority );
+}
+
+void load_process_B()
+{
+	TRACE("load_kcd_process()\r\n");
+
+	all_processes[PROCESS_B_ID].ID = PROCESS_B_ID;
+	all_processes[PROCESS_B_ID].priority = B_PROCESS_PRIORITY;
+	all_processes[PROCESS_B_ID].sz_stack = 512;
+	all_processes[PROCESS_B_ID].entry = ProcessB;
+	all_processes[PROCESS_B_ID].state = STATE_NEW;
+	all_processes[PROCESS_B_ID].block_type = BLOCK_NONE;
+	all_processes[PROCESS_B_ID].pending_sys_call = SYS_CALL_NONE;
+	all_processes[PROCESS_B_ID].is_iprocess = FALSE;
+	// Increment the current_sp as this will the starting point of the stack of the next process
+	current_sp = malloc(all_processes[PROCESS_B_ID].sz_stack) + all_processes[PROCESS_B_ID].sz_stack;//current_sp+all_processes[i].sz_stack ; 
+	all_processes[PROCESS_B_ID].curr_SP = current_sp;
+	all_processes[PROCESS_B_ID].mailbox_head = NULL;
+	all_processes[PROCESS_B_ID].mailbox_tail = NULL;
+
+	// Save the Exceprtion Stack Frame
+	all_processes[PROCESS_B_ID].curr_SP--;
+	*all_processes[PROCESS_B_ID].curr_SP = all_processes[PROCESS_B_ID].entry;
+	all_processes[PROCESS_B_ID].curr_SP--;
+	*all_processes[PROCESS_B_ID].curr_SP = 0x4000 << 16 | U_SR; // Value to be decided by sudhir for User Process
+
+	enqueue(ready_queue , all_processes[PROCESS_B_ID].ID , all_processes[PROCESS_B_ID].priority );
+}
+
+void load_process_C()
+{
+	TRACE("load_kcd_process()\r\n");
+
+	all_processes[PROCESS_C_ID].ID = PROCESS_C_ID;
+	all_processes[PROCESS_C_ID].priority = C_PROCESS_PRIORITY;
+	all_processes[PROCESS_C_ID].sz_stack = 512;
+	all_processes[PROCESS_C_ID].entry = ProcessC;
+	all_processes[PROCESS_C_ID].state = STATE_NEW;
+	all_processes[PROCESS_C_ID].block_type = BLOCK_NONE;
+	all_processes[PROCESS_C_ID].pending_sys_call = SYS_CALL_NONE;
+	all_processes[PROCESS_C_ID].is_iprocess = FALSE;
+	// Increment the current_sp as this will the starting point of the stack of the next process
+	current_sp = malloc(all_processes[PROCESS_C_ID].sz_stack) + all_processes[PROCESS_C_ID].sz_stack;//current_sp+all_processes[i].sz_stack ; 
+	all_processes[PROCESS_C_ID].curr_SP = current_sp;
+	all_processes[PROCESS_C_ID].mailbox_head = NULL;
+	all_processes[PROCESS_C_ID].mailbox_tail = NULL;
+
+	// Save the Exceprtion Stack Frame
+	all_processes[PROCESS_C_ID].curr_SP--;
+	*all_processes[PROCESS_C_ID].curr_SP = all_processes[PROCESS_C_ID].entry;
+	all_processes[PROCESS_C_ID].curr_SP--;
+	*all_processes[PROCESS_C_ID].curr_SP = 0x4000 << 16 | U_SR; // Value to be decided by sudhir for User Process
+
+	enqueue(ready_queue , all_processes[PROCESS_C_ID].ID , all_processes[PROCESS_C_ID].priority );
+}
+
+
+
+
 void load_test_processes() {
 
 	TRACE("load_test_processes()\r\n");	
@@ -274,12 +359,14 @@ void init_pcb()
 	load_sppc_process();
 	load_wc_process();
 	load_kcd_process();
-
 	load_test_processes();
-
+	
+	load_process_A();
+	load_process_B();
+	load_process_C();
 	//load_sys_process();
 
-//	init_funcs();
+	//	init_funcs();
 
 	uart_init();
 	timer_init();
