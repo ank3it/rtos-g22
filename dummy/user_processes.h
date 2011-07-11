@@ -6,12 +6,12 @@
 extern void ProcessA();
 extern void ProcessB();
 extern void ProcessC();
-extern void enqueue_local_message(envelope *message);
+extern void enqueue_local_message(struct envelope *message);
 
 
 typedef struct temp_msg_queue
 {
-	struct envelope *node;
+	struct envelope *message;
 	struct tmp_msg_queue *next;
 };
 
