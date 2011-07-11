@@ -2,12 +2,14 @@
 #include "envelope.h"
 #include "memory.h"
 #include "malloc.h"
+#include "defs.h"
+#include "process.h"
 
 //added a temporary message queue
-void enqueue_local_message(envelope *message)
+void enqueue_local_message(struct envelope *message)
 {
 	struct temp_msg_queue *new_node = malloc(sizeof(struct temp_msg_queue));
-	new_node->value = message;
+	new_node->message = message;
 
 	if(temp_message_head == NULL)
 	{
@@ -64,28 +66,28 @@ void ProcessA()
 			buffer_index = 0;
 			rtx_dbug_outs(buffer);
 		
-			p = (envelope *)k_receive_message(NULL);
+			p = (struct envelope *)receive_message(NULL);
 			
 			if(buffer[2]== 'Z')
 			{
-				k_release_memory_block((void *)p);
+				release_memory_block((void *)p);
 				break;
 			}
 			else{
-				k_release_memory_block((void *)p);
+				release_memory_block((void *)p);
 			}
 		}
 	}
 	
-	num = 0;
+	int num = 0;
 	while(1)
 	{
-		p = (envelope *)k_request_memory_block();
+		p = (struct envelope *)request_memory_block();
 		p->message_type = COUNT_REPORT;
-		p->data = num;
-		k_send_message(PROCESS_B, p);
+		*(int *)p->message = num;		
+		send_message(PROCESS_B_ID, p);
 		num = num + 1;
-		k_release_processor();
+		release_processor();
 	}
 }
 
@@ -94,8 +96,9 @@ void ProcessB()
 	struct envelope *pB;
 	while(1)
 	{
-		pB = k_receive_message(NULL);
-		k_send_message(PROCESS_C, pB);
+		pB = (struct envelope *) receive_message(NULL);
+		send_message(PROCESS_C_ID, pB);
+		release_memory_block((void *)pB);
 	}
 }
 
@@ -110,7 +113,7 @@ void ProcessC()
 	{
 		if(temp_message_head == NULL)
 		{
-			pC = (envelope *)k_receive_message(NULL);
+			pC = (struct envelope *)receive_message(NULL);
 		}
 		else
 		{
@@ -118,21 +121,21 @@ void ProcessC()
 			temp_message_head = temp_message_head->next;
 		}
 		
-		if(p->message_type == COUNT_REPORT)
+		if(pC->message_type == COUNT_REPORT)
 		{
-			if(msg_data[0] % 20 == 0)
+			if(*(int *)(pC->message) % 20 == 0)
 			{
-				pC = (envelope *)k_request_memory_block();
-				k_send_message(CRT, pC);
+				pC = (struct envelope *)request_memory_block();
+				send_message(CRT_PROCESS_ID, pC);
 				
-				q = (envelope *)k_request_memory_block();
+				q = (struct envelope *)request_memory_block();
 				q->message_type = WAKEUP10;
 				//not sure
-				k_delayed_send(PROCESS_C_ID ,q, 10000);
+				delayed_send(PROCESS_C_ID ,q, 10000);
 				
 				while(1)
 				{
-					pC = (envelope *)k_receive_message(NULL);
+					pC = (struct envelope *)receive_message(NULL);
 					if(pC->message_type = WAKEUP10)
 					{
 						break;
@@ -144,7 +147,7 @@ void ProcessC()
 				}				
 			}
 		}		
-		k_release_memory_block((void *)pC);
-		k_release_processor();
+		release_memory_block((void *)pC);
+		release_processor();
 	}
 }

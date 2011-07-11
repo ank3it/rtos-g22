@@ -46,6 +46,11 @@
 #define KCD_PROCESS_PRIORITY	0
 #define CRT_PROCESS_PRIORITY	0
 
+/*User Process  priority variables */
+#define A_PROCESS_PRIORITY		1
+#define B_PROCESS_PRIORITY		2
+#define C_PROCESS_PRIORITY		3
+
 /* Process states */
 #define STATE_NEW				0
 #define STATE_READY				1
@@ -67,6 +72,10 @@
 #define SYS_CALL_DELAYED_SEND			5
 #define SYS_CALL_SET_PROCESS_PRIORITY	6
 #define SYS_CALL_GET_PROCESS_PRIORITY	7
+
+/* Constants for User Test Processes */
+#define COUNT_REPORT			0
+#define WAKEUP10				1
 
 /* Command identifier used by the KCD */
 #define COMMAND_PROMPT			'%'
