@@ -81,31 +81,8 @@ void test1()
 		TRACE("\r\n--------------------\r\n");
 		TRACE("TEST 1\r\n");
 		TRACE("--------------------\r\n");
-
-		int sender_ID = -1;
-		TRACE("Calling receive_message()\r\n");
-		void * envelope = g_test_fixture.receive_message(&sender_ID);
-		TRACE("sender_ID = ");
-		TRACE(itoa(sender_ID));
-		TRACE("\r\n");
-		TRACE("envelope = ");
-		TRACE(itoa(envelope));
-		TRACE("\r\nvalue at message = ");
-		TRACE(itoa(*(int *)(envelope + 64)));
-		TRACE("\r\n");
-
-		TRACE("Calling receive_message()\r\n");
-		void * envelope2 = g_test_fixture.receive_message(&sender_ID);
-		TRACE("sender_ID = ");
-		TRACE(itoa(sender_ID));
-		TRACE("\r\n");
 		g_test_fixture.release_processor();
-		
-		// TRACE("\r\n--------------------\r\n");
-		// TRACE("TEST 1\r\n");
-		// TRACE("--------------------\r\n");
-		// g_test_fixture.release_processor();
-		// rtx_dbug_outs((CHAR *)"blah1\r\n");
+		//rtx_dbug_outs((CHAR *)"blah1\r\n");
 	}
 }
 
@@ -116,40 +93,17 @@ void test2()
 		TRACE("\r\n--------------------\r\n");
 		TRACE("TEST 2\r\n");
 		TRACE("--------------------\r\n");
-
-		TRACE("Calling request_memory_block()\r\n");
-		void *envelope = g_test_fixture.request_memory_block();
-		TRACE("evelope = ");
-		TRACE(itoa(envelope));
-		int *num = (int *)(envelope + 64);
-		*num = 555;
-		TRACE("\r\nnum = ");
-		TRACE(itoa(*num));
-		TRACE("\r\nCalling send_message()\r\n");
-		//g_test_fixture.delayed_send(1, envelope , 3);
-		g_test_fixture.set_process_priority(1, 1);
-		
-		TRACE("\r\nCalling request_memory_block()\r\n");
-		void *envelope2 = g_test_fixture.request_memory_block();
-		*(int *)(envelope2 + 64) = 123;
-		TRACE("Calling send_message()\r\n");
-		g_test_fixture.send_message(1, envelope2);
-
 		g_test_fixture.release_processor();
-		
-		// TRACE("\r\n--------------------\r\n");
-		// TRACE("TEST 2\r\n");
-		// TRACE("--------------------\r\n");
-		// g_test_fixture.release_processor();
-		// rtx_dbug_outs((CHAR *)"blah2\r\n");
+		//rtx_dbug_outs((CHAR *)"blah2\r\n");
 	}
 }
+
 /* third party dummy test process 3 */ 
 void test3()
 {
+	/*
 	g_test_fixture.set_process_priority(3, 2);
 
-	/* Register keyboard commands */
 	void *mem = g_test_fixture.request_memory_block();
 	*(char *)(mem + 64) = 'X';
 	*(char *)(mem + 65) = '\0';
@@ -160,37 +114,28 @@ void test3()
 	*(char *)(mem + 65) = 'Z';
 	*(char *)(mem + 66) = '\0';
 	g_test_fixture.send_message(KCD_PROCESS_ID, mem);
+	*/
 
 	while(1) {
 		TRACE("\r\n--------------------\r\n");
 		TRACE("TEST 3\r\n");
 		TRACE("--------------------\r\n");
-
-		int sender_ID;
-		void *msg = g_test_fixture.receive_message(&sender_ID);
-
-		TRACE("Received message > ");
-		TRACE((char *)(msg + 64));
-		TRACE(" < from process > ");
-		TRACE(itoa(sender_ID));
-		TRACE(" < \r\n");
-
-		g_test_fixture.release_memory_block(msg);
+		g_test_fixture.request_memory_block();
 		//g_test_fixture.release_processor();
-		////rtx_dbug_outs((CHAR *)"blah3\r\n");
+		//rtx_dbug_outs((CHAR *)"blah3\r\n");
 	}
 }
 
 /* third party dummy test process 4 */ 
 void test4()
 {
-	g_test_fixture.set_process_priority(4, 2);
+	//g_test_fixture.set_process_priority(4, 2);
 	while(1) {
 		TRACE("\r\n--------------------\r\n");
 		TRACE("TEST 4\r\n");
 		TRACE("--------------------\r\n");
 		g_test_fixture.release_processor();
-		////rtx_dbug_outs((CHAR *)"blah4\r\n");
+		//rtx_dbug_outs((CHAR *)"blah4\r\n");
 	}
 }
 /* third party dummy test process 5 */ 
@@ -201,7 +146,7 @@ void test5()
 		TRACE("TEST 5\r\n");
 		TRACE("--------------------\r\n");
 		g_test_fixture.release_processor();
-		////rtx_dbug_outs((CHAR *)"blah5\r\n");
+		//rtx_dbug_outs((CHAR *)"blah5\r\n");
 	}
 }
 /* third party dummy test process 6 */ 
@@ -212,7 +157,7 @@ void test6()
 		TRACE("TEST 6\r\n");
 		TRACE("--------------------\r\n");
 		g_test_fixture.release_processor();
-		////rtx_dbug_outs((CHAR *)"blah6\r\n");
+		//rtx_dbug_outs((CHAR *)"blah6\r\n");
 	}
 }
 

@@ -1,7 +1,7 @@
 #/usr/bin/env python
 import pexpect, sys, os, time, dircache, getpass
 
-TIMEOUT=30
+TIMEOUT=10
 serverfilename = getpass.getuser() + '.s19'
 s19file = 'mdummy.s19'
 
