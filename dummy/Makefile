@@ -9,6 +9,7 @@ CXX=m68k-elf-g++
 CFLAGS= -Wall -m5307 -pipe -nostdlib -D_DEBUG_HOTKEYS_
 #CFLAGS= -Wall -m5307 -pipe -nostdlib -D_DEBUG_
 #CFLAGS= -Wall -m5307 -pipe -nostdlib -D_DEBUG_HOTKEYS_
+CFLAGS= -Wall -m5307 -pipe -nostdlib -D_DEBUG_HOTKEYS_ -D_CFSERVER_
 #CFLAGS= -Wall -m5307 -pipe -nostdlib  -D_DEBUG_ -D_CFSERVER_
 LD=m68k-elf-gcc
 AS=m68k-elf-as
@@ -22,7 +23,7 @@ LDFLAGS_RTX = -Trtx.ld -Wl,-Map=rtx.map
 LDFLAGS_RTX_LOADER = -Trtx_loader.ld -Wl,-Map=rtx_loader.map
 LDFLAGS_RTX_TEST = -Trtx_test.ld -Wl,-Map=rtx_test.map
 
-RTX_OBJS = user_processes.o sppc.o  hotkeys.o d_send_queue.o dbug.o util.o malloc.o queue.o process.o init.o trap.o rtx.o memory.o timer.o uart.o 
+RTX_OBJS = sppc.o hotkeys.o user_processes.o d_send_queue.o dbug.o util.o malloc.o queue.o process.o init.o trap.o rtx.o memory.o timer.o uart.o 
 
 RTX_LOADER_OBJS = dbug.o rtx_loader.o
 RTX_TEST_DUMMY_OBJS = dbug.o rtx_test_dummy.o
