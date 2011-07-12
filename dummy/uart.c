@@ -308,7 +308,8 @@ void kcd_process()
 					}
 				}
 			}
-			else if (buffer_index < KCD_BUFFER_SIZE && *input_char == BKSP)
+			else if (buffer_index < KCD_BUFFER_SIZE 
+				&& (*input_char == BKSP || *input_char == DEL))
 			{
 				/* Delete a character in buffer by decrementing buffer_index */
 				buffer_index = buffer_index > 0 ? --buffer_index : buffer_index;

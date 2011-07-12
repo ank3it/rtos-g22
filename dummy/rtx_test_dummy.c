@@ -13,180 +13,190 @@
 #include "rtx_test.h"
 #include "dbug.h"
 #include "defs.h"
+#include "util.h"
 
-CHAR* itoa(int n)
-{
-	int i, sign;
-	int num_digits = 1;
+int test1_ok = 0;
+int test2_ok = 0;
+int test3_ok = 0;
+int proc3_done = 0;
 
-	/* Get number of digits in n */
-	i = n;
-	do
-	{
-		i /= 10;
-		++num_digits;
-	} while (i != 0);
-
-	/* Record sign, make n positive, increase num_digits */
-	if ((sign = n) < 0)						
-	{		
-		n = -n;
-		++num_digits;
-	}
-
-	/* CHAR array to hold the result */
-	CHAR s[num_digits];
-
-	i = 0;
-	do {
-		s[i++] = n % 10 + '0';
-	} while ((n /= 10) > 0);
-
-	if (sign < 0)
-		s[i++] = '-';				/* Append negative sign */
-
-	s[i] = '\0';					/* Append terminating null char */
-
-	reverse(s, num_digits);
-	
-	return s;
-}
-
-/**
- * @brief: Reverses the given string
- * @param: s String to be reversed
- * @param: length The length of the string
- */
-VOID reverse(CHAR *s, int length)
-{
-	CHAR c;
-	int i = 0;
-	int j = length - 2;
-
-	while (i < j)	
-	{
-		c = s[i];
-		s[i] = s[j];
-		s[j] = c;
-
-		i++;
-		j--;
-	}
-}
-
-/* third party dummy test process 1 */ 
+/* *****************************************************
+ * TEST CASE 1: Testing send/receive message and request
+ * memory block.
+ * *****************************************************/
 void test1()
 {
-	while(1) {
-		/*TRACE("\r\n--------------------\r\n");
-		TRACE("TEST 1\r\n");
-		TRACE("--------------------\r\n");
+	rtx_dbug_outs((CHAR *)"S11G022_test: START\r\n");
+	rtx_dbug_outs((CHAR *)"S11G022_test: total 3 tests\r\n");
 
-		int sender_ID = -1;
-		TRACE("Calling receive_message()\r\n");
-		void * envelope = g_test_fixture.receive_message(&sender_ID);
-		TRACE("sender_ID = ");
-		TRACE(itoa(sender_ID));
-		TRACE("\r\n");
-		TRACE("envelope = ");
-		TRACE(itoa(envelope));
-		TRACE("\r\nvalue at message = ");
-		TRACE(itoa(*(int *)(envelope + 64)));
-		TRACE("\r\n");
+	void *mem_block = g_test_fixture.request_memory_block();
+	*(char *)(mem_block + 64) = 'a';
+	g_test_fixture.send_message(2, mem_block);
 
-		TRACE("Calling receive_message()\r\n");
-		void * envelope2 = g_test_fixture.receive_message(&sender_ID);
-		TRACE("sender_ID = ");
-		TRACE(itoa(sender_ID));
-		TRACE("\r\n");
+	/* Block process */
+	g_test_fixture.receive_message(NULL);
+	
+	while(1) 
+	{
+		/* Should never enter here */
 		g_test_fixture.release_processor();
-		
-		TRACE("\r\n--------------------\r\n");
-		TRACE("TEST 1\r\n");
-		TRACE("--------------------\r\n");
-		g_test_fixture.release_processor();
-		//rtx_dbug_outs((CHAR *)"blah1\r\n");*/
-		
-		TRACE("\r\n--------------------\r\n");
-		TRACE("TEST 1\r\n");
-		TRACE("--------------------\r\n");
-		g_test_fixture.release_processor();
-		//rtx_dbug_outs((CHAR *)"blah1\r\n");
 	}
 }
 
-/* third party dummy test process 2 */ 
 void test2()
 {
-	while(1) {
-		TRACE("\r\n--------------------\r\n");
-		TRACE("TEST 2\r\n");
-		TRACE("--------------------\r\n");
+	int sender_ID = -1;	
+	void *envelope = g_test_fixture.receive_message(&sender_ID);
+	char message = *(char *)(envelope + 64);
+
+	if (sender_ID == 1 && message == 'a')
+	{
+		test1_ok = 1;
+	}
+
+	/* Block process */
+	g_test_fixture.receive_message(NULL);
+
+	while(1) 
+	{
+		/* Should never enter here */
 		g_test_fixture.release_processor();
-		//rtx_dbug_outs((CHAR *)"blah2\r\n");
 	}
 }
 
-/* third party dummy test process 3 */ 
+
+/* *****************************************************
+ * TEST CASE 2: Testing delayed send, set/get process 
+ * priority and preemption.
+ * *****************************************************/
 void test3()
 {
-	/*
-	g_test_fixture.set_process_priority(3, 2);
+	g_test_fixture.set_process_priority(3, 1);
 
-	void *mem = g_test_fixture.request_memory_block();
-	*(char *)(mem + 64) = 'X';
-	*(char *)(mem + 65) = '\0';
-	g_test_fixture.send_message(KCD_PROCESS_ID, mem);
+	if (g_test_fixture.get_process_priority(3) == 1)
+	{
+		void *mem_block = g_test_fixture.request_memory_block();
+		*(char *)(mem_block + 64) = 'b';
+		g_test_fixture.delayed_send(3, mem_block, 5000);
 
-	mem = g_test_fixture.request_memory_block();
-	*(char *)(mem + 64) = 'Y';
-	*(char *)(mem + 65) = 'Z';
-	*(char *)(mem + 66) = '\0';
-	g_test_fixture.send_message(KCD_PROCESS_ID, mem);
-	*/
+		int sender_ID = -1;
+		/* Block this process for the next 5 secs */
+		void *envelope = g_test_fixture.receive_message(&sender_ID);
+		proc3_done == 1;
+		if (sender_ID == 3 && *(char *)(envelope + 64) == 'b')
+		{
+			g_test_fixture.set_process_priority(3, 3);
+			if (g_test_fixture.get_process_priority(3) == 3)
+			{
+				test2_ok = 1;
+			}
+		}
+	}
 
-	while(1) {
-		TRACE("\r\n--------------------\r\n");
-		TRACE("TEST 3\r\n");
-		TRACE("--------------------\r\n");
-		//g_test_fixture.request_memory_block();
+	/* Block process */
+	g_test_fixture.receive_message(NULL);
+
+	while(1) 
+	{
+		/* Should never enter here */
 		g_test_fixture.release_processor();
-		//rtx_dbug_outs((CHAR *)"blah3\r\n");
 	}
 }
 
-/* third party dummy test process 4 */ 
+
+/* *****************************************************
+ * TEST CASE 3: Testing proper stack management through
+ * variables and function calls.
+ * *****************************************************/
 void test4()
 {
-	//g_test_fixture.set_process_priority(4, 2);
-	while(1) {
-		TRACE("\r\n--------------------\r\n");
-		TRACE("TEST 4\r\n");
-		TRACE("--------------------\r\n");
-		g_test_fixture.release_processor();
-		//rtx_dbug_outs((CHAR *)"blah4\r\n");
+	int i = 0;
+	int n = 5;
+
+	g_test_fixture.set_process_priority(4, 2);
+
+	if (g_test_fixture.get_process_priority(4) == 2)
+	{
+		while (i < n)
+			i = add_one(i);
+	}
+
+	if (i == n)
+		test3_ok = 1;
+
+	/* Block process */
+	g_test_fixture.receive_message(NULL);
+
+	while(1) 
+	{
+		/* Should never enter here */
+		g_test_fixture.release_processor(NULL);
 	}
 }
-/* third party dummy test process 5 */ 
+
+int add_one(int num)
+{
+	int result = num++;
+
+	g_test_fixture.release_processor();
+	return result;
+}
+
 void test5()
 {
-	while(1) {
-		TRACE("\r\n--------------------\r\n");
-		TRACE("TEST 5\r\n");
-		TRACE("--------------------\r\n");
+	while(!proc3_done)
+	{
 		g_test_fixture.release_processor();
-		//rtx_dbug_outs((CHAR *)"blah5\r\n");
+	}
+
+	void *mem_block = g_test_fixture.request_memory_block();
+	g_test_fixture.send_message(6, mem_block);
+
+	while (1)
+	{
+		g_test_fixture.release_processor();
 	}
 }
-/* third party dummy test process 6 */ 
+
+
+/* *****************************************************
+ * Output results to janusROM terminal
+ * *****************************************************/
 void test6()
 {
+	/* Block process 6 until other processes finish running */
+	g_test_fixture.receive_message(NULL);
+
+	if (test1_ok)
+		rtx_dbug_outs((CHAR *)"S11G022_test: test 1 OK\r\n");
+	else
+		rtx_dbug_outs((CHAR *)"S11G022_test: test 1 FAIL\r\n");
+
+	if (test2_ok)
+		rtx_dbug_outs((CHAR *)"S11G022_test: test 2 OK\r\n");
+	else
+		rtx_dbug_outs((CHAR *)"S11G022_test: test 2 FAIL\r\n");
+
+	if (test3_ok)
+		rtx_dbug_outs((CHAR *)"S11G022_test: test 3 ok\r\n");
+	else
+		rtx_dbug_outs((CHAR *)"S11G022_test: test 3 FAIL\r\n");
+
+	int num_tests_ok = test1_ok + test2_ok + test3_ok;
+	int num_tests_fail = 3 - num_tests_ok;
+
+	rtx_dbug_outs((CHAR *)"S11G022_test: ");
+	rtx_dbug_outs((CHAR *)itoa(num_tests_ok));
+	rtx_dbug_outs((CHAR *)"/3 tests OK\r\n");
+
+	rtx_dbug_outs((CHAR *)"S11G022_test: ");
+	rtx_dbug_outs((CHAR *)itoa(num_tests_fail));
+	rtx_dbug_outs((CHAR *)"/3 tests FAIL\r\n");
+	
+	rtx_dbug_outs((CHAR *)"S11G022_test: END\r\n");
+
 	while(1) {
-		TRACE("\r\n--------------------\r\n");
-		TRACE("TEST 6\r\n");
-		TRACE("--------------------\r\n");
 		g_test_fixture.release_processor();
-		//rtx_dbug_outs((CHAR *)"blah6\r\n");
 	}
 }
 
