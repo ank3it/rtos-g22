@@ -53,6 +53,7 @@
 
 
 #define ESC                 0x1B
+#define DEL					0x7F
 #define BKSP                '\b'
 #define CR                  '\r'
 #define LF                  '\n'

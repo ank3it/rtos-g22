@@ -26,7 +26,7 @@ LDFLAGS_RTX_TEST = -Trtx_test.ld -Wl,-Map=rtx_test.map
 RTX_OBJS = sppc.o hotkeys.o user_processes.o d_send_queue.o dbug.o util.o malloc.o queue.o process.o init.o trap.o rtx.o memory.o timer.o uart.o 
 
 RTX_LOADER_OBJS = dbug.o rtx_loader.o
-RTX_TEST_DUMMY_OBJS = dbug.o rtx_test_dummy.o
+RTX_TEST_DUMMY_OBJS = util.o dbug.o rtx_test_dummy.o
 
 all: mdummy.s19
 
