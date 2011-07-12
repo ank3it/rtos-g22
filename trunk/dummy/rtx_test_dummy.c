@@ -105,13 +105,13 @@ void test1()
 		TRACE("TEST 1\r\n");
 		TRACE("--------------------\r\n");
 		g_test_fixture.release_processor();
-		rtx_dbug_outs((CHAR *)"blah1\r\n");*/
+		//rtx_dbug_outs((CHAR *)"blah1\r\n");*/
 		
 		TRACE("\r\n--------------------\r\n");
 		TRACE("TEST 1\r\n");
 		TRACE("--------------------\r\n");
 		g_test_fixture.release_processor();
-		rtx_dbug_outs((CHAR *)"blah1\r\n");
+		//rtx_dbug_outs((CHAR *)"blah1\r\n");
 	}
 }
 
@@ -123,7 +123,7 @@ void test2()
 		TRACE("TEST 2\r\n");
 		TRACE("--------------------\r\n");
 		g_test_fixture.release_processor();
-		rtx_dbug_outs((CHAR *)"blah2\r\n");
+		//rtx_dbug_outs((CHAR *)"blah2\r\n");
 	}
 }
 
@@ -151,7 +151,7 @@ void test3()
 		TRACE("--------------------\r\n");
 		//g_test_fixture.request_memory_block();
 		g_test_fixture.release_processor();
-		rtx_dbug_outs((CHAR *)"blah3\r\n");
+		//rtx_dbug_outs((CHAR *)"blah3\r\n");
 	}
 }
 
@@ -164,7 +164,7 @@ void test4()
 		TRACE("TEST 4\r\n");
 		TRACE("--------------------\r\n");
 		g_test_fixture.release_processor();
-		rtx_dbug_outs((CHAR *)"blah4\r\n");
+		//rtx_dbug_outs((CHAR *)"blah4\r\n");
 	}
 }
 /* third party dummy test process 5 */ 
@@ -175,7 +175,7 @@ void test5()
 		TRACE("TEST 5\r\n");
 		TRACE("--------------------\r\n");
 		g_test_fixture.release_processor();
-		rtx_dbug_outs((CHAR *)"blah5\r\n");
+		//rtx_dbug_outs((CHAR *)"blah5\r\n");
 	}
 }
 /* third party dummy test process 6 */ 
@@ -186,7 +186,7 @@ void test6()
 		TRACE("TEST 6\r\n");
 		TRACE("--------------------\r\n");
 		g_test_fixture.release_processor();
-		rtx_dbug_outs((CHAR *)"blah6\r\n");
+		//rtx_dbug_outs((CHAR *)"blah6\r\n");
 	}
 }
 
@@ -195,12 +195,12 @@ void __attribute__ ((section ("__REGISTER_TEST_PROCS__")))register_test_proc()
 {
     int i;
 
-    //////rtx_dbug_outs((CHAR *)"rtx_test: register_test_proc()\r\n");
+    ////////rtx_dbug_outs((CHAR *)"rtx_test: register_test_proc()\r\n");
 
     for (i =0; i< NUM_TEST_PROCS; i++ ) {
         g_test_proc[i].pid = i + 1;
         g_test_proc[i].priority = 3;
-        g_test_proc[i].sz_stack = 2048;
+        g_test_proc[i].sz_stack = 512;
     }
     g_test_proc[0].entry = test1;
     g_test_proc[1].entry = test2;
@@ -216,6 +216,6 @@ void __attribute__ ((section ("__REGISTER_TEST_PROCS__")))register_test_proc()
  */
 int main(void)
 {
-    //////rtx_dbug_outs((CHAR *)"rtx_test: started\r\n");
+    ////////rtx_dbug_outs((CHAR *)"rtx_test: started\r\n");
     return 0;
 }

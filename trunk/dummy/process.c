@@ -241,6 +241,8 @@ void load_context(int process_ID)
 
 struct process * get_proc(int process_ID)
 {
+	if ( process_ID >= NUM_PROCS && process_ID < 0 ) 
+		return NULL;
 	return &(all_processes[process_ID]);
 }
 
@@ -253,7 +255,10 @@ struct process * get_proc(int process_ID)
 int k_set_process_priority(int process_ID, int priority)
 {
 	TRACE("k_set_process_priority()\r\n" );
-
+	
+	if ( process_ID >= NUM_PROCS && process_ID <= 0 ) 
+		return RTX_ERROR;
+		
 	/* Check for invalid priorities */
 	if (priority > PRIORITY_3 || priority < PRIORITY_0)
 		return RTX_ERROR;
@@ -303,7 +308,7 @@ int k_get_process_priority(int process_ID)
  */
 int k_send_message(int process_ID, void *message_envelope)
 {
-	TRACE("k_send_message()\r\n");
+	//rtx_dbug_outs("k_send_message()\r\n");
 	/* Check if given parameters are invalid */
 	if (process_ID < 0 || process_ID > NUM_PROCS ||  message_envelope == NULL)
 		return RTX_ERROR;

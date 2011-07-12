@@ -179,7 +179,6 @@ VOID c_timer_handler( VOID )
 	
 	if ( delayed_send_queue->head != NULL ) {
 	if ( delayed_send_queue->head->delay < Counter2 ) {
-		rtx_dbug_outs (" In Timer Int " );
 		int process_ID = delayed_send_queue->head->process_ID ;
 		int sender_ID = delayed_send_queue->head->sender_id;
 		void * MessageEnvelope = delayed_send_queue->head->MessageEnvelope;

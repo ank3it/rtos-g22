@@ -47,9 +47,9 @@
 #define CRT_PROCESS_PRIORITY	0
 
 /*User Process  priority variables */
-#define A_PROCESS_PRIORITY		1
+#define A_PROCESS_PRIORITY		2
 #define B_PROCESS_PRIORITY		2
-#define C_PROCESS_PRIORITY		3
+#define C_PROCESS_PRIORITY		1
 
 /* Process states */
 #define STATE_NEW				0

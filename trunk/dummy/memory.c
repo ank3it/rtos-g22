@@ -50,7 +50,7 @@ void* k_request_memory_block()
 	void* returnVal = *tail;
 	//rtx_dbug_outs(itoa(running_process->ID));
 	//rtx_dbug_outs(" ");
-	if ( tail == head  || ( running_process->ID < 10 && CountUserMemBlock >= MAX_USER_MEM_BLKS ) ) {
+	if ( tail == head ) {
 		block_running_process(BLOCK_MEMORY);
 		return 0;
 	}

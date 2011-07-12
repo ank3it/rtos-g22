@@ -26,7 +26,7 @@ void enqueue_local_message(struct envelope *message)
 void ProcessA()
 {
 	struct envelope *p;
-	p = request_memory_block();
+	//p = request_memory_block();
 
 	//z-command declaration 
 	
@@ -69,30 +69,31 @@ void ProcessA()
 			if(buffer[1]== 'Z')
 			{				
 				release_memory_block((void *)envelope);
-				rtx_dbug_outs("Process A's new sender ID: ");
+				rtx_dbug_outs("Process A's exting ");
 				rtx_dbug_outs(itoa(sender_ID));
 				rtx_dbug_outs("\r\n");
 				break;
 			}
 			else{
 				release_memory_block((void *)envelope);
-				rtx_dbug_outs("Process A's new sender ID: ");
-				rtx_dbug_outs(itoa(sender_ID));
-				rtx_dbug_outs("\r\n");
+				rtx_dbug_outs("Process A's  ");
 			}
 		}			
 	}
 	
 	int num = 0;
+	struct envelope *envelope;
 	while(TRUE)
 	{
-		struct envelope *envelope = (struct envelope *)request_memory_block();
+		envelope = (struct envelope *)request_memory_block();
 		envelope->message_type = COUNT_REPORT;
-		rtx_dbug_outs(" In process A part 2 \r\n");
-		*(int *)envelope->message = num;		
+		//rtx_dbug_outs("Process A's exting 3");
+		*(int *)((((char *)(envelope))) + 64 ) = num;
+		//rtx_dbug_outs("Process A's exting 2");
+		//*(int *)envelope->message = num;		
 		send_message(PROCESS_B_ID, envelope);
 		num = num + 1;
-		rtx_dbug_outs(itoa(num));
+		//rtx_dbug_outs(itoa(num));
 		release_processor();
 	}
 }
@@ -102,6 +103,7 @@ void ProcessB()
 	struct envelope *pB;
 	while(1)
 	{
+		//rtx_dbug_outs ( " In process B \r\n");
 		pB = (struct envelope *) receive_message(NULL);
 		send_message(PROCESS_C_ID, pB);
 		//release_memory_block((void *)pB);
@@ -122,18 +124,29 @@ void ProcessC()
 			pC = (struct envelope *)receive_message(NULL);
 		}
 		else
-		{
-			pC = temp_message_head;
+		{	
+			pC = temp_message_head->message;
+			//free(temp_message_head);
 			temp_message_head = temp_message_head->next;
 		}
-		
 		if(pC->message_type == COUNT_REPORT)
 		{
-			if(*(int *)(pC->message) % 20 == 0)
+			rtx_dbug_outs ( itoa(*(int *)((((char *)(pC))) + 64 )));
+			rtx_dbug_outs ( " In process C5 \r\n");
+			if(*(int *)((((char *)(pC))) + 64 )% 20 == 0)
 			{
-				pC = (struct envelope *)request_memory_block();
+				rtx_dbug_outs ( " In process C6 \r\n");
+						char timeStr[] = "Process C"; 
+						int i = 0;
+						//void *pC1 = request_memory_block();
+						for ( i = 0 ; i < 12 ; i++ ) {
+							*((((char *)(pC))) + i + 64 ) = timeStr[i];
+						}
+
+				//pC->message = "Process C";
 				send_message(CRT_PROCESS_ID, pC);
 				
+				// HIBERNATE START
 				q = (struct envelope *)request_memory_block();
 				q->message_type = WAKEUP10;
 				//not sure
@@ -142,15 +155,18 @@ void ProcessC()
 				while(1)
 				{
 					pC = (struct envelope *)receive_message(NULL);
-					if(pC->message_type = WAKEUP10)
+					if(pC->message_type == WAKEUP10)
 					{
+						rtx_dbug_outs ( " IN WAKE UP 10 \r\n");
 						break;
 					}
 					else
 					{
 						enqueue_local_message(pC);
 					}
-				}				
+				}
+
+				// HIBERNATE END	
 			}
 		}		
 		release_memory_block((void *)pC);

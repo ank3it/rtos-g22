@@ -50,10 +50,15 @@ void set_priority_process()
 			{
 				process_id = atoi(&buffer[3]);
 				rtx_dbug_outs(itoa(process_id));
-				priority = atoi(&buffer[5]);
+				if ( process_id > 9 ) {
+					priority = atoi(&buffer[6]);
+				}
+				else {
+					priority = atoi(&buffer[5]);
+					}
 				rtx_dbug_outs(itoa(priority));
 				rtx_dbug_outs(" \r\n");
-				if(process_id >= 0 && priority >= 0 && priority < 4)
+				if(process_id >= 0 && priority >= 0 && priority < 4 && process_id < NUM_PROCS)
 				{
 					rtx_dbug_outs("Inputed values are valid");
 					rtx_dbug_outs("\r\n");
