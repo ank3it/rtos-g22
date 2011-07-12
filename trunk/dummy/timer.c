@@ -49,7 +49,7 @@ void wc_process()
 		
 		rtx_dbug_outs(" In KCD \r\n");
 		rtx_dbug_outs(itoa(sender_ID));
-		if ( envelope->message != NULL ) {
+		if ( sender_ID == KCD_PROCESS_ID ) {
 		
 			rtx_dbug_outs(" In KCD \r\n");
 			/* Extract character(s) from message */
@@ -76,15 +76,15 @@ void wc_process()
 				rtx_dbug_outs(" Yes in S \r\n");
 				WC_Active = 1;
 				
-				hours = atoi(buffer[4]);
+				hours = atoi(&buffer[4]);
 				if ( buffer[6] != ':' ) {				
 					WC_Active = 0;
 				}
-				mins = atoi(buffer[7]);
+				mins = atoi(&buffer[7]);
 				if ( buffer[9] != ':' ) {				
 					WC_Active = 0;
 				}
-				secs = atoi(buffer[10]);
+				secs = atoi(&buffer[10]);
 				
 				if ( hours < 0 || hours > 23 || mins < 0 || mins > 60 || secs < 0 || secs > 60 ) {				
 					WC_Active = 0;
@@ -120,7 +120,7 @@ void wc_process()
 
 		void *envelope2 = request_memory_block();
 		*(char *)(envelope2 + 64) = NULL;
-		delayed_send(WC_PROCESS_ID, envelope2 , 950);
+		delayed_send(WC_PROCESS_ID, envelope2 , 975);
 		Counter++;
 		
 		// To FIX
@@ -171,7 +171,7 @@ void wc_process()
  */
 VOID c_timer_handler( VOID )
 {
-	Counter2 += 10;
+	Counter2 += 1;//;
 	TIMER0_TER = 2;/* Acknowledge interrupt */ 
 	// Load timer - i process
 	
@@ -220,8 +220,8 @@ VOID c_timer_handler( VOID )
 	}	
 	
 	    //TIMER0_TRR = 0x6DDD;
-	//TIMER0_TRR = 0x01C2;
-	TIMER0_TRR = 0x1194;
+	TIMER0_TRR = 0x01C2;
+	//TIMER0_TRR = 0x1194;
 
     /*
      * Setup the timer prescaler and stuff
@@ -318,8 +318,8 @@ void timer_init( void )
      * Set the reference counts, ~10ms
      */
     //TIMER0_TRR = 0x6DDD;
-	//TIMER0_TRR = 0x01C2;
-	TIMER0_TRR = 0x1194;
+	TIMER0_TRR = 0x01C2;
+	//TIMER0_TRR = 0x1194;
 
     /*
      * Setup the timer prescaler and stuff

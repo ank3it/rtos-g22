@@ -60,9 +60,7 @@ int atoi(char s[]) {
 	int a;
 	while(s[i])
 	{
-		rtx_dbug_outs(" WTF \r\n");
 		char b = s[i];
-		rtx_dbug_out_char(b);
 		switch (b) {
 		 case '0' : a = 0; break;
 		 case '1' : a = 1; break;
@@ -80,7 +78,6 @@ int atoi(char s[]) {
 			break;
 		}
 		num++;
-		rtx_dbug_outs(" WTF2 \r\n");
 		returnVal = returnVal * 10 + a;
 		i++;
 	}

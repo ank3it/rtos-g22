@@ -78,34 +78,40 @@ VOID reverse(CHAR *s, int length)
 void test1()
 {
 	while(1) {
-		// TRACE("\r\n--------------------\r\n");
-		// TRACE("TEST 1\r\n");
-		// TRACE("--------------------\r\n");
+		/*TRACE("\r\n--------------------\r\n");
+		TRACE("TEST 1\r\n");
+		TRACE("--------------------\r\n");
 
-		// int sender_ID = -1;
-		// TRACE("Calling receive_message()\r\n");
-		// void * envelope = g_test_fixture.receive_message(&sender_ID);
-		// TRACE("sender_ID = ");
-		// TRACE(itoa(sender_ID));
-		// TRACE("\r\n");
-		// TRACE("envelope = ");
-		// TRACE(itoa(envelope));
-		// TRACE("\r\nvalue at message = ");
-		// TRACE(itoa(*(int *)(envelope + 64)));
-		// TRACE("\r\n");
+		int sender_ID = -1;
+		TRACE("Calling receive_message()\r\n");
+		void * envelope = g_test_fixture.receive_message(&sender_ID);
+		TRACE("sender_ID = ");
+		TRACE(itoa(sender_ID));
+		TRACE("\r\n");
+		TRACE("envelope = ");
+		TRACE(itoa(envelope));
+		TRACE("\r\nvalue at message = ");
+		TRACE(itoa(*(int *)(envelope + 64)));
+		TRACE("\r\n");
 
-		// TRACE("Calling receive_message()\r\n");
-		// void * envelope2 = g_test_fixture.receive_message(&sender_ID);
-		// TRACE("sender_ID = ");
-		// TRACE(itoa(sender_ID));
-		// TRACE("\r\n");
-		// g_test_fixture.release_processor();
+		TRACE("Calling receive_message()\r\n");
+		void * envelope2 = g_test_fixture.receive_message(&sender_ID);
+		TRACE("sender_ID = ");
+		TRACE(itoa(sender_ID));
+		TRACE("\r\n");
+		g_test_fixture.release_processor();
 		
 		TRACE("\r\n--------------------\r\n");
 		TRACE("TEST 1\r\n");
 		TRACE("--------------------\r\n");
 		g_test_fixture.release_processor();
-		//rtx_dbug_outs((CHAR *)"blah1\r\n");
+		rtx_dbug_outs((CHAR *)"blah1\r\n");*/
+		
+		TRACE("\r\n--------------------\r\n");
+		TRACE("TEST 1\r\n");
+		TRACE("--------------------\r\n");
+		g_test_fixture.release_processor();
+		rtx_dbug_outs((CHAR *)"blah1\r\n");
 	}
 }
 
@@ -117,7 +123,7 @@ void test2()
 		TRACE("TEST 2\r\n");
 		TRACE("--------------------\r\n");
 		g_test_fixture.release_processor();
-		//rtx_dbug_outs((CHAR *)"blah2\r\n");
+		rtx_dbug_outs((CHAR *)"blah2\r\n");
 	}
 }
 
@@ -143,9 +149,9 @@ void test3()
 		TRACE("\r\n--------------------\r\n");
 		TRACE("TEST 3\r\n");
 		TRACE("--------------------\r\n");
-		g_test_fixture.request_memory_block();
-		//g_test_fixture.release_processor();
-		//rtx_dbug_outs((CHAR *)"blah3\r\n");
+		//g_test_fixture.request_memory_block();
+		g_test_fixture.release_processor();
+		rtx_dbug_outs((CHAR *)"blah3\r\n");
 	}
 }
 
@@ -158,7 +164,7 @@ void test4()
 		TRACE("TEST 4\r\n");
 		TRACE("--------------------\r\n");
 		g_test_fixture.release_processor();
-		//rtx_dbug_outs((CHAR *)"blah4\r\n");
+		rtx_dbug_outs((CHAR *)"blah4\r\n");
 	}
 }
 /* third party dummy test process 5 */ 
@@ -169,7 +175,7 @@ void test5()
 		TRACE("TEST 5\r\n");
 		TRACE("--------------------\r\n");
 		g_test_fixture.release_processor();
-		//rtx_dbug_outs((CHAR *)"blah5\r\n");
+		rtx_dbug_outs((CHAR *)"blah5\r\n");
 	}
 }
 /* third party dummy test process 6 */ 
@@ -180,7 +186,7 @@ void test6()
 		TRACE("TEST 6\r\n");
 		TRACE("--------------------\r\n");
 		g_test_fixture.release_processor();
-		//rtx_dbug_outs((CHAR *)"blah6\r\n");
+		rtx_dbug_outs((CHAR *)"blah6\r\n");
 	}
 }
 
