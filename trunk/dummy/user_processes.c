@@ -26,7 +26,7 @@ void enqueue_local_message(struct envelope *message)
 void ProcessA()
 {
 	struct envelope *p;
-	p = k_request_memory_block();
+	p = request_memory_block();
 
 	//z-command declaration 
 	
@@ -34,6 +34,9 @@ void ProcessA()
 	*(char *)(mem_block2 + 64) = 'Z';
 	*(char *)(mem_block2 + 65) = '\0';	
 	send_message(KCD_PROCESS_ID , mem_block2);
+	
+	int sender_ID = -1;
+	
 
 	///
 	//not sure about the commands yet
@@ -41,16 +44,14 @@ void ProcessA()
 	
 	while(TRUE)
 	{
-		
-		int sender_ID = -1;
-		
 		struct envelope *envelope  = receive_message(&sender_ID);
 		
-		rtx_dbug_outs(" In KCD \r\n");
+		rtx_dbug_outs("In process A. Sender ID is: ");
 		rtx_dbug_outs(itoa(sender_ID));
+		rtx_dbug_outs("\r\n");
 		if ( envelope->message != NULL ) {
 			
-			rtx_dbug_outs(" In KCD \r\n");
+			rtx_dbug_outs("Got message \r\n");
 			/* Extract character(s) from message */
 			char buffer[KCD_BUFFER_SIZE];
 			int buffer_index = 0;
@@ -58,7 +59,6 @@ void ProcessA()
 			while (*(char *)(envelope->message + buffer_index) != '\0')
 			{
 				buffer[buffer_index] = *(char *)(envelope->message + buffer_index);
-				rtx_dbug_outs(buffer[buffer_index]);
 				buffer_index++;
 			}
 			
@@ -66,27 +66,33 @@ void ProcessA()
 			buffer_index = 0;
 			rtx_dbug_outs(buffer);
 		
-			p = (struct envelope *)receive_message(NULL);
-			
-			if(buffer[2]== 'Z')
-			{
-				release_memory_block((void *)p);
+			if(buffer[1]== 'Z')
+			{				
+				release_memory_block((void *)envelope);
+				rtx_dbug_outs("Process A's new sender ID: ");
+				rtx_dbug_outs(itoa(sender_ID));
+				rtx_dbug_outs("\r\n");
 				break;
 			}
 			else{
-				release_memory_block((void *)p);
+				release_memory_block((void *)envelope);
+				rtx_dbug_outs("Process A's new sender ID: ");
+				rtx_dbug_outs(itoa(sender_ID));
+				rtx_dbug_outs("\r\n");
 			}
-		}
+		}			
 	}
 	
 	int num = 0;
-	while(1)
+	while(TRUE)
 	{
-		p = (struct envelope *)request_memory_block();
-		p->message_type = COUNT_REPORT;
-		*(int *)p->message = num;		
-		send_message(PROCESS_B_ID, p);
+		struct envelope *envelope = (struct envelope *)request_memory_block();
+		envelope->message_type = COUNT_REPORT;
+		rtx_dbug_outs(" In process A part 2 \r\n");
+		*(int *)envelope->message = num;		
+		send_message(PROCESS_B_ID, envelope);
 		num = num + 1;
+		rtx_dbug_outs(itoa(num));
 		release_processor();
 	}
 }
@@ -98,7 +104,7 @@ void ProcessB()
 	{
 		pB = (struct envelope *) receive_message(NULL);
 		send_message(PROCESS_C_ID, pB);
-		release_memory_block((void *)pB);
+		//release_memory_block((void *)pB);
 	}
 }
 
