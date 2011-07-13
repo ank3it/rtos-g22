@@ -53,6 +53,8 @@ void test2()
 	{
 		test1_ok = 1;
 	}
+	
+	g_test_fixture.release_memory_block (envelope);
 
 	/* Block process */
 	g_test_fixture.receive_message(NULL);
@@ -82,7 +84,8 @@ void test3()
 		int sender_ID = -1;
 		/* Block this process for the next 5 secs */
 		void *envelope = g_test_fixture.receive_message(&sender_ID);
-		proc3_done == 1;
+		rtx_dbug_outs(" Things work ");
+		proc3_done = 1;
 		if (sender_ID == 3 && *(char *)(envelope + 64) == 'b')
 		{
 			g_test_fixture.set_process_priority(3, 3);
@@ -91,6 +94,7 @@ void test3()
 				test2_ok = 1;
 			}
 		}
+		g_test_fixture.release_memory_block (envelope);
 	}
 
 	/* Block process */
@@ -103,6 +107,12 @@ void test3()
 	}
 }
 
+int add_one(int num)
+{
+	int result = num + 1;
+	//g_test_fixture.release_processor();
+	return result;
+}
 
 /* *****************************************************
  * TEST CASE 3: Testing proper stack management through
@@ -117,12 +127,15 @@ void test4()
 
 	if (g_test_fixture.get_process_priority(4) == 2)
 	{
-		while (i < n)
+		while (i < n) {
 			i = add_one(i);
+			}
 	}
 
 	if (i == n)
 		test3_ok = 1;
+	
+	g_test_fixture.set_process_priority(4, 3);	
 
 	/* Block process */
 	g_test_fixture.receive_message(NULL);
@@ -134,14 +147,6 @@ void test4()
 	}
 }
 
-int add_one(int num)
-{
-	int result = num++;
-
-	g_test_fixture.release_processor();
-	return result;
-}
-
 void test5()
 {
 	while(!proc3_done)
@@ -151,6 +156,7 @@ void test5()
 
 	void *mem_block = g_test_fixture.request_memory_block();
 	g_test_fixture.send_message(6, mem_block);
+	g_test_fixture.release_memory_block (mem_block);
 
 	while (1)
 	{
@@ -165,7 +171,8 @@ void test5()
 void test6()
 {
 	/* Block process 6 until other processes finish running */
-	g_test_fixture.receive_message(NULL);
+	void *mem_block = g_test_fixture.receive_message(NULL);
+	g_test_fixture.release_memory_block (mem_block);
 
 	if (test1_ok)
 		rtx_dbug_outs((CHAR *)"S11G022_test: test 1 OK\r\n");
@@ -178,7 +185,7 @@ void test6()
 		rtx_dbug_outs((CHAR *)"S11G022_test: test 2 FAIL\r\n");
 
 	if (test3_ok)
-		rtx_dbug_outs((CHAR *)"S11G022_test: test 3 ok\r\n");
+		rtx_dbug_outs((CHAR *)"S11G022_test: test 3 OK\r\n");
 	else
 		rtx_dbug_outs((CHAR *)"S11G022_test: test 3 FAIL\r\n");
 
@@ -186,11 +193,33 @@ void test6()
 	int num_tests_fail = 3 - num_tests_ok;
 
 	rtx_dbug_outs((CHAR *)"S11G022_test: ");
-	rtx_dbug_outs((CHAR *)itoa(num_tests_ok));
+	if ( num_tests_ok == 0 ) {
+		rtx_dbug_outs((CHAR *)"0");
+		}
+	if ( num_tests_ok == 1 ) {
+		rtx_dbug_outs((CHAR *)"1");
+		}	
+	if ( num_tests_ok == 2 ) {
+		rtx_dbug_outs((CHAR *)"2");
+		}
+	if ( num_tests_ok == 3 ) {
+		rtx_dbug_outs((CHAR *)"3");
+		}		
 	rtx_dbug_outs((CHAR *)"/3 tests OK\r\n");
 
 	rtx_dbug_outs((CHAR *)"S11G022_test: ");
-	rtx_dbug_outs((CHAR *)itoa(num_tests_fail));
+	if ( num_tests_fail == 0 ) {
+		rtx_dbug_outs((CHAR *)"0");
+		}
+	if ( num_tests_fail == 1 ) {
+		rtx_dbug_outs((CHAR *)"1");
+		}	
+	if ( num_tests_fail == 2 ) {
+		rtx_dbug_outs((CHAR *)"2");
+		}
+	if ( num_tests_fail == 3 ) {
+		rtx_dbug_outs((CHAR *)"3");
+		}
 	rtx_dbug_outs((CHAR *)"/3 tests FAIL\r\n");
 	
 	rtx_dbug_outs((CHAR *)"S11G022_test: END\r\n");
@@ -204,6 +233,10 @@ void test6()
 void __attribute__ ((section ("__REGISTER_TEST_PROCS__")))register_test_proc()
 {
     int i;
+	 test1_ok = 0;
+	 test2_ok = 0;
+	 test3_ok = 0;
+	 proc3_done = 0;
 
     ////////rtx_dbug_outs((CHAR *)"rtx_test: register_test_proc()\r\n");
 
