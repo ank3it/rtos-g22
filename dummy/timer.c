@@ -120,7 +120,7 @@ void wc_process()
 
 		void *envelope2 = request_memory_block();
 		*(char *)(envelope2 + 64) = NULL;
-		delayed_send(WC_PROCESS_ID, envelope2 , 975);
+		delayed_send(WC_PROCESS_ID, envelope2 , 1000);
 		Counter++;
 		
 		// To FIX
